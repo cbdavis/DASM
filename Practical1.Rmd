@@ -1,0 +1,423 @@
+---
+title: "DASM Practical 1"
+author: "Chris Davis"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+options(stringsAsFactors = FALSE)
+library(knitr)
+```
+
+# TODO still need to cover
+* Some sort of exercise for the students (with dataset x, do y,z)
+* calculate mean in row/column directions (rowMeans, rowSums, etc)
+* `setwd`
+
+# What/Why?
+
+[R is a language and environment for statistical computing and graphics.](https://www.r-project.org/about.html)
+
+In more practical terms:
+
+* It's a digital swiss army knife
+* It's free - just download and get started, no license, no trial period
+* There's a huge community behind it
+    * For even the weirdest problems you run into, you can Google it and usually find a solution (probably on [stackoverflow](http://stackoverflow.com/questions/tagged/r)). 
+* You don't have write to code that others have already created (stand on the shoulders of giants)
+    * There are over [9000 contributed packages covering a variety of topics](https://cran.r-project.org/web/views/). This means that for a lot of different applications and scientific domains, someone has already created something that you can re-use. This minimizes the amount of work you have to do, while allowing you to do much more sophisticated analysis.
+    * Package management - you don't have to copy/paste this code. It's managed so that you just have to call the name of the package. You can also have R update every single package that you have installed, in order to get the latest bug fixes, enhancements, etc. 
+* It lets you create repeatable workflows
+    * Have new data? Just run the code again to generate plots + images for reports
+* Use of open source & open standards
+    * Researchers can inspect the source code and report errors to the developers, meaning that the process of finding and fixing bugs in the software is more transparent and efficient.
+    * Open standards allow for data portability between a variety of programs, so you're not limited to just using proprietary programs. This can give you greater flexibility in the types of tools you use.
+
+You should realize that [Spreadsheets are Code](http://www.slideshare.net/Felienne/spreadsheets-are-code-online)
+
+```
+=SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,MATCH($AL$7&$AL$6,$data.$A$1:$AMJ$1,0)-29,1,2))/1000+SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,RIGHT(V$53,2)*8-7,1,2))/1000-SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,MATCH($AL$7&$AL$6,$data.$A$1:$AMJ$1,0)-37,1,2))/1000`
+```
+
+Spreadsheets create a soup of data storage, processing and presentation (i.e. numbers, formulas and graphs).  This hinders transparency and as spreadsheets get more complex, it becomes very difficult to trace how the data analysis is actually done.
+
+
+# First Steps
+
+## Setting up R and RStudio
+
+### University Computer
+On the university computers you should be able to find RStudio in the Start Menu by looking for `Mathematics & Statistics` -> `R`.  If there are several versions, just pick the one with the highest version number.  **You should not have to install R or RStudio on the university computers.**
+
+### Personal Computer
+On your own computer you will have to **install both R and RStudio**
+
+* Download and install R for either [Windows](https://cran.r-project.org/bin/windows/base/), [Mac OS X](https://cran.r-project.org/bin/macosx/) or [Linux](http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux/)
+* [Download and install RStudio](https://www.rstudio.com/products/rstudio/download/)
+
+### Open RStudio
+
+Once you open up RStudio, you'll see that it has four panels, which are:
+
+**Top Left** - Code - here you can open and work on different script files
+
+**Top Right** - Environment/History
+
+* This shows all the variables and functions that are currently loaded in the workspace (the "**Environment**")
+* You can click on the variables to see their values, which can be useful to inspect how the code is operating.
+* The **History** shows all of the commands that you have run.
+
+**Bottom Left** - Console
+
+* R commands can be run here
+* You can also find documentation for commands by typing in ?commandName to get help, i.e. if you type `?sum` you'll see the documentation for the `sum` function.
+
+**Bottom Right** - Files/Plots/Packages/Help
+
+* **Files** - This shows everything in your current working directory
+* **Plots** - Once you start plotting, multiple plots will be stored here.  There are arrows in this view that allow you to navigate  between multiple plots
+* **Packages** - Shows all the packages installed and currently loaded
+* **Help** - Shows documentation for various functions.  
+
+You can run lines of code by highlighting them, and then clicking on "Run" above.
+You can run all the code at once by doing Code -> Run Region -> Run All
+
+### Install Required Packages
+
+Once R and RStudio is installed, **open up RStudio and install the necessary packages for R**.  Note that with R, the word "package" and "library" are often used interchangeably.  We'll need two packages:
+
+* [ggplot2](http://docs.ggplot2.org/current/) - this will be used to do most of the plotting.
+* [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) - slice & dice data & perform complex operations with minimal code
+
+#### Installation Steps
+
+* In the bottom right quadrant of RStudio, locate the `Packages` tab, and click on `Install`:
+
+<center><img src="./images/InstallRPackage.png" style="border:2px solid black"></center>
+
+* Then type in the name of the package `ggplot2`.  You should see it auto-complete as you type:
+
+<center><img src="./images/Installggplot2_type_name.png" style="border:2px solid black"></center>
+
+* Click on `Install` and make sure that `Install dependencies` is checked:
+
+<center><img src="./images/Installggplot2_clickInstall.png" style="border:2px solid black"></center>
+
+* You should then see statements like this in the console on the bottom left quadrant:
+
+<center><img src="./images/Installggplot2console.png" style="border:2px solid black"></center>
+
+* As you can see in the console, you can also install packages just by typing:
+
+```{r, eval=FALSE}
+install.packages("ggplot2")
+```
+
+Repeat the steps above to install the `dplyr` package as well via the GUI or just by typing in the console:
+
+```{r, eval=FALSE}
+install.packages("dplyr")
+```
+
+# How to read this tutorial
+Everything shown in the gray boxes below is code that you can run by copy/pasting into the `Console` tab in RStudio.  You can also collect these statements in a new R file (`File` -> `New File` -> `R Script`) which you can then run.
+
+If you do create a new R file, you can run the code by selecting one of the options under the `Run` button:
+<center><img src="./images/runCodeRStudio.png"></center>
+
+## Assinging values to variables.
+
+We can assign the value of `1` to the variable `a` by doing:
+```{r}
+a = 1
+```
+
+And then can make sure that the value has been assigned:
+```{r}
+a
+```
+
+Instead of using `=`, we can also use `<-` which does the same thing.  You often will see people use both forms of these.
+```{r}
+a <- 1
+```
+
+Although you assigned a number to the variable `a`, you can also assign to it different types of data like text:
+```{r}
+a = "this is some text"
+a
+```
+
+## Vectors
+
+```{r}
+a  = c(3, 4, 5, 6, 7)
+a
+```
+
+Since this is a sequence from 3 to 7, we can also write it like:
+
+```{r}
+a  = c(3:7)
+a
+```
+
+## Matrices
+
+Initialize a matrix of zeros with three columns and two rows.  Then set the value at row 1 and column 2 to `3`
+```{r}
+b = matrix(0, ncol=3, nrow=2)
+b[1,2] = 3
+b
+```
+
+You can append a matrix to the end of another matrix using `rbind` which means that you will bind the rows together.
+```{r}
+b = matrix(0, ncol=3, nrow=2)
+c = matrix(1, ncol=3, nrow=2)
+rbind(b,c)
+```
+
+You can also bind the columns together using `cbind`
+```{r}
+cbind(b,c)
+```
+
+## Data Frames
+Can mix in different types of data per column
+
+```{r}
+a = data.frame(x = c(1:3),
+               y = c(4:6),
+               z = c("a", "b", "c"))
+a
+```
+
+Data frames are similar to matrices in that you can access elements based on their row and column indices.  For example, to get the element in the 2nd row and third column:
+```{r}
+a[2,3]
+```
+
+We can also get just the 2nd row:
+```{r}
+a[2,]
+```
+
+Or just the 3rd column:
+```{r}
+a[,3]
+```
+
+One of the nice things about data frames is that you can use the names of the columns (combined with the `$` sign) to directly access the values in that column.  So if we want to see the values of only the `z` column, we can use `a$z`
+
+```{r}
+a$z
+```
+
+You can also add a new column to an existing data frame:
+```{r}
+a$t = c(10, 13, 17)
+a
+```
+
+We'll look at the `mtcars` data set that is included with R.  If you type `?mtcars` in the console, you'll see more documentation.  Tabular data like you would find in spreadsheets is represented within R in what are known as **data frames**.  
+
+Looking at the first few lines of the `mtcars` data frame, we see the following.  There are eleven columns: `mpg`, `cyl`, `disp`, `hp`, `drat`, `wt`, `qsec`, `vs`, `am`, `gear` and `carb`
+```{r}
+head(mtcars)
+```
+
+The `head` command just shows us the top few rows, and you can also use the `tail` command to look at the bottom rows.
+
+For specific columns, we can use the `mean` and `sd` functions to find the average and standard deviation.
+```{r}
+mean(mtcars$mpg)
+sd(mtcars$mpg)
+```
+
+## Lists
+
+# Data types
+  * numeric
+  * character
+  * factor
+
+# Creating Plots
+
+We first need to load the libraries that we'll be using for the rest of this tutorial.  Make sure to also include `options(stringsAsFactors = FALSE)`.
+
+```{r, message=FALSE}
+options(stringsAsFactors = FALSE)
+library(ggplot2)
+library(dplyr)
+```
+
+## ggplot2
+Many visualizations created with R are often created using the **[ggplot2 library](http://ggplot2.org/)**.  What's interesting about this library is that way in which it allows you to construct visualizations.  The gg in ggplot2 stands for the Grammar of Graphics. The idea is that when you create plots, you are basically writing sentences that are of the form:
+  
+  `Here's my data frame` + `Here are the x and y columns` + `Apply this kind of plot to that data` + `These are the axis labels` + `here are some more additional transformations`
+
+The syntax may look strange at first, although it’s a very modular approach, and you can create very complex visualizations just by adding new parts to these sentences.
+
+## Scatter plot
+To understand this, we can first do a simple scatter plot.  You'll notice with the syntax that we first start with the `mtcars` data frame, then we specify which columns are to be associated with the `x` and `y` values, and then we specify that we want to plot the data as points by adding `+ geom_point()`.
+
+```{r}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
+```
+
+In the following examples, you may see the code examples split over multiple lines.  The two statements below are actually equivalent, but by spreading the commands over multiple lines it can sometimes help to make things more readable by separating the code into its different functional pieces.
+
+```{r, eval=FALSE}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
+
+ggplot(mtcars, 
+       aes(x=hp, y=mpg)) + 
+  geom_point()
+```
+
+We can also use values from other columns to modify particular attributes of the points.  For example, we can set the color of the points to indicate the number of cylinders
+```{r}
+ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl)) + geom_point()
+```
+
+We can set the size of the points based on the weight of the car
+```{r}
+ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl, size=wt)) + geom_point()
+```
+
+## Boxplot
+
+```{r}
+ggplot(mtcars, aes(x=factor(cyl), y=mpg)) + geom_boxplot()
+```
+
+## Histogram
+Histogram of the number of cars with a particular fuel economy value.
+
+```{r}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram()
+```
+
+We can also change the bin width:
+```{r}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=5)
+```
+
+## Bar charts
+Count the number of cars with specific numbers of cylinders
+```{r}
+ggplot(mtcars, 
+       aes(x=cyl)) + 
+  geom_bar()
+```
+
+## Pie chart
+
+Depends on what is being plotted exactly - are you counting the number of something in a data frame, or is it already summarized?
+
+**TODO** Pie chart doesn't check if numbers add up to 100% - just shows the overall percentage
+
+```{r}
+
+# this does a count
+ggplot(mtcars, 
+       aes(x=factor(1), fill=factor(cyl))) + 
+  geom_bar(width=1) + coord_polar(theta="y") + theme_void()
+
+# if you're plotting actual numbers, need stat="identity"
+ggplot(mtcars %>% 
+         group_by(cyl) %>% 
+         summarize(carcount = n()), 
+       aes(x=factor(1), y=carcount, fill=factor(cyl))) + 
+  geom_bar(width=1, stat="identity") + coord_polar(theta="y")
+
+```
+
+# Reading CSV Files
+
+[CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we present here in a CSV file format.
+
+
+```{r}
+df = read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
+```
+
+```{r EmissionsPerCountryLinePlot, fig.width=12, fig.height=6}
+ggplot(df, aes(x=Year, y=CO2_Mt, colour=Country)) + geom_line()
+```
+
+```{r EmissionsPerCountryArea, fig.width=12, fig.height=6}
+ggplot(df, 
+       aes(x=Year, y=CO2_Mt, fill=Country)) + 
+  geom_area()
+```
+
+```{r EmissionsPerCountryAreaWithSeparatingLine, fig.width=12, fig.height=6}
+ggplot(df, 
+       aes(x=Year, y=CO2_Mt, fill=Country)) + 
+  geom_area() + 
+  geom_line(aes(ymax=CO2_Mt), position="stack", size=0.1)
+```
+
+```{r EmissionsPerCountryFacetWrap, fig.width=12, fig.height=10}
+ggplot(df, aes(x=Year, y=CO2_Mt)) + geom_line() + facet_wrap(~Country, scales="free_y")
+```
+
+The plot above shows the variation, but you'll notice that the minimum value on the y scale is not set to zero.  This means that the variation observed may not actually be that big when considering the overall amount of emissions.  To fix this, we update our code to use `ymin=0` so that we can get a picture of the absolute magnitude of emissions.
+
+```{r EmissionsPerCountryFacetWrapYmin0, fig.width=12, fig.height=10}
+ggplot(df, aes(x=Year, y=CO2_Mt, ymin=0)) + geom_line() + facet_wrap(~Country, scales="free_y")
+```
+
+## Online guides
+
+* [How to Transition from Excel to R](https://districtdatalabs.silvrback.com/intro-to-r-for-microsoft-excel-users)
+* [R for Excel Users](http://www.rforexcelusers.com/)
+* [Quick-R](http://www.statmethods.net/index.html)
+
+For a more basic step-by-step introduction, you can install the [swirl](http://swirlstats.com/students.html) package:
+```{r, eval=FALSE}
+install.packages("swirl")
+```
+
+You can then work through tutorials by doing:
+```{r, eval=FALSE}
+library(swirl)
+swirl()
+```
+
+Swirl is interesting since it guides you in learning R, within the R console.  You'll see examples like this:
+```{eval=FALSE}
+| To assign the result of 5 + 7 to a new variable called x, you type x <- 5 +
+| 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
+```
+
+## Reference Sheets
+**These reference sheets are important and summarize much of what you will need to know about R**
+
+* [R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf) - this covers many of the basics of using R that you will need to know.
+* [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) - this covers all the types of visualizations that can be done with `ggplot2`
+* [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.
+
+<center>
+<table>
+<tr>
+<td style="text-align:center"><b>R cheat sheet</b></td>
+<td style="width:50px"></td>
+<td style="text-align:center"><b>ggplot2 cheat sheet</b></td>
+<td style="width:50px"></td>
+<td style="text-align:center"><b>dplyr cheat sheet</b></td>
+</tr>
+
+<tr>
+<td><a href="https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf">
+<img src="./images/rCheatSheetScreenShot.png" style="height:200px; width:auto"></a></td>
+<td style="width:50px"></td>
+<td><a href="https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf"><img src="./images/ggplotScreenShot.png" style="height:200px; width:auto"></a></td>
+<td style="width:50px"></td>
+<td><a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf"><img src="./images/dplyrScreenShot.png" style="height:200px; width:auto"></a></td>
+</tr>
+</table>
+</center>
