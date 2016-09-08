@@ -10,11 +10,6 @@ options(stringsAsFactors = FALSE)
 library(knitr)
 ```
 
-# TODO still need to cover
-* Some sort of exercise for the students (with dataset x, do y,z)
-* calculate mean in row/column directions (rowMeans, rowSums, etc)
-* `setwd`
-
 # What/Why?
 
 [R is a language and environment for statistical computing and graphics.](https://www.r-project.org/about.html).  In more practical terms:
@@ -38,13 +33,13 @@ You're already used to programming since **[spreadsheets are code](http://www.sl
 =SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,MATCH($AL$7&$AL$6,$data.$A$1:$AMJ$1,0)-29,1,2))/1000+SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,RIGHT(V$53,2)*8-7,1,2))/1000-SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,MATCH($AL$7&$AL$6,$data.$A$1:$AMJ$1,0)-37,1,2))/1000
 ```
 
-This is a formula from an actual spreadsheet in use by a company.  This code is a nightmare to maintain and it's very difficult to check if there are any errors in it.  A reason to use R (or similar languages) is that spreadsheets create a soup of data storage, processing and presentation (i.e. numbers, formulas and graphs).  This hinders transparency and as spreadsheets get more complex, it becomes very difficult to trace how the data analysis is actually done.  With R, it's possible to use code to read from data files and then **[automatically generate reports in the form of Word documents, pdfs, or html pages](http://rmarkdown.rstudio.com/)**.
+This is a formula from an actual spreadsheet in use by a company.  This code is a nightmare to maintain and it's very difficult to check if there are any errors in it.  Spreadsheets create a soup of data storage, processing and presentation (i.e. numbers, formulas and graphs).  This hinders transparency and as spreadsheets get more complex, it becomes very difficult to trace how the data analysis is actually done.  With R, it's possible to use code to read from data files and then **[automatically generate reports in the form of Word documents, pdfs, or html pages](http://rmarkdown.rstudio.com/)**. Separating your data, processing and presentation of results into separate components will help you to stay organized.
 
 # First Steps:
 
 ## Setting up R and RStudio
 
-You need to have both R and RStudio set up.  You can use R without RStudio, but if you do, the interface will look like the one on the left image below, and this can be a bit intimidating.  RStudio provides a more visual interface to R and it greatly assists you with various aspects of programming.
+You need to have both R and RStudio set up.  You can use R without RStudio, but if you do, the interface will look like the one on the left image below, and this can be a bit intimidating.  RStudio runs on top of R and provides a more visual interface, in addition to greatly assisting you with various aspects of programming.
 
 <center>
 <table>
@@ -126,10 +121,18 @@ install.packages("ggplot2")
 ```
 
 # How to read this tutorial
-Everything shown in the large gray boxes below is code that you can run by copy/pasting into the `Console` tab in RStudio.  You can also collect these statements in a new R file (`File` -> `New File` -> `R Script`) which you can then run.
+Everything shown in the large gray boxes below is code that you can run by copy/pasting into the `Console` tab in RStudio. For example:
+
+```{r}
+print("hello world")
+```
+
+You can also collect these statements in a new R file (`File` -> `New File` -> `R Script`) which you can then run.
 
 If you do create a new R file, you can run the code by selecting one of the options under the `Run` button:
 <center><img src="./images/runCodeRStudio.png"></center>
+
+Gray bits of text `like this` usually refer to individual R commands, package names, or the exact name of things that you will see in the user interface.
 
 ## Assinging values to variables.
 
@@ -181,7 +184,8 @@ You can append a matrix to the end of another matrix using `rbind` which means t
 ```{r}
 b = matrix(0, ncol=3, nrow=2)
 c = matrix(1, ncol=3, nrow=2)
-rbind(b,c)
+d = rbind(b,c)
+d
 ```
 
 You can also bind the columns together using `cbind`
@@ -189,8 +193,16 @@ You can also bind the columns together using `cbind`
 cbind(b,c)
 ```
 
+R also has functions that run operations such as `mean` and `sum` on matrix rows and columns:
+```{r}
+rowMeans(d)
+rowSums(d)
+colMeans(d)
+colSums(d)
+```
+
 ## Data Frames
-Can mix in different types of data per column
+Data frames are conceptually similar to matrices, although you can mix in different types of data per column.  In the example below, the first two columns are numbers, while the last column is text.
 
 ```{r}
 a = data.frame(x = c(1:3),
@@ -226,9 +238,7 @@ a$t = c(10, 13, 17)
 a
 ```
 
-We'll look at the `mtcars` data set that is included with R.  If you type `?mtcars` in the console, you'll see more documentation.  Tabular data like you would find in spreadsheets is represented within R in what are known as **data frames**.  
-
-Looking at the first few lines of the `mtcars` data frame, we see the following.  There are eleven columns: `mpg`, `cyl`, `disp`, `hp`, `drat`, `wt`, `qsec`, `vs`, `am`, `gear` and `carb`
+We'll look at the `mtcars` data set that is included with R.  If you type `?mtcars` in the console, you'll see more documentation.  Looking at the first few lines of the `mtcars` data frame, we see the following which shows data in several columns: `mpg`, `cyl`, `disp`, `hp`, `drat`, `wt`, `qsec`, `vs`, `am`, `gear` and `carb`
 ```{r}
 head(mtcars)
 ```
@@ -241,16 +251,9 @@ mean(mtcars$mpg)
 sd(mtcars$mpg)
 ```
 
-## Lists
-
-# Data types
-  * numeric
-  * character
-  * factor
-
 # Creating Plots
 
-We first need to load the libraries that we'll be using for the rest of this tutorial.  Make sure to also include `options(stringsAsFactors = FALSE)`.
+We first need to load the library that we'll be using for the rest of this tutorial.  Make sure to also include `options(stringsAsFactors = FALSE)`.  We'll cover factors in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.
 
 ```{r, message=FALSE}
 options(stringsAsFactors = FALSE)
@@ -292,13 +295,14 @@ ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl, size=wt)) + geom_point()
 ```
 
 ## Boxplot
+For this example, we need to specify `x=factor(cyl)` to make sure that there is a boxplot drawn for each unique value of `cyl`.
 
 ```{r mtCarsBoxPlot, cache=TRUE}
 ggplot(mtcars, aes(x=factor(cyl), y=mpg)) + geom_boxplot()
 ```
 
 ## Histogram
-Histogram of the number of cars with a particular fuel economy value.
+Histogram of the number of cars with a particular fuel economy value:
 
 ```{r mtCarsHistorgram, cache=TRUE}
 ggplot(mtcars, aes(x=mpg)) + geom_histogram()
@@ -319,44 +323,97 @@ ggplot(mtcars,
 
 ## Pie chart
 
-Depends on what is being plotted exactly - are you counting the number of something in a data frame, or is it already summarized?
+Pie charts can be created as well, although they require a few more steps.  Part of the reason for this is that [many data visualization experts discourage their use](https://www.quora.com/How-and-why-are-pie-charts-considered-evil-by-data-visualization-experts) since other types of visualizations can communicate the information more effectively.
 
-**TODO** Pie chart doesn't check if numbers add up to 100% - just shows the overall percentage
+The general strategy to create a pie chart using ggplot2 is to first create a bar chart and then to use polar coordinates to turn the bars into a circle.
 
+In other words, we start with this:
+```{r mtCarsNotYetPieChart, cache=TRUE}
+ggplot(mtcars, 
+       aes(x=factor(1), fill=factor(cyl))) + 
+  geom_bar(width=1)
+```
+
+To explain what's going on:
+
+* `x=factor(1)` - This places the bars at the same location, which allows them to be stacked
+* `fill=factor(cyl)` - The fill color for the bars is based on the value of `cyc`
+* `geom_bar(width=1)` - This is needed to that there isn't a hole in the plot when we use the code in the step below.
+* **Note:** the height of the bars is counting the number of cars with a specific value for `cyc`.  The size of the pie slices is not based on actual numeric values in `mtcars`.
+
+We then turn this into a pie chart by adding `+ coord_polar(theta="y")`:
 ```{r mtCarsPieChart1, cache=TRUE}
 
 # this does a count
 ggplot(mtcars, 
        aes(x=factor(1), fill=factor(cyl))) + 
-  geom_bar(width=1) + coord_polar(theta="y") + theme_void()
+  geom_bar(width=1) + coord_polar(theta="y")
+```
 
-# if you're plotting actual numbers, need stat="identity"
-ggplot(mtcars %>% 
-         group_by(cyl) %>% 
-         summarize(carcount = n()), 
-       aes(x=factor(1), y=carcount, fill=factor(cyl))) + 
-  geom_bar(width=1, stat="identity") + coord_polar(theta="y")
+If we want to create a pie chart where the size of the slices correspond to actual values in the data and not just to counts of things with the same values, we need to take a slightly different approach.
+
+Here we have a data frame listing types of animals and values associated with them:
+```{r animalsDataFrame, cache=TRUE}
+animals = data.frame(animal_type = c("chickens", "cows", "pigs"),
+                     farm_count = c(20, 10, 5))
+animals
+```
+
+We then add `y=farm_count` and `stat="identity"` to make sure that this is plotted correctly.  We also use `theme_void()` to remove the axis labels that we saw in the previous plot.
+
+```{r mtCarsPieChart2, cache=TRUE}
+ggplot(animals, 
+       aes(x=factor(1), y=farm_count, fill=factor(animal_type))) + 
+  geom_bar(width=1, stat="identity") + 
+  coord_polar(theta="y") + 
+  theme_void()
 
 ```
 
 # Reading CSV Files
 
-[CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we present here in a CSV file format.
+The following example is based on [CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we've transformed into a CSV file.
 
+CSV stands for ["comma-separated values"](https://en.wikipedia.org/wiki/Comma-separated_values) which means that you represent tabular data by using commas to separate values from different columns:
 
-```{r}
+```{csv}
+animal,farm_count
+chickens,20
+cows,10
+pigs,5
+```
+
+While you can technically read Excel files into R, reading CSV files is much much faster as it is a very simple data format.
+
+Now we'll load in an example data file and create several plots with it.
+
+One thing you need to check is your working directory. This is the directory where R looks for any files.  You can set this in RStudio `Session` -> `Set Working Directory` -> `Choose Directory`
+
+<center><img src="./images/RStudioSetWorkingDirectory.png" style="border:2px solid black"></center>
+
+Make sure that this is set to the directory where you have placed the `UNFCCC_CO2_Emissions.csv` file.
+
+```{r, eval=FALSE}
+df = read.csv(file="UNFCCC_CO2_Emissions.csv")
+```
+
+```{r, echo=FALSE}
 df = read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
 ```
 
+Create line plots per country of the amount of CO2 emissions:
 ```{r EmissionsPerCountryLinePlot, fig.width=12, fig.height=6, cache=TRUE}
 ggplot(df, aes(x=Year, y=CO2_Mt, colour=Country)) + geom_line()
 ```
 
+Create a stacked area chart showing how each country's CO2 emissions contributes to the total:
 ```{r EmissionsPerCountryArea, fig.width=12, fig.height=6, cache=TRUE}
 ggplot(df, 
        aes(x=Year, y=CO2_Mt, fill=Country)) + 
   geom_area()
 ```
+
+Same plot, but using `geom_line(aes(ymax=CO2_Mt), position="stack", size=0.1)` to add black lines to help better distinguish the individual countries.
 
 ```{r EmissionsPerCountryAreaWithSeparatingLine, fig.width=12, fig.height=6, cache=TRUE}
 ggplot(df, 
@@ -364,6 +421,11 @@ ggplot(df,
   geom_area() + 
   geom_line(aes(ymax=CO2_Mt), position="stack", size=0.1)
 ```
+
+In the previous plots, it's a bit difficult to distinguish countries with similar colors.  We can also use `facet_wrap` to create plots for individual countries.
+
+* `~Country` - create individual plots per distinct values in the `Country` column.
+* `scales="free_y"` - each plot will have its y axis scaled individually.  This helps to view the trends from countries with less CO2 emissions.
 
 ```{r EmissionsPerCountryFacetWrap, fig.width=12, fig.height=10, cache=TRUE}
 ggplot(df, aes(x=Year, y=CO2_Mt)) + geom_line() + facet_wrap(~Country, scales="free_y")
