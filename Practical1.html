@@ -445,9 +445,9 @@ ggplot(mtcars,
 <p>To explain what’s going on:</p>
 <ul>
 <li><code>x=factor(1)</code> - This places the bars at the same location, which allows them to be stacked</li>
-<li><code>fill=factor(cyl)</code> - The fill color for the bars is based on the value of <code>cyc</code></li>
+<li><code>fill=factor(cyl)</code> - The fill color for the bars is based on the value of <code>cyl</code></li>
 <li><code>geom_bar(width=1)</code> - This is needed to that there isn’t a hole in the plot when we use the code in the step below.</li>
-<li><strong>Note:</strong> the height of the bars is counting the number of cars with a specific value for <code>cyc</code>. The size of the pie slices is not based on actual numeric values in <code>mtcars</code>.</li>
+<li><strong>Note:</strong> the height of the bars is counting the number of cars (i.e. number of rows in the <code>mtcars</code> data frame) with a specific value for <code>cyl</code>. In other words, the size of the pie slices is not based on actual numeric values in <code>mtcars</code>.</li>
 </ul>
 <p>We then turn this into a pie chart by adding <code>+ coord_polar(theta=&quot;y&quot;)</code>:</p>
 <pre class="r"><code># this does a count
