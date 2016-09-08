@@ -17,35 +17,48 @@ library(knitr)
 
 # What/Why?
 
-[R is a language and environment for statistical computing and graphics.](https://www.r-project.org/about.html)
+[R is a language and environment for statistical computing and graphics.](https://www.r-project.org/about.html).  In more practical terms:
 
-In more practical terms:
-
-* It's a digital swiss army knife
-* It's free - just download and get started, no license, no trial period
-* There's a huge community behind it
+* It's a **digital swiss army knife**
+* It's **free** - just download and get started, no license, no trial period
+* There's a **huge community** behind it
     * For even the weirdest problems you run into, you can Google it and usually find a solution (probably on [stackoverflow](http://stackoverflow.com/questions/tagged/r)). 
 * You don't have write to code that others have already created (stand on the shoulders of giants)
-    * There are over [9000 contributed packages covering a variety of topics](https://cran.r-project.org/web/views/). This means that for a lot of different applications and scientific domains, someone has already created something that you can re-use. This minimizes the amount of work you have to do, while allowing you to do much more sophisticated analysis.
-    * Package management - you don't have to copy/paste this code. It's managed so that you just have to call the name of the package. You can also have R update every single package that you have installed, in order to get the latest bug fixes, enhancements, etc. 
-* It lets you create repeatable workflows
+    * There are over **[9000 contributed packages covering a variety of topics](https://cran.r-project.org/web/views/)**. This means that for a lot of different applications and scientific domains, someone has already created something that you can re-use. This minimizes the amount of work you have to do, while allowing you to do much more sophisticated analysis.
+    * **Package management** - you don't have to copy/paste this code. It's managed so that you just have to call the name of the package. You can also have R update every single package that you have installed, in order to get the latest bug fixes, enhancements, etc. 
+* It lets you create **repeatable workflows**
     * Have new data? Just run the code again to generate plots + images for reports
-* Use of open source & open standards
+* Use of **open source & open standards**
     * Researchers can inspect the source code and report errors to the developers, meaning that the process of finding and fixing bugs in the software is more transparent and efficient.
     * Open standards allow for data portability between a variety of programs, so you're not limited to just using proprietary programs. This can give you greater flexibility in the types of tools you use.
 
-You should realize that [Spreadsheets are Code](http://www.slideshare.net/Felienne/spreadsheets-are-code-online)
+You're already used to programming since **[spreadsheets are code](http://www.slideshare.net/Felienne/spreadsheets-are-code-online)**:
 
+```{Excel}
+=SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,MATCH($AL$7&$AL$6,$data.$A$1:$AMJ$1,0)-29,1,2))/1000+SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,RIGHT(V$53,2)*8-7,1,2))/1000-SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,MATCH($AL$7&$AL$6,$data.$A$1:$AMJ$1,0)-37,1,2))/1000
 ```
-=SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,MATCH($AL$7&$AL$6,$data.$A$1:$AMJ$1,0)-29,1,2))/1000+SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,RIGHT(V$53,2)*8-7,1,2))/1000-SUM(OFFSET($data.$A$1,MATCH($T197,$data.$C$1:$C$1048576,0)-1,MATCH($AL$7&$AL$6,$data.$A$1:$AMJ$1,0)-37,1,2))/1000`
-```
 
-Spreadsheets create a soup of data storage, processing and presentation (i.e. numbers, formulas and graphs).  This hinders transparency and as spreadsheets get more complex, it becomes very difficult to trace how the data analysis is actually done.
+This is a formula from an actual spreadsheet in use by a company.  This code is a nightmare to maintain and it's very difficult to check if there are any errors in it.  A reason to use R (or similar languages) is that spreadsheets create a soup of data storage, processing and presentation (i.e. numbers, formulas and graphs).  This hinders transparency and as spreadsheets get more complex, it becomes very difficult to trace how the data analysis is actually done.  With R, it's possible to use code to read from data files and then **[automatically generate reports in the form of Word documents, pdfs, or html pages](http://rmarkdown.rstudio.com/)**.
 
-
-# First Steps
+# First Steps:
 
 ## Setting up R and RStudio
+
+You need to have both R and RStudio set up.  You can use R without RStudio, but if you do, the interface will look like the one on the left image below, and this can be a bit intimidating.  RStudio provides a more visual interface to R and it greatly assists you with various aspects of programming.
+
+<center>
+<table>
+<tr>
+<th><h3>R</h3></td>
+<th></td>
+<th><h3>R + RStudio</h3></td>
+<tr>
+<td><img src="./images/RCommandLineConsole.png" style="height:250px; width:auto"></a></td>
+<td style="width:100px"><center><b><h3>vs.</h3></b></center></td>
+<td><img src="./images/RStudioScreenShot.png" style="height:250px; width:auto"></a></td>
+</tr>
+</table>
+</center>
 
 ### University Computer
 On the university computers you should be able to find RStudio in the Start Menu by looking for `Mathematics & Statistics` -> `R`.  If there are several versions, just pick the one with the highest version number.  **You should not have to install R or RStudio on the university computers.**
@@ -85,10 +98,8 @@ You can run all the code at once by doing Code -> Run Region -> Run All
 
 ### Install Required Packages
 
-Once R and RStudio is installed, **open up RStudio and install the necessary packages for R**.  Note that with R, the word "package" and "library" are often used interchangeably.  We'll need two packages:
+Once R and RStudio is installed, **open up RStudio and install the necessary packages for R**.  Note that with R, the word "package" and "library" are often used interchangeably.  Today we'll need to install the [ggplot2](http://docs.ggplot2.org/current/) library to do the plotting.
 
-* [ggplot2](http://docs.ggplot2.org/current/) - this will be used to do most of the plotting.
-* [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) - slice & dice data & perform complex operations with minimal code
 
 #### Installation Steps
 
@@ -114,14 +125,8 @@ Once R and RStudio is installed, **open up RStudio and install the necessary pac
 install.packages("ggplot2")
 ```
 
-Repeat the steps above to install the `dplyr` package as well via the GUI or just by typing in the console:
-
-```{r, eval=FALSE}
-install.packages("dplyr")
-```
-
 # How to read this tutorial
-Everything shown in the gray boxes below is code that you can run by copy/pasting into the `Console` tab in RStudio.  You can also collect these statements in a new R file (`File` -> `New File` -> `R Script`) which you can then run.
+Everything shown in the large gray boxes below is code that you can run by copy/pasting into the `Console` tab in RStudio.  You can also collect these statements in a new R file (`File` -> `New File` -> `R Script`) which you can then run.
 
 If you do create a new R file, you can run the code by selecting one of the options under the `Run` button:
 <center><img src="./images/runCodeRStudio.png"></center>
@@ -250,7 +255,6 @@ We first need to load the libraries that we'll be using for the rest of this tut
 ```{r, message=FALSE}
 options(stringsAsFactors = FALSE)
 library(ggplot2)
-library(dplyr)
 ```
 
 ## ggplot2
@@ -263,7 +267,7 @@ The syntax may look strange at first, although it’s a very modular approach, a
 ## Scatter plot
 To understand this, we can first do a simple scatter plot.  You'll notice with the syntax that we first start with the `mtcars` data frame, then we specify which columns are to be associated with the `x` and `y` values, and then we specify that we want to plot the data as points by adding `+ geom_point()`.
 
-```{r}
+```{r mtcarsGeomPoint, cache=TRUE}
 ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
 ```
 
@@ -278,36 +282,36 @@ ggplot(mtcars,
 ```
 
 We can also use values from other columns to modify particular attributes of the points.  For example, we can set the color of the points to indicate the number of cylinders
-```{r}
+```{r mtCarsPointColor, cache=TRUE}
 ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl)) + geom_point()
 ```
 
 We can set the size of the points based on the weight of the car
-```{r}
+```{r mtCarsColorSizePoint, cache=TRUE}
 ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl, size=wt)) + geom_point()
 ```
 
 ## Boxplot
 
-```{r}
+```{r mtCarsBoxPlot, cache=TRUE}
 ggplot(mtcars, aes(x=factor(cyl), y=mpg)) + geom_boxplot()
 ```
 
 ## Histogram
 Histogram of the number of cars with a particular fuel economy value.
 
-```{r}
+```{r mtCarsHistorgram, cache=TRUE}
 ggplot(mtcars, aes(x=mpg)) + geom_histogram()
 ```
 
 We can also change the bin width:
-```{r}
+```{r mtCarsHistorgram2, cache=TRUE}
 ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=5)
 ```
 
 ## Bar charts
 Count the number of cars with specific numbers of cylinders
-```{r}
+```{r mtCarsBarChart, cache=TRUE}
 ggplot(mtcars, 
        aes(x=cyl)) + 
   geom_bar()
@@ -319,7 +323,7 @@ Depends on what is being plotted exactly - are you counting the number of someth
 
 **TODO** Pie chart doesn't check if numbers add up to 100% - just shows the overall percentage
 
-```{r}
+```{r mtCarsPieChart1, cache=TRUE}
 
 # this does a count
 ggplot(mtcars, 
@@ -344,62 +348,43 @@ ggplot(mtcars %>%
 df = read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
 ```
 
-```{r EmissionsPerCountryLinePlot, fig.width=12, fig.height=6}
+```{r EmissionsPerCountryLinePlot, fig.width=12, fig.height=6, cache=TRUE}
 ggplot(df, aes(x=Year, y=CO2_Mt, colour=Country)) + geom_line()
 ```
 
-```{r EmissionsPerCountryArea, fig.width=12, fig.height=6}
+```{r EmissionsPerCountryArea, fig.width=12, fig.height=6, cache=TRUE}
 ggplot(df, 
        aes(x=Year, y=CO2_Mt, fill=Country)) + 
   geom_area()
 ```
 
-```{r EmissionsPerCountryAreaWithSeparatingLine, fig.width=12, fig.height=6}
+```{r EmissionsPerCountryAreaWithSeparatingLine, fig.width=12, fig.height=6, cache=TRUE}
 ggplot(df, 
        aes(x=Year, y=CO2_Mt, fill=Country)) + 
   geom_area() + 
   geom_line(aes(ymax=CO2_Mt), position="stack", size=0.1)
 ```
 
-```{r EmissionsPerCountryFacetWrap, fig.width=12, fig.height=10}
+```{r EmissionsPerCountryFacetWrap, fig.width=12, fig.height=10, cache=TRUE}
 ggplot(df, aes(x=Year, y=CO2_Mt)) + geom_line() + facet_wrap(~Country, scales="free_y")
 ```
 
 The plot above shows the variation, but you'll notice that the minimum value on the y scale is not set to zero.  This means that the variation observed may not actually be that big when considering the overall amount of emissions.  To fix this, we update our code to use `ymin=0` so that we can get a picture of the absolute magnitude of emissions.
 
-```{r EmissionsPerCountryFacetWrapYmin0, fig.width=12, fig.height=10}
+```{r EmissionsPerCountryFacetWrapYmin0, fig.width=12, fig.height=10, cache=TRUE}
 ggplot(df, aes(x=Year, y=CO2_Mt, ymin=0)) + geom_line() + facet_wrap(~Country, scales="free_y")
 ```
 
-## Online guides
+# Reference Materials
+For further information beyond what is covered in this practical, you can refer to the resources below.  If you are having trouble understanding the contents of the practical, these can be quite useful.
 
-* [How to Transition from Excel to R](https://districtdatalabs.silvrback.com/intro-to-r-for-microsoft-excel-users)
-* [R for Excel Users](http://www.rforexcelusers.com/)
-* [Quick-R](http://www.statmethods.net/index.html)
+## Cheat sheets
 
-For a more basic step-by-step introduction, you can install the [swirl](http://swirlstats.com/students.html) package:
-```{r, eval=FALSE}
-install.packages("swirl")
-```
-
-You can then work through tutorials by doing:
-```{r, eval=FALSE}
-library(swirl)
-swirl()
-```
-
-Swirl is interesting since it guides you in learning R, within the R console.  You'll see examples like this:
-```{eval=FALSE}
-| To assign the result of 5 + 7 to a new variable called x, you type x <- 5 +
-| 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
-```
-
-## Reference Sheets
-**These reference sheets are important and summarize much of what you will need to know about R**
+**These sheets are important and summarize much of what you will need to know about R for this course**
 
 * [R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf) - this covers many of the basics of using R that you will need to know.
 * [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) - this covers all the types of visualizations that can be done with `ggplot2`
-* [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.
+* [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.  We will cover `dplyr` in a later practical.
 
 <center>
 <table>
@@ -421,3 +406,26 @@ Swirl is interesting since it guides you in learning R, within the R console.  Y
 </tr>
 </table>
 </center>
+
+## Additional Materials
+
+* [How to Transition from Excel to R](https://districtdatalabs.silvrback.com/intro-to-r-for-microsoft-excel-users)
+* [R for Excel Users](http://www.rforexcelusers.com/)
+* [Quick-R](http://www.statmethods.net/index.html)
+
+For a more basic step-by-step introduction, you can install the [swirl](http://swirlstats.com/students.html) package:
+```{r, eval=FALSE}
+install.packages("swirl")
+```
+
+You can then work through tutorials by doing:
+```{r, eval=FALSE}
+library(swirl)
+swirl()
+```
+
+Swirl is interesting since it guides you in learning R, within the R console.  You'll see examples like this:
+```{eval=FALSE}
+| To assign the result of 5 + 7 to a new variable called x, you type x <- 5 +
+| 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
+```
