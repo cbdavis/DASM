@@ -134,6 +134,14 @@ If you do create a new R file, you can run the code by selecting one of the opti
 
 Gray bits of text `like this` usually refer to individual R commands, package names, or the exact name of things that you will see in the user interface.
 
+## Always always always first specify `options(stringsAsFactors = FALSE)`
+Make sure to always run this command when you start using R:
+```{r}
+options(stringsAsFactors = FALSE)
+```
+
+We'll cover what this is in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.  In short, [R assumes that your data contains factors or categorical variables](http://www.stat.berkeley.edu/classes/s133/factors.html), which isn't necessarily the case.
+
 ## Assinging values to variables.
 
 We can assign the value of `1` to the variable `a` by doing:
@@ -253,10 +261,9 @@ sd(mtcars$mpg)
 
 # Creating Plots
 
-We first need to load the library that we'll be using for the rest of this tutorial.  Make sure to also include `options(stringsAsFactors = FALSE)`.  We'll cover factors in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.
+We first need to load the library that we'll be using for the rest of this tutorial:
 
 ```{r, message=FALSE}
-options(stringsAsFactors = FALSE)
 library(ggplot2)
 ```
 
@@ -360,6 +367,8 @@ animals
 ```
 
 We then add `y=farm_count` and `stat="identity"` to make sure that this is plotted correctly.  We also use `theme_void()` to remove the axis labels that we saw in the previous plot.
+
+Using `stat="identity"` means that the size of the pie slices are based on the values contained in the data, and not on the count of things with the same values.
 
 ```{r mtCarsPieChart2, cache=TRUE}
 ggplot(animals, 
