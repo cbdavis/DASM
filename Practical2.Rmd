@@ -12,6 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, echo=FALSE, message=FALSE}
 library(animation)
+```
+
+Load libraries and `stringsAsFactors = FALSE`
+```{r}
 library(ggplot2)
 options(stringsAsFactors = FALSE)
 ```
@@ -85,12 +89,11 @@ $$ \binom{n}{k} = \frac{n!}{k!(n-k)!} $$
 # Distributions
 
 show this as what we should get, as increase samples, get closer to this
-```{r animatedHistogram, cache=TRUE, warning=FALSE, message=FALSE}
+```{r animatedHistogram, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
 x = seq(-3,3,0.01)
 density = dnorm(x)
 density_df = data.frame(x=x, 
                         y=density)
-
 
 point_steps = c()
 for (i in c(1:5)){
@@ -110,7 +113,6 @@ saveGIF({
     xlab("Values") + ylab("Density") + ggtitle(paste(format(number_of_points, scientific=FALSE), "samples"))
 
   print(p)
-
   }
 }, interval = 0.1, movie.name = "SampleDistributions.gif", ani.width = 400, ani.height = 300)
 
@@ -137,19 +139,8 @@ What is the chance that B is positive on a randomly chosen cow?
 
 TODO show Bayes with raw data - just a data frame
 
-<table>
-<tr>
-<td>
-This gray box represents our set of all cows.
-</td>
-<td>
-We know that 1% of the cow population has BSE.
-</td>
-<td>
-But we also know that there are a lot of positive results:
-</td>
-<tr>
-<td>
+This gray box represents 100% of the population of cows:
+
 ```{r BayesStep1, fig.width=4, fig.height=2.5, echo=FALSE}
 ggplot() + 
   geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
@@ -157,8 +148,9 @@ ggplot() +
     theme_void() + 
     geom_text(aes(x = 0.5, y = 0.5, label = "All Cows"))
 ```
-</td>
-<td>
+
+We know that 1% of the cow population has BSE:
+
 ```{r BayesStep2, fig.width=4, fig.height=2.5, echo=FALSE}
 offset_BSE = sqrt(0.01)
 
@@ -177,8 +169,9 @@ ggplot() +
     geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
     geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
 ```
-</td>
-<td>
+
+But we also know that there are a lot of positive results:
+
 ```{r BayesStep3, fig.width=4, fig.height=2.5, echo=FALSE}
 offset_Positive = sqrt(0.108)
 
@@ -195,12 +188,13 @@ ggplot() +
     geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
     geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests"))
 ```
-</td>
-</tr></table>
 
-Combining everything together, we get the image shown below.  As you can see, if a cow actually has BSE, then there is a high probability that the test will spot it.  However, since most cows are not infected (99%) and we know that there are a ten percent chance of false positives, this results in a large part of the population that gets positive test results, but actually doesn't have BSE.
+Just from this, we can see that there are way more positive test results than the number of cows which have BSE, and therefore, getting a positive result may not be a good indication that the cow actually has BSE.
 
-<center>
+Combining everything together, we get the image shown below.  As you can see, if a cow actually has BSE, then there is a high probability that the test will spot it.  However, since most cows are not infected (99%) and we know that there is a ten percent chance of false positives, this results in a large part of the population that gets positive test results, but actually doesn't have BSE.
+
+A 10% false positive rate (tests positive, no BSE) is actually quite high, when the size of the true positive (tests positive, has BSE) population is much smaller than the false positive rate.
+
 ```{r BayesStep4, fig.width=4, fig.height=2.5, echo=FALSE}
 offset_BSE = sqrt(0.01)
 offset_Positive = sqrt(0.108)
@@ -228,7 +222,117 @@ ggplot() +
     geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests")) + 
     geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
 ```
-</center>
+
+**TODO** show different falues for positive/false positives
+
+What if we had different values for the probability that the test was accurate (i.e. different values for $P(B|A)$ and $P(B|A^{c})$)?
+
+We still have the same probability of a cow having BSE, so we keep $P(A)$=0.01.
+
+We need to calculate again $P(B)$ which is the probabilitiy of getting a positive result independent of whether the cow has BSE or not.
+
+In R, we represent $P(B|A)$ as the variable `p_B_given_A` and we make a sequence from 0 to 100, which indicates a range of values for the test being 0% accurrate all the way up to 100% accurate at spotting BSE given that the cow actually has BSE.
+
+$$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$ 
+
+
+```{r}
+# probability has BSE
+p_A = 0.01
+
+# probability tests positive given has BSE (i.e. how accurate the test is if you have BSE)
+p_B_given_A = seq(0.75,1,0.005)
+
+# probability that the test is positive (independent of if you have BSE or not)
+p_B = (p_A * p_B_given_A) +  # probability that the test is positive if you have BSE
+  ((1-p_A) * (1-p_B_given_A))  # probability that the test is positive if you don't have BSE
+
+df = data.frame(p_A = p_A,
+                p_B_given_A = p_B_given_A,
+                p_B = p_B)
+
+df$p_A_given_B = (df$p_B_given_A * df$p_A) / df$p_B
+
+head(df)
+
+ggplot(df, aes(x=p_B_given_A, y=p_A_given_B)) + 
+  geom_point() + 
+  xlab("P(B|A) = P(Positive Test Results|Has BSE)\nIf the cow has BSE, probability of spotting it with the test") + 
+  ylab("P(A|B) = P(Has BSE|Positive Test Results)\nIf cow has positive test results, probability that it actually has BSE")
+
+```
+
+Let's translate this into cows now.  There are four different situations that a cow can be in as shown in the code below:
+
+```{r}
+numCows = 10000 # we have a lot of cows
+
+# Cow tests positive and has BSE
+positive_has_BSE = df$p_A_given_B
+
+# Cow tests negative and has BSE
+negative_has_BSE = 1 - df$p_A_given_B
+
+# Cow tests positive and doesn't have BSE
+positive_doesnt_have_BSE = 1 - df$p_B_given_A
+
+# Cow tests negative and doesn't BSE
+negative_doesnt_have_BSE = df$p_B_given_A
+```
+
+Now we use `rbind` and `cbind` to create a data frame which we can then plot.  To give an example, the code below create s a matrix with three columns, where the first is the vector `p_B_given_A` which indicates the probability of if the cow has BSE, that the test will be positive. The second column is the vector `positive_has_BSE`, and the third is a column that just repeats the text `"Test +, has BSE"`
+
+```{r, eval=FALSE}
+cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE")
+```
+
+```{r, echo=FALSE}
+head(cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE"))
+```
+
+We then use `rbind` to stack up all these matrices on top of each other into one giant matrix with two columns:
+
+```{r}
+results = rbind(cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE"),
+                cbind(p_B_given_A, negative_has_BSE, "Test -, has BSE"),
+                cbind(p_B_given_A, positive_doesnt_have_BSE, "Test +, no BSE"),
+                cbind(p_B_given_A, negative_doesnt_have_BSE, "Test -, no BSE"))
+
+# convert this into a data frame
+results = as.data.frame(results)
+
+# add columns to the data frame
+colnames(results) = c("test_accuracy", "probability", "probability_type")
+```
+
+You'll notice that there's one thing we need to fix here:
+
+```{r}
+head(results$test_accuracy)
+```
+
+The numbers have quotes around them, which means that R thinks that they are characters.  We need to fix this for the first two columns:
+
+```{r}
+results$test_accuracy = as.numeric(results$test_accuracy)
+results$probability = as.numeric(results$probability)
+```
+
+Now we can plot things:
+```{r}
+ggplot(results, aes(x=test_accuracy, y=probability * numCows, fill=probability_type)) + geom_area(position="stack")
+```
+
+The example above used only a few probabilities to make this calculation.  But what if we had to figure out the probabilities from a giant spreadsheet that didn't summarize the probabilities:
+
+```{r}
+numCows = 1000
+
+df = data.frame(Cow_ID = paste("cow", c(1:numCows)), 
+                has_BSE = FALSE,
+                Test_Results = TRUE)
+
+```
 
 ### Old Code - Take out and/or redo these
 
