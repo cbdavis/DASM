@@ -241,7 +241,7 @@ $$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$
 p_A = 0.01
 
 # probability tests positive given has BSE (i.e. how accurate the test is if you have BSE)
-p_B_given_A = seq(0.75,1,0.005)
+p_B_given_A = seq(0.8,1,0.005)
 
 # probability that the test is positive (independent of if you have BSE or not)
 p_B = (p_A * p_B_given_A) +  # probability that the test is positive if you have BSE
@@ -267,17 +267,20 @@ Let's translate this into cows now.  There are four different situations that a 
 ```{r}
 numCows = 10000 # we have a lot of cows
 
+n_cows_with_BSE = numCows * df$p_A
+n_cows_without_BSE = numCows * (1 - df$p_A)
+
 # Cow tests positive and has BSE
-positive_has_BSE = df$p_A_given_B
+positive_has_BSE = df$p_B_given_A * n_cows_with_BSE
 
 # Cow tests negative and has BSE
-negative_has_BSE = 1 - df$p_A_given_B
+negative_has_BSE = (1 - df$p_B_given_A) * n_cows_with_BSE
 
 # Cow tests positive and doesn't have BSE
-positive_doesnt_have_BSE = 1 - df$p_B_given_A
+positive_doesnt_have_BSE = (1 - df$p_B_given_A) * n_cows_without_BSE
 
 # Cow tests negative and doesn't BSE
-negative_doesnt_have_BSE = df$p_B_given_A
+negative_doesnt_have_BSE = df$p_B_given_A * n_cows_without_BSE
 ```
 
 Now we use `rbind` and `cbind` to create a data frame which we can then plot.  To give an example, the code below create s a matrix with three columns, where the first is the vector `p_B_given_A` which indicates the probability of if the cow has BSE, that the test will be positive. The second column is the vector `positive_has_BSE`, and the third is a column that just repeats the text `"Test +, has BSE"`
@@ -293,34 +296,43 @@ head(cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE"))
 We then use `rbind` to stack up all these matrices on top of each other into one giant matrix with two columns:
 
 ```{r}
-results = rbind(cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE"),
-                cbind(p_B_given_A, negative_has_BSE, "Test -, has BSE"),
-                cbind(p_B_given_A, positive_doesnt_have_BSE, "Test +, no BSE"),
-                cbind(p_B_given_A, negative_doesnt_have_BSE, "Test -, no BSE"))
+has_BSE_results = rbind(cbind(p_B_given_A, negative_has_BSE, "Test -, has BSE"),
+                        cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE"))
+
+no_BSE_results = rbind(cbind(p_B_given_A, negative_doesnt_have_BSE, "Test -, no BSE"), 
+                       cbind(p_B_given_A, positive_doesnt_have_BSE, "Test +, no BSE"))
 
 # convert this into a data frame
-results = as.data.frame(results)
+has_BSE_results = as.data.frame(has_BSE_results)
+no_BSE_results = as.data.frame(no_BSE_results)
 
 # add columns to the data frame
-colnames(results) = c("test_accuracy", "probability", "probability_type")
+colnames(has_BSE_results) = c("test_accuracy", "number_of_cows", "results_type")
+colnames(no_BSE_results) = c("test_accuracy", "number_of_cows", "results_type")
 ```
 
 You'll notice that there's one thing we need to fix here:
 
 ```{r}
-head(results$test_accuracy)
+head(has_BSE_results$test_accuracy)
 ```
 
 The numbers have quotes around them, which means that R thinks that they are characters.  We need to fix this for the first two columns:
 
 ```{r}
-results$test_accuracy = as.numeric(results$test_accuracy)
-results$probability = as.numeric(results$probability)
+has_BSE_results$test_accuracy = as.numeric(has_BSE_results$test_accuracy)
+has_BSE_results$number_of_cows = as.numeric(has_BSE_results$number_of_cows)
+
+no_BSE_results$test_accuracy = as.numeric(no_BSE_results$test_accuracy)
+no_BSE_results$number_of_cows = as.numeric(no_BSE_results$number_of_cows)
+
 ```
 
 Now we can plot things:
 ```{r}
-ggplot(results, aes(x=test_accuracy, y=probability * numCows, fill=probability_type)) + geom_area(position="stack")
+ggplot(has_BSE_results, aes(x=test_accuracy, y=number_of_cows, fill=results_type)) + geom_area()
+
+ggplot(no_BSE_results, aes(x=test_accuracy, y=number_of_cows, fill=results_type)) + geom_area()
 ```
 
 The example above used only a few probabilities to make this calculation.  But what if we had to figure out the probabilities from a giant spreadsheet that didn't summarize the probabilities:
