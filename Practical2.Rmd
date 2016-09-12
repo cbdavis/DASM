@@ -14,81 +14,118 @@ knitr::opts_chunk$set(echo = TRUE)
 library(animation)
 ```
 
-Load libraries and `stringsAsFactors = FALSE`
+
+### TODO need to cover
+
+* Plot distributions
+    * http://www.cookbook-r.com/Graphs/Plotting_distributions_(ggplot2)/
+* confidence intervals
+    * http://docs.ggplot2.org/0.9.3.1/stat_smooth.html
+Also important to get the lower and upper tail - could get weird results based on what they choose
+
+---
+
+# Background
+
+R contains functions that allow you to easily work with distributions.  The names of these functions follow a standard format - you'll see a "d", "r", "p" or "q" and then the name of the distribution.
+
+The "d", "r", "p" or "q" stands for:
+
+* **d** - density functon for distribution
+* **r** - random sample from distribution
+* **p** - cumulative distribution
+* **q** - quantile function
+
+Below you can see how these letters are combined with the names of the distributions:
+
+<center>
+<table width=400><tr><td>
+| Distribution<br>Name | Random<br>Samples  | Density<br>Function | Cumulative<br>Distribution | Quantile |
+|----------------------+--------------------+---------------------+----------------------------+----------|
+| Normal               | `rnorm`            | `dnorm`             | `pnorm`                    | `qnorm`  |
+| Poison               | `rpois`            | `dpois`             | `ppois`                    | `qpois`  |
+| Binomial             | `rbinom`           | `dbinom`            | `pbinom`                   | `qbinom` |
+| Uniform              | `runif`            | `dunif`             | `punif`                    | `qunif`  |
+| Student t            | `rt`               | `dt`                | `pt`                       | `qt`     |
+| Chi-Squared          | `rchisq`           | `dchisq`            | `pchisq`                   | `qchisq` |
+| F                    | `rf`               | `df`                | `pf`                       | `qf`     |
+</td></tr></table>
+*Source: [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf)*
+</center>
+
+Type `?Distributions` into the RStudio Console in order to see documentation on all of the distributions
+
+# Exercises
+
+Load required library and set `stringsAsFactors = FALSE`
 ```{r}
 library(ggplot2)
 options(stringsAsFactors = FALSE)
 ```
 
-### TODO need to cover
-
-* Probability distributions (binomial, poisson, normal)
-    * (density, cumulative, quartiles, random number) 
-* Plot distributions
-    * http://www.cookbook-r.com/Graphs/Plotting_distributions_(ggplot2)/
-* confidence intervals
-    * http://docs.ggplot2.org/0.9.3.1/stat_smooth.html
-* Sets? - could show union, intersection, setdiff, not sure if this applies to the examples.
-* Venn diagram package for R?
-
-
-Also important to get the lower and upper tail - could get weird results based on what they choose
-
-
-# Distributions and their functions
-Type `?Distributions` in RStudio in order to see documentation on all of the distributions
-
-<center>
-<table width=400><tr><td>
-|          | Random<br>Variates | Density<br>Function | Cumulative<br>Distribution | Quantile |
-|----------+-----------------+------------------+-------------------------+----------|
-| Normal   | `rnorm`         | `dnorm`          | `pnorm`                 | `qnorm`  |
-| Poison   | `rpois`         | `dpois`          | `ppois`                 | `qpois`  |
-| Binomial | `rbinom`        | `dbinom`         | `pbinom`                | `qbinom` |
-| Uniform  | `runif`         | `dunif`          | `punif`                 | `qunif`  |
-</td></tr></table>
-*Source: [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf)*
-</center>
-
-(Show how they change with more samples, animation)
-
-set.seed(12345)
-hist(rnorm(10000), breaks=100)
-set.seed(12345)
-hist(rnorm(100000), breaks=100)
-
-# Sampling
-
-## Permutations (ordered sample)
-
-### With replacement
-
-Choose k samples from n total objects in $n^{k}$ ways.
-
-
-### Without replacement
-
+## Plot one or two of these distributions and their cumulative distributions 
+x vs f(x) 
 
 ```{r}
-n = 5
-k = 2
-factorial(n) / factorial(n - k)
+# create a series of x values
+xvals = seq(-3, 3, 0.01)
+
+# create a data frame containing values for the density function (sampled at
+# each value of xvals) and the cumulative distribution sampled at the same values
+
+dist_data = data.frame(x=xvals, 
+                  dist = dnorm(xvals),
+                  cumulative_dist = pnorm(xvals))
+
+ggplot() + 
+  geom_line(data=dist_data, aes(x=x, y=dist)) + 
+  geom_line(data=dist_data, aes(x=x, y=cumulative_dist)) + 
+  ylab("Probability") + 
+  xlab("X Values")
+```
+
+## Find the probabilities 
+that x > x0 or x < x0 (with the option lower.tail – FALSE)
+```{r}
+
+x0 = 1
+# x > x0
+pnorm(x0, lower.tail=FALSE)
+# x < x0
+1 - pnorm(x0, lower.tail=FALSE)
 
 ```
 
-$$ \binom{n}{k} = \frac{n!}{(n-k)!} $$
+## Use the qxxx distributions to find quartiles for different probabilities (also use upper and lower tails) 
 
-factorial(n) / factorial(k)*factorial(n - k)
+```{r}
+qnorm(0.80)
+qnorm(0.90)
+qnorm(0.95)
+qnorm(0.99)
+```
 
+```{r}
+ggplot() + 
+  geom_line(data=dist_data, aes(x=x, y=dist), colour="blue") + 
+  geom_line(data=dist_data, aes(x=x, y=cumulative_dist), color="red") + 
+  ylab("Probability") + 
+  xlab("X Values") + 
+  geom_vline(xintercept = qnorm(0.5), linetype="dashed") + 
+  geom_vline(xintercept = qnorm(0.9), linetype="dashed") +
+  geom_vline(xintercept = qnorm(0.95), linetype="dashed") + 
+  geom_vline(xintercept = qnorm(0.99), linetype="dashed") + 
+  ggtitle("Quantitles for normal distribution at 0.5, 0.9, 0.95, 0.99")
+```
 
-## Combinations (unordered sample)
+## Take random values from a distribution 
 
-$$ \binom{n}{k} = \frac{n!}{k!(n-k)!} $$
+```{r}
+runif(10)
+rnorm(10)
+```
 
-
-# Distributions
-
-show this as what we should get, as increase samples, get closer to this
+Keep this?
 ```{r animatedHistogram, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
 x = seq(-3,3,0.01)
 density = dnorm(x)
@@ -120,9 +157,91 @@ saveGIF({
 
 ![Density versus samples](SampleDistributions.gif) 
 
-Show cumulative sum on distribution?  Show different ways of deriving things
 
-Visual explanation of Bayes?
+## Explore an option to selected x random values y times 
+
+(if not done in the previous practicum: let them calculate normal qq plots to explore if a distribution is normal) 
+
+**TODO:** See `help(package="datasets")` for other useful datasets
+
+```{r}
+
+x <- rnorm(100)
+qqnorm(x)
+qqline(x)
+
+x = iris$Sepal.Length
+qqnorm(x)
+qqline(x)
+
+x = faithful$waiting
+qqnorm(x)
+qqline(x)
+
+```
+
+## Let then use the quartile functions to calculate confidence intervals  i.e. give them a data set of values (n<30, but from a normal distribution). 
+
+* let them calculate a qq-normal plot to check if data are normal (**TODO**: done above?)
+* Let them calculate confidence intervals for mean and standard deviation. (For this you can put the formula from the lecture at the slides.)
+
+
+
+# Big Exercise
+
+* Let them take a random sample n< 30 from a normal distribution
+```{r}
+vals = rnorm(30, mean=0, sd=1)
+```
+
+* let them calculate mean and standard deviation of the distribution compare to the mean and standard deviation of the original distribution 
+
+```{r}
+mean_pts = mean(vals)
+sd_pts = sd(vals)
+```
+
+* Let them calculate the 95% confidence interval of the mean and compare to the original distribution. 
+```{r}
+qnorm(0.95, mean=mean_pts, sd=sd_pts)
+qnorm(0.95, mean=0, sd=1)
+```
+
+* For how many students does the confidence interval include the true mean? 
+
+**TODO**: what is meant by this exactly?
+
+---
+
+# OLD 
+
+# Sampling
+
+## Permutations (ordered sample)
+
+### With replacement
+
+Choose k samples from n total objects in $n^{k}$ ways.
+
+### Without replacement
+
+```{r}
+n = 5
+k = 2
+factorial(n) / factorial(n - k)
+
+```
+
+$$ \binom{n}{k} = \frac{n!}{(n-k)!} $$
+
+factorial(n) / factorial(k)*factorial(n - k)
+
+
+## Combinations (unordered sample)
+
+$$ \binom{n}{k} = \frac{n!}{k!(n-k)!} $$
+
+
 
 # Bayes Theorem
 
@@ -257,226 +376,12 @@ head(df)
 
 ggplot(df, aes(x=p_B_given_A, y=p_A_given_B)) + 
   geom_point() + 
-  xlab("P(B|A) = P(Positive Test Results|Has BSE)\nIf the cow has BSE, probability of spotting it with the test") + 
-  ylab("P(A|B) = P(Has BSE|Positive Test Results)\nIf cow has positive test results, probability that it actually has BSE")
+  xlab("P(B|A) = P(Positive Test Results|Has BSE)
+       If the cow has BSE, probability of spotting it with the test") + 
+  ylab("P(A|B) = P(Has BSE|Positive Test Results)
+       If cow has positive test results, probability that it actually has BSE")
 
 ```
 
-Let's translate this into cows now.  There are four different situations that a cow can be in as shown in the code below:
+This shows something quite interesting - past a certain point, as the test becomes more accurate in spotting cows with BSE, the number of false positives drop at a higher rate than the corresponding increase in accuracy.
 
-```{r}
-numCows = 10000 # we have a lot of cows
-
-n_cows_with_BSE = numCows * df$p_A
-n_cows_without_BSE = numCows * (1 - df$p_A)
-
-# Cow tests positive and has BSE
-positive_has_BSE = df$p_B_given_A * n_cows_with_BSE
-
-# Cow tests negative and has BSE
-negative_has_BSE = (1 - df$p_B_given_A) * n_cows_with_BSE
-
-# Cow tests positive and doesn't have BSE
-positive_doesnt_have_BSE = (1 - df$p_B_given_A) * n_cows_without_BSE
-
-# Cow tests negative and doesn't BSE
-negative_doesnt_have_BSE = df$p_B_given_A * n_cows_without_BSE
-```
-
-Now we use `rbind` and `cbind` to create a data frame which we can then plot.  To give an example, the code below create s a matrix with three columns, where the first is the vector `p_B_given_A` which indicates the probability of if the cow has BSE, that the test will be positive. The second column is the vector `positive_has_BSE`, and the third is a column that just repeats the text `"Test +, has BSE"`
-
-```{r, eval=FALSE}
-cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE")
-```
-
-```{r, echo=FALSE}
-head(cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE"))
-```
-
-We then use `rbind` to stack up all these matrices on top of each other into one giant matrix with two columns:
-
-```{r}
-has_BSE_results = rbind(cbind(p_B_given_A, negative_has_BSE, "Test -, has BSE"),
-                        cbind(p_B_given_A, positive_has_BSE, "Test +, has BSE"))
-
-no_BSE_results = rbind(cbind(p_B_given_A, negative_doesnt_have_BSE, "Test -, no BSE"), 
-                       cbind(p_B_given_A, positive_doesnt_have_BSE, "Test +, no BSE"))
-
-# convert this into a data frame
-has_BSE_results = as.data.frame(has_BSE_results)
-no_BSE_results = as.data.frame(no_BSE_results)
-
-# add columns to the data frame
-colnames(has_BSE_results) = c("test_accuracy", "number_of_cows", "results_type")
-colnames(no_BSE_results) = c("test_accuracy", "number_of_cows", "results_type")
-```
-
-You'll notice that there's one thing we need to fix here:
-
-```{r}
-head(has_BSE_results$test_accuracy)
-```
-
-The numbers have quotes around them, which means that R thinks that they are characters.  We need to fix this for the first two columns:
-
-```{r}
-has_BSE_results$test_accuracy = as.numeric(has_BSE_results$test_accuracy)
-has_BSE_results$number_of_cows = as.numeric(has_BSE_results$number_of_cows)
-
-no_BSE_results$test_accuracy = as.numeric(no_BSE_results$test_accuracy)
-no_BSE_results$number_of_cows = as.numeric(no_BSE_results$number_of_cows)
-
-```
-
-Now we can plot things:
-```{r}
-ggplot(has_BSE_results, aes(x=test_accuracy, y=number_of_cows, fill=results_type)) + geom_area()
-
-ggplot(no_BSE_results, aes(x=test_accuracy, y=number_of_cows, fill=results_type)) + geom_area()
-```
-
-The example above used only a few probabilities to make this calculation.  But what if we had to figure out the probabilities from a giant spreadsheet that didn't summarize the probabilities:
-
-```{r}
-numCows = 1000
-
-df = data.frame(Cow_ID = paste("cow", c(1:numCows)), 
-                has_BSE = FALSE,
-                Test_Results = TRUE)
-
-```
-
-### Old Code - Take out and/or redo these
-
-## Example 1
-
-You observe cars at an intersection: At a usual day 50% go right and 50% go left. Today you walk past quickly and you have time to observe 10 cars. 
-
-* You want to know the chance that x cars will go to the right. What 	distribution do you use with which parameters? 
-
-*Binomial distribution where `p = 0.5` and `n = 10`*
-
-* What is the chance that only 2 will go right? That more than 7  go right?
-
-$$
-  P_{B}(x;10,0.5) = \binom{10}{x} 0.5^{x}(1-0.5)^{10-x}
-$$
-
-```{r}
-x = 2
-n = 10
-p = 0.5
-dbinom(2,10,0.5)
-```
-$$
-x > 7: 	P_{B}(8; 10, 0.5) + P_{B}(9; 10, 0.5) + P_{B}(10; 10, 0.5)
-$$
-
-```{r}
-dbinom(8,10,0.5) + dbinom(9,10,0.5) + dbinom(10, 10, 0.5)
-```
-
-<center>*or*</center>
-
-$$
-1 – S_{B}(7; 10, 0.5)
-$$
-
-```{r}
-1 - pbinom(7,10,0.5) 
-```
-
-* Now you stop and observe 1000 cars: what is the most likely number to do right and what is the standard deviation?
-
-	E(x; n, p) = n*p ; E(x; 1000, 0.5) = 500
-	var(x; n, p) = n*p*(1-p)  var(x; 1000, 0.5) = 250, s = 15.81
-
-* You observe 100 cars and see that 43 go to the right? Which uncertainty 	should you quote?
-
-var(x; n, p) = n*p*(1-p)  var(x; 100, 0.5) = 25, s = 5
-
-* What is the chance that this observation was made on a typical day?
-
-$$ P_{B}(x;100,0.5) = \binom{100}{x} 0.5^{x}(1-0.5)^{100-x} $$
-$$ X = 43, P_{B} = 0.03, $$
-$$ S_{B} = 0.10 (observe\ at\ most\ 43\ cars\ on\ a\ typical\ day) $$
-
-
-## Example 2
-The government says that 26% of the populations smoke. You want to test this by asking 30 of your friends. 
-
-* If this sample is a good representation of the population, how many do you expect to smoke if the government says the truth?
-
-P = 0.26, n = 30
-E(x; n, p) = n*p = 7.8 i.e. 7 or 8 people should smoke out of the 30
-
-* Because of the small sample you decide that if 6, 7, 8, or 9 smoke, you believe the government, otherwise you reject – is this a good choice?
-
-if really 26% smoke then the chance that you find 6, 7, 8, or  9 smokers is:
-SB(9; 30, 0.26) – SB(5; 30, 0.26) = 0.596
-
- i.e., even if the government is right you still have ~ 40% chance to find more or less smokes – not a good criterium
-
-* What about trusting the government if 4 – 11 people in the sample smoke?
-
-if really 26% smoke then the chance that you find 4, 5, …, or  11 smokers is:
-PB (4; 30, 0.26) + PB(5; 30, 0.26) + … + PB(11; 30, 0.26) = 
-= SB(11; 30, 0.26) – SB(3; 30, 0.26) = 0.905
-
-i.e., if the government is right you still have only  ~ 10% chance to find either of 0, 1, 2, 3;  12, 13, …30 smokers. Therefore if you observe any of these numbers there is quite a big chance that the quoted figure of 26% id wrong. 
-
-
-## Example 3
-
-A large detector is set up to detect neutrinos. It usually counts 2/day. 
-
-* What is the distribution you would use to estimate the probability of counting x neutrinos in a given day?
-
-<center> Poisson, $\mu$ = 2 </center>
-
-$$
-P_{p} (x;2) = \binom{2^{x}}{x!}e^{-2}
-$$
-
-* What is the probability of detecting 8/day? Are scientists justified in calling this a special event?
-
-1 - Sp(8;2) = 0.00086 or 0.08%
-
-```{r}
-ppois(8, lambda=2, lower = FALSE)
-```
-* What if it counts 4/day?
-
-## Example 4
-
-The weight of young seals follows approximately a normal distribution with mean 150 kg and standard deviation of 10 kg
-
-* What is the probability that a young seal weighs 120kg at the most?
-
-Table lookup:
-Z1 = (120 – 150)/10 = -3
-Cn(Z1) = 0.0013
-
-```{r}
-pnorm(120,mean=150, sd = 10)
-```
-
-* What is the  probability that a young seal weighs at  least 125 kg
-
-Table: 
-Z2 = -2.5
-P(z > Z2) = 1 – P(z<Z2) = 1- 0.0062 = 0.994
-
-```{r}
-pnorm(125,mean=150, sd = 10, lower.tail = FALSE)
-```
-
-* The heaviest 15% of the seals are classified as overweight? What is the cut-off weight?
-
-Table look up:
- the probability of 0.85 -> find Z
-Z = 1.036, -> x = z*10 + 150 = 160.4
-
-```{r}
-qnorm(0.85, mean= 150, sd = 10)
-```
