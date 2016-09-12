@@ -17,11 +17,19 @@ library(animation)
 
 ### TODO need to cover
 
-* Plot distributions
-    * http://www.cookbook-r.com/Graphs/Plotting_distributions_(ggplot2)/
-* confidence intervals
-    * http://docs.ggplot2.org/0.9.3.1/stat_smooth.html
-Also important to get the lower and upper tail - could get weird results based on what they choose
+#* Plot distributions
+#    * http://www.cookbook-r.com/Graphs/Plotting_distributions_(ggplot2)/
+#* confidence intervals
+#    * http://docs.ggplot2.org/0.9.3.1/stat_smooth.html
+#Also important to get the lower and upper tail - could get weird results based on what they choose
+
+Should cover binomial distribution - this is one of the homework problems.  
+"Common distributions" - Example 1 - look at cars @ intersection example.  Show what to put into R
+
+Ask them to do example 2 & 3 in R, based on what I showed them with example 1.
+For example 1, plot the distribution, would check to see if answers are reasonable or not.  
+
+Take out combinatorics, permutations, leave in Bayes example with cows.
 
 ---
 
@@ -181,6 +189,8 @@ qqline(x)
 ```
 
 ## Let then use the quartile functions to calculate confidence intervals  i.e. give them a data set of values (n<30, but from a normal distribution). 
+
+**TODO** let students repeat this with a new dataset
 
 * let them calculate a qq-normal plot to check if data are normal (**TODO**: done above?)
 * Let them calculate confidence intervals for mean and standard deviation. (For this you can put the formula from the lecture at the slides.)
@@ -385,3 +395,4 @@ ggplot(df, aes(x=p_B_given_A, y=p_A_given_B)) +
 
 This shows something quite interesting - past a certain point, as the test becomes more accurate in spotting cows with BSE, the number of false positives drop at a higher rate than the corresponding increase in accuracy.
 
+If BSE spreads, then your false positives go down, so "accuracy" is partly a function of population size.
