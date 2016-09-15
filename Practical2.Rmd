@@ -15,14 +15,6 @@ library(animation)
 ```
 
 
-### TODO need to cover
-
-#* Plot distributions
-#    * http://www.cookbook-r.com/Graphs/Plotting_distributions_(ggplot2)/
-#* confidence intervals
-#    * http://docs.ggplot2.org/0.9.3.1/stat_smooth.html
-#Also important to get the lower and upper tail - could get weird results based on what they choose
-
 Should cover binomial distribution - this is one of the homework problems.  
 "Common distributions" - Example 1 - look at cars @ intersection example.  Show what to put into R
 
@@ -82,8 +74,8 @@ xvals = seq(-3, 3, 0.01)
 # each value of xvals) and the cumulative distribution sampled at the same values
 
 dist_data = data.frame(x=xvals, 
-                  dist = dnorm(xvals),
-                  cumulative_dist = pnorm(xvals))
+                       dist = dnorm(xvals),
+                       cumulative_dist = pnorm(xvals))
 
 ggplot() + 
   geom_line(data=dist_data, aes(x=x, y=dist)) + 
@@ -147,17 +139,17 @@ for (i in c(1:5)){
 
 saveGIF({  
   for (number_of_points in point_steps){
-
-  set.seed(12345)
-  df = data.frame(vals = rnorm(number_of_points))
-  
-  p = ggplot() + 
-    geom_histogram(data=df, aes(x=vals, y = ..density..), bins=100) + 
-    geom_line(data=density_df, aes(x=x, y=density)) + 
-    coord_cartesian(xlim=c(-3,3), ylim=c(0,0.45)) + 
-    xlab("Values") + ylab("Density") + ggtitle(paste(format(number_of_points, scientific=FALSE), "samples"))
-
-  print(p)
+    
+    set.seed(12345)
+    df = data.frame(vals = rnorm(number_of_points))
+    
+    p = ggplot() + 
+      geom_histogram(data=df, aes(x=vals, y = ..density..), bins=100) + 
+      geom_line(data=density_df, aes(x=x, y=density)) + 
+      coord_cartesian(xlim=c(-3,3), ylim=c(0,0.45)) + 
+      xlab("Values") + ylab("Density") + ggtitle(paste(format(number_of_points, scientific=FALSE), "samples"))
+    
+    print(p)
   }
 }, interval = 0.1, movie.name = "SampleDistributions.gif", ani.width = 400, ani.height = 300)
 
@@ -168,25 +160,115 @@ saveGIF({
 
 ## Explore an option to selected x random values y times 
 
+[Q-Q plots](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot)
+
 (if not done in the previous practicum: let them calculate normal qq plots to explore if a distribution is normal) 
 
 **TODO:** See `help(package="datasets")` for other useful datasets
 
 ```{r}
-
 x <- rnorm(100)
 qqnorm(x)
 qqline(x)
+```
 
-x = iris$Sepal.Length
+Uniform distribution
+
+```{r}
+x <- runif(100)
 qqnorm(x)
 qqline(x)
+```
 
+### Binomial distribution
+
+Type `?rbinom` into the console will bring up a page showing the following parameters that need to be specified to generate random numbers from a binonial distribution:
+
+* `n`: number of observations
+* `size`: number of trials
+* `prob`: probability of success on each trial
+
+In the code below, `n=1000` means that we have 100 observations.  During each observation we do 50 trials (`size=50`) where the probability of a success is defined by `prob=0.5`.
+
+```{r}
+x <- rbinom(n=1000, size=50, prob=0.5)
+```
+
+We can use `range` to see the minimum and maximum values:
+```{r}
+range(x)
+```
+
+In other words, there exists at least one observation where there were `r min(x)` successes and at least one observation where there were `r max(x)` successes.
+
+We use `+ xlim(c(0,50))` to show the x axis for values from 0 to 50.
+
+```{r}
+# Create a data frame for the values of x
+# This results in a data frame with one column: data$x
+data = as.data.frame(x)
+ggplot(data, aes(x=x)) +  geom_histogram(binwidth = 1) + xlim(c(0,50))
+```
+
+```{r}
+qqnorm(x)
+qqline(x)
+```
+
+If we try a more skewed distribution with `prob=0.9`, we get:
+```{r}
+x <- rbinom(n=1000, size=50, prob=0.9)
+data = as.data.frame(x)
+ggplot(data, aes(x=x)) +  geom_histogram(binwidth = 1) + xlim(c(0,50))
+
+qqnorm(x)
+qqline(x)
+```
+
+We next use the `faithful` dataset which is included with R.  You can type `?faithful` in the RStudio console to get more information on it.  This data is about the [Old Faithful geyser](https://en.wikipedia.org/wiki/Old_Faithful) in Yellowstone National Park in the US.  This geyser is famous for erupting on a very regular schedule and the data set has information on how long the eruptions are (`faithful$eruptions`) and the amount of time until the next eruption (`faithful$waiting`).
+
+We can first make a Q-Q plot of the waiting times:
+```{r}
 x = faithful$waiting
 qqnorm(x)
 qqline(x)
-
 ```
+
+This tells us that the eruptions are clearly not normally distributed.  To investigate further, we can plot a histogram of the values:
+```{r}
+ggplot(faithful, aes(x=waiting)) + geom_histogram(binwidth=2)
+```
+
+From the histogram, we see from this is that it's clearly bimodal as there are two distinct peaks.
+
+To investigate further, we can do a scatter plot showing how the waiting time might be related to the length of the eruption.
+```{r}
+ggplot(faithful, aes(x=eruptions, y=waiting)) + geom_point() + 
+  xlab("length of eruption (minutes)") + 
+  ylab("waiting time until next eruption (minutes)")
+```
+
+This shows us that the longer the eruption, the longer we will have to wait until the next one.  There also seem to be two distinct clusters.  It's not clear what is causing this, and since the data doesn't mention the date of the eruption, we don't know it randomly switches between short and long eruptions, or if for years there were long eruptions, but now there are only short eruptions due to factors such as earthquakes changing the water supply to the geyser.
+
+We can also split up the data into two sets, where one lists all the eruptions that lasted less than three minutes, and the other one contains those which are longer:
+```{r}
+faithful_short = faithful[which(faithful$eruptions < 3),]
+faithful_long = faithful[which(faithful$eruptions >= 3),]
+```
+
+Q-Q plot for the short eruptions:
+```{r}
+qqnorm(faithful_short$waiting)
+qqline(faithful_short$waiting)
+```
+
+Q-Q plot for the long eruptions:
+```{r}
+qqnorm(faithful_long$waiting)
+qqline(faithful_long$waiting)
+```
+
+This shows that if we split the data into two clusters, then data in those clusters seems to be normally distributed.
 
 ## Let then use the quartile functions to calculate confidence intervals  i.e. give them a data set of values (n<30, but from a normal distribution). 
 
@@ -195,63 +277,118 @@ qqline(x)
 * let them calculate a qq-normal plot to check if data are normal (**TODO**: done above?)
 * Let them calculate confidence intervals for mean and standard deviation. (For this you can put the formula from the lecture at the slides.)
 
-
-
 # Big Exercise
 
 * Let them take a random sample n< 30 from a normal distribution
 ```{r}
-vals = rnorm(30, mean=0, sd=1)
+n = 30 # number of random samples
+
+# set the mean and standard deviation of the distribution
+true_mean = 0
+true_sd = 1
+
+# take random samples
+vals = rnorm(n, mean=true_mean, sd=true_sd)
 ```
 
-* let them calculate mean and standard deviation of the distribution compare to the mean and standard deviation of the original distribution 
+Now we calculate $\mu$ and $\sigma$ of the distribution and compare it to to the original distribution (where $\mu = 0$ and $\sigma = 1$).
 
 ```{r}
 mean_pts = mean(vals)
+mean_pts
 sd_pts = sd(vals)
+sd_pts
 ```
 
-* Let them calculate the 95% confidence interval of the mean and compare to the original distribution. 
+From the book, we know that we can calculate the 95% confidence interval using the following formula:
+
+$$\bar{y} \pm 1.96 \cdot \sigma_{\bar{y}} $$
+
+Where:
+
+$$\sigma_{\bar{y}} = \frac{\sigma}{\sqrt{n}}$$
+
+* Calculate the 95% confidence interval of the mean and compare to the original distribution:
 ```{r}
-qnorm(0.95, mean=mean_pts, sd=sd_pts)
-qnorm(0.95, mean=0, sd=1)
 ```
 
-* For how many students does the confidence interval include the true mean? 
-
-**TODO**: what is meant by this exactly?
-
----
-
-# OLD 
-
-# Sampling
-
-## Permutations (ordered sample)
-
-### With replacement
-
-Choose k samples from n total objects in $n^{k}$ ways.
-
-### Without replacement
+For how many samples does the confidence interval include the true mean?   Here, for 500 iterations we take `n` random numbers from the distribution, and calculate the confidence intervals.
 
 ```{r}
-n = 5
-k = 2
-factorial(n) / factorial(n - k)
 
+times_true_mean_in_confidence_interval = 0
+num_tests = 500
+# create a loop where the value of "count" will be 1, 2, 3... num_tests
+for (count in c(1:num_tests)){
+  
+  # sample random values from the distribution
+  vals = rnorm(n, mean=0, sd=1)
+  
+  # calculate mean and standard deviation
+  mean_pts = mean(vals)
+  sd_pts = sd(vals)
+  
+  # calculate left and right sides of the interval
+  left = mean_pts - (1.96 * sd_pts/sqrt(n))
+  right = mean_pts + (1.96 * sd_pts/sqrt(n))
+  
+  # see if the true_mean is within the bounds of the interval
+  if (true_mean >= left & true_mean <= right){
+    # if it's in the interval, add one to this variable
+    times_true_mean_in_confidence_interval = times_true_mean_in_confidence_interval + 1
+  }
+}
+
+# show how many times the true_mean falls within the intervals calculated
+times_true_mean_in_confidence_interval
+
+# what percentage of the time does the true_mean fall within the intervals calculated?
+times_true_mean_in_confidence_interval / num_tests
 ```
 
-$$ \binom{n}{k} = \frac{n!}{(n-k)!} $$
+What if we ran this 10,000 times?  How would this percentage change as we repeatly took more random samples?
 
-factorial(n) / factorial(k)*factorial(n - k)
+Note that the x axis is scaled logarithmically.
 
+```{r, echo=FALSE}
+times_true_mean_in_confidence_interval = 0
 
-## Combinations (unordered sample)
+set.seed(1234)
 
-$$ \binom{n}{k} = \frac{n!}{k!(n-k)!} $$
+num_tests = 10000
+percent_times_true_mean_in_interval = c()
+# create a loop where the value of "count" will be 1, 2, 3... num_tests
+for (count in c(1:num_tests)){
+  
+  # sample random values from the distribution
+  vals = rnorm(n, mean=0, sd=1)
+  
+  # calculate mean and standard deviation
+  mean_pts = mean(vals)
+  sd_pts = sd(vals)
+  
+  # calculate left and right sides of the interval
+  left = mean_pts - (1.96 * sd_pts/sqrt(n))
+  right = mean_pts + (1.96 * sd_pts/sqrt(n))
+  
+  # see if the true_mean is within the bounds of the interval
+  if (true_mean >= left & true_mean <= right){
+    # if it's in the interval, add one to this variable
+    times_true_mean_in_confidence_interval = times_true_mean_in_confidence_interval + 1
+  }
+  
+  percent_times_true_mean_in_interval = c(percent_times_true_mean_in_interval,
+                                          (times_true_mean_in_confidence_interval/count))
+}
 
+data = data.frame(percent = percent_times_true_mean_in_interval,
+                  iteration = c(1:num_tests))
+ggplot(data, aes(x=iteration, y=percent)) + geom_point() + geom_line() +  
+  xlab("Iteration") + 
+  ylab("Percent times true mean in 95% confidence interval") + scale_x_log10()
+```
 
+This shows that there is a lot of variation at first, but as expected, with more samples, we settle into the 95% range.
 
 # Bayes Theorem
 
@@ -265,17 +402,14 @@ $$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$
 What is the chance that B is positive on a randomly chosen cow?
 0.01*0.9 + 0.99*0.1 = 0.108
 
-
-TODO show Bayes with raw data - just a data frame
-
 This gray box represents 100% of the population of cows:
 
 ```{r BayesStep1, fig.width=4, fig.height=2.5, echo=FALSE}
 ggplot() + 
   geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
             aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
-    theme_void() + 
-    geom_text(aes(x = 0.5, y = 0.5, label = "All Cows"))
+  theme_void() + 
+  geom_text(aes(x = 0.5, y = 0.5, label = "All Cows"))
 ```
 
 We know that 1% of the cow population has BSE:
@@ -294,9 +428,9 @@ ggplot() +
                             xmax=xmin_BSE + offset_BSE, 
                             ymax=ymin_BSE + offset_BSE), 
             aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#0000FF77", fill="#0000FF77") + 
-    theme_void() + 
-    geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
-    geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
+  theme_void() + 
+  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
+  geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
 ```
 
 But we also know that there are a lot of positive results:
@@ -314,8 +448,8 @@ ggplot() +
                             xmax=xmin_Positive + offset_Positive, 
                             ymax=ymin_Positive + offset_Positive), 
             aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#FF000077", fill="#FF000077") + theme_void() + 
-    geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
-    geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests"))
+  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
+  geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests"))
 ```
 
 Just from this, we can see that there are way more positive test results than the number of cows which have BSE, and therefore, getting a positive result may not be a good indication that the cow actually has BSE.
@@ -347,12 +481,10 @@ ggplot() +
                             xmax=xmin_Positive + offset_Positive, 
                             ymax=ymin_Positive + offset_Positive), 
             aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#FF000077", fill="#FF000077") + theme_void() + 
-    geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
-    geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests")) + 
-    geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
+  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
+  geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests")) + 
+  geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
 ```
-
-**TODO** show different falues for positive/false positives
 
 What if we had different values for the probability that the test was accurate (i.e. different values for $P(B|A)$ and $P(B|A^{c})$)?
 
@@ -393,6 +525,7 @@ ggplot(df, aes(x=p_B_given_A, y=p_A_given_B)) +
 
 ```
 
-This shows something quite interesting - past a certain point, as the test becomes more accurate in spotting cows with BSE, the number of false positives drop at a higher rate than the corresponding increase in accuracy.
+There are two interesting things that we see here: 
 
-If BSE spreads, then your false positives go down, so "accuracy" is partly a function of population size.
+* Past a certain point, as the test becomes more accurate in spotting cows with BSE, the number of false positives drop at a higher rate than the corresponding increase in accuracy.
+* If BSE spreads, then your false positives go down, and the "accuracy" of the test (i.e. $P(B|A)$) goes up without actually changing anything with the test.  In other words, "accuracy" is partly a function of population size.
