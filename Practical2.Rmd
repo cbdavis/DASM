@@ -21,9 +21,168 @@ Should cover binomial distribution - this is one of the homework problems.
 Ask them to do example 2 & 3 in R, based on what I showed them with example 1.
 For example 1, plot the distribution, would check to see if answers are reasonable or not.  
 
-Take out combinatorics, permutations, leave in Bayes example with cows.
-
 ---
+
+# Getting started
+
+Make sure to load the `ggplot2` library so we can do plotting.
+```{r}
+library(ggplot2)
+```
+
+# Bayes Theorem
+
+This example is based on the one already presented in the lecture slides, although it goes into more of a visual explanation and also shows how you can use R code to calculate Bayesian Probabilities.
+
+To review:
+
+$$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$ 
+
+can be difficult to understand since you're calculating probabilities on different subsets of the whole population, and sometimes you really have to think about why 
+
+`P(A,B)`, `P(A|B)` and `P(B|A)` are all different, although certain samples influence the calculation of all three
+
+
+
+
+
+We have the following definition of the events and probabilities:
+
+* Event A: cow has BSE, $P(A)$=0.01
+* Event B: test is positive
+* $P(B|A)$ = 0.9 accuracy (= test is positive, if the cow is infected)
+* $P(B|A^{c})$ = 0.1 false positives (= test is positive, if the cow is not infected)
+
+What is the chance that B is positive on a randomly chosen cow?
+0.01*0.9 + 0.99*0.1 = 0.108
+
+This gray box represents 100% of the population of cows:
+
+```{r BayesStep1, fig.width=4, fig.height=2.5, echo=FALSE}
+ggplot() + 
+  geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
+            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
+  theme_void() + 
+  geom_text(aes(x = 0.5, y = 0.5, label = "All Cows"))
+```
+
+We know that 1% of the cow population has BSE:
+
+```{r BayesStep2, fig.width=4, fig.height=2.5, echo=FALSE}
+offset_BSE = sqrt(0.01)
+
+xmin_BSE = 0.5 - offset_BSE/2
+ymin_BSE = 0.5 - offset_BSE/2
+# cover up 0.08964
+
+ggplot() + 
+  geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
+            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
+  geom_rect(data=data.frame(xmin=xmin_BSE, ymin=ymin_BSE, 
+                            xmax=xmin_BSE + offset_BSE, 
+                            ymax=ymin_BSE + offset_BSE), 
+            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#0000FF77", fill="#0000FF77") + 
+  theme_void() + 
+  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
+  geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
+```
+
+But we also know that there are a lot of positive results:
+
+```{r BayesStep3, fig.width=4, fig.height=2.5, echo=FALSE}
+offset_Positive = sqrt(0.108)
+
+xmin_Positive = 0.5 - offset_Positive/2
+ymin_Positive = 0.5 - offset_Positive/2
+
+ggplot() + 
+  geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
+            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
+  geom_rect(data=data.frame(xmin=xmin_Positive, ymin=ymin_Positive, 
+                            xmax=xmin_Positive + offset_Positive, 
+                            ymax=ymin_Positive + offset_Positive), 
+            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#FF000077", fill="#FF000077") + theme_void() + 
+  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
+  geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests"))
+```
+
+Just from this, we can see that there are way more positive test results than the number of cows which have BSE, and therefore, getting a positive result may not be a good indication that the cow actually has BSE.
+
+Combining everything together, we get the image shown below.  As you can see, if a cow actually has BSE, then there is a high probability that the test will spot it.  However, since most cows are not infected (99%) and we know that there is a ten percent chance of false positives, this results in a large part of the population that gets positive test results, but actually doesn't have BSE.
+
+A 10% false positive rate (tests positive, no BSE) is actually quite high, when the size of the true positive (tests positive, has BSE) population is much smaller than the false positive rate.
+
+```{r BayesStep4, fig.width=4, fig.height=2.5, echo=FALSE}
+offset_BSE = sqrt(0.01)
+offset_Positive = sqrt(0.108)
+
+xmin_Positive = 0.5 - offset_Positive/2
+ymin_Positive = 0.5 - offset_Positive/2
+
+xmin_BSE = xmin_Positive - (0.1-0.08964)
+#ymin_BSE = 0.5 - offset_BSE/2
+ymin_BSE = ymin_Positive
+# cover up 0.08964
+
+ggplot() + 
+  geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
+            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
+  geom_rect(data=data.frame(xmin=xmin_BSE, ymin=ymin_BSE, 
+                            xmax=xmin_BSE + offset_BSE, 
+                            ymax=ymin_BSE + offset_BSE), 
+            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#0000FF77", fill="#0000FF77") + 
+  geom_rect(data=data.frame(xmin=xmin_Positive, ymin=ymin_Positive, 
+                            xmax=xmin_Positive + offset_Positive, 
+                            ymax=ymin_Positive + offset_Positive), 
+            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#FF000077", fill="#FF000077") + theme_void() + 
+  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
+  geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests")) + 
+  geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
+```
+
+What if we had different values for the probability that the test was accurate (i.e. different values for $P(B|A)$ and $P(B|A^{c})$)?
+
+We still have the same probability of a cow having BSE, so we keep $P(A)$=0.01.
+
+We need to calculate again $P(B)$ which is the probabilitiy of getting a positive result independent of whether the cow has BSE or not.
+
+In R, we represent $P(B|A)$ as the variable `p_B_given_A` and we make a sequence from 0 to 100, which indicates a range of values for the test being 0% accurrate all the way up to 100% accurate at spotting BSE given that the cow actually has BSE.
+
+$$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$ 
+
+
+```{r}
+# probability has BSE
+p_A = 0.01
+
+# probability tests positive given has BSE (i.e. how accurate the test is if you have BSE)
+p_B_given_A = seq(0.8,1,0.005)
+
+# probability that the test is positive (independent of if you have BSE or not)
+p_B = (p_A * p_B_given_A) +  # probability that the test is positive if you have BSE
+  ((1-p_A) * (1-p_B_given_A))  # probability that the test is positive if you don't have BSE
+
+df = data.frame(p_A = p_A,
+                p_B_given_A = p_B_given_A,
+                p_B = p_B)
+
+df$p_A_given_B = (df$p_B_given_A * df$p_A) / df$p_B
+
+head(df)
+
+ggplot(df, aes(x=p_B_given_A, y=p_A_given_B)) + 
+  geom_point() + 
+  xlab("P(B|A) = P(Positive Test Results|Has BSE)
+       If the cow has BSE, probability of spotting it with the test") + 
+  ylab("P(A|B) = P(Has BSE|Positive Test Results)
+       If cow has positive test results, probability that it actually has BSE")
+
+```
+
+There are two interesting things that we see here: 
+
+* Past a certain point, as the test becomes more accurate in spotting cows with BSE, the number of false positives drop at a higher rate than the corresponding increase in accuracy.
+* If BSE spreads, then your false positives go down, and the "accuracy" of the test (i.e. $P(B|A)$) goes up without actually changing anything with the test.  In other words, "accuracy" is partly a function of population size.
 
 # Background
 
@@ -42,18 +201,20 @@ Below you can see how these letters are combined with the names of the distribut
 <table width=400><tr><td>
 | Distribution<br>Name | Random<br>Samples  | Density<br>Function | Cumulative<br>Distribution | Quantile |
 |----------------------+--------------------+---------------------+----------------------------+----------|
-| Normal               | `rnorm`            | `dnorm`             | `pnorm`                    | `qnorm`  |
-| Poison               | `rpois`            | `dpois`             | `ppois`                    | `qpois`  |
-| Binomial             | `rbinom`           | `dbinom`            | `pbinom`                   | `qbinom` |
-| Uniform              | `runif`            | `dunif`             | `punif`                    | `qunif`  |
-| Student t            | `rt`               | `dt`                | `pt`                       | `qt`     |
-| Chi-Squared          | `rchisq`           | `dchisq`            | `pchisq`                   | `qchisq` |
-| F                    | `rf`               | `df`                | `pf`                       | `qf`     |
+| [Normal](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Normal.html)               | `rnorm`            | `dnorm`             | `pnorm`                    | `qnorm`  |
+| [Poison](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Poisson.html)               | `rpois`            | `dpois`             | `ppois`                    | `qpois`  |
+| [Binomial](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Binomial.html)             | `rbinom`           | `dbinom`            | `pbinom`                   | `qbinom` |
+| [Uniform](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Uniform.html)              | `runif`            | `dunif`             | `punif`                    | `qunif`  |
+| [Student t](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/TDist.html)            | `rt`               | `dt`                | `pt`                       | `qt`     |
+| [Chi-Squared](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Chisquare.html)          | `rchisq`           | `dchisq`            | `pchisq`                   | `qchisq` |
+| [F](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html)                    | `rf`               | `df`                | `pf`                       | `qf`     |
 </td></tr></table>
-*Source: [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf)*
+*Main Source: [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf)*
 </center>
 
+
 Type `?Distributions` into the RStudio Console in order to see documentation on all of the distributions
+
 
 # Exercises
 
@@ -248,9 +409,23 @@ ggplot(faithful, aes(x=eruptions, y=waiting)) + geom_point() +
   ylab("waiting time until next eruption (minutes)")
 ```
 
-This shows us that the longer the eruption, the longer we will have to wait until the next one.  There also seem to be two distinct clusters.  It's not clear what is causing this, and since the data doesn't mention the date of the eruption, we don't know it randomly switches between short and long eruptions, or if for years there were long eruptions, but now there are only short eruptions due to factors such as earthquakes changing the water supply to the geyser.
+We see a few things here:
 
-We can also split up the data into two sets, where one lists all the eruptions that lasted less than three minutes, and the other one contains those which are longer:
+* The longer the eruption, the longer we will have to wait until the next one.  
+* There seem to be two distinct clusters.  It's not clear what is causing this, and since the data doesn't mention the date of the eruption, we don't know it randomly switches between short and long eruptions, or if for years there were long eruptions, but now there are only short eruptions due to factors such as earthquakes changing the water supply to the geyser.
+
+We can also split up the data into two sets, where one lists all the eruptions that lasted less than three minutes, and the other one contains those which are longer.
+
+For this, we use the `which` command, which returns the indices of the matching locations in a vector:
+
+```{r}
+which(faithful$eruptions < 3)
+```
+
+The numbers above correspond to the rows in the `faithful` dataset where the eruptions are less than three minutes.
+
+Now we create the two separate data frames from the `faithful` data frame:
+
 ```{r}
 faithful_short = faithful[which(faithful$eruptions < 3),]
 faithful_long = faithful[which(faithful$eruptions >= 3),]
@@ -390,142 +565,3 @@ ggplot(data, aes(x=iteration, y=percent)) + geom_point() + geom_line() +
 
 This shows that there is a lot of variation at first, but as expected, with more samples, we settle into the 95% range.
 
-# Bayes Theorem
-
-$$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$ 
-
-* Event A: cow has BSE, $P(A)$=0.01
-* Event B: test is positive
-* $P(B|A)$ = 0.9 accuracy (= test is positive, if the cow is infected)
-* $P(B|A^{c})$ = 0.1 false positives (= test is positive, if the cow is not infected)
-
-What is the chance that B is positive on a randomly chosen cow?
-0.01*0.9 + 0.99*0.1 = 0.108
-
-This gray box represents 100% of the population of cows:
-
-```{r BayesStep1, fig.width=4, fig.height=2.5, echo=FALSE}
-ggplot() + 
-  geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
-            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
-  theme_void() + 
-  geom_text(aes(x = 0.5, y = 0.5, label = "All Cows"))
-```
-
-We know that 1% of the cow population has BSE:
-
-```{r BayesStep2, fig.width=4, fig.height=2.5, echo=FALSE}
-offset_BSE = sqrt(0.01)
-
-xmin_BSE = 0.5 - offset_BSE/2
-ymin_BSE = 0.5 - offset_BSE/2
-# cover up 0.08964
-
-ggplot() + 
-  geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
-            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
-  geom_rect(data=data.frame(xmin=xmin_BSE, ymin=ymin_BSE, 
-                            xmax=xmin_BSE + offset_BSE, 
-                            ymax=ymin_BSE + offset_BSE), 
-            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#0000FF77", fill="#0000FF77") + 
-  theme_void() + 
-  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
-  geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
-```
-
-But we also know that there are a lot of positive results:
-
-```{r BayesStep3, fig.width=4, fig.height=2.5, echo=FALSE}
-offset_Positive = sqrt(0.108)
-
-xmin_Positive = 0.5 - offset_Positive/2
-ymin_Positive = 0.5 - offset_Positive/2
-
-ggplot() + 
-  geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
-            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
-  geom_rect(data=data.frame(xmin=xmin_Positive, ymin=ymin_Positive, 
-                            xmax=xmin_Positive + offset_Positive, 
-                            ymax=ymin_Positive + offset_Positive), 
-            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#FF000077", fill="#FF000077") + theme_void() + 
-  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
-  geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests"))
-```
-
-Just from this, we can see that there are way more positive test results than the number of cows which have BSE, and therefore, getting a positive result may not be a good indication that the cow actually has BSE.
-
-Combining everything together, we get the image shown below.  As you can see, if a cow actually has BSE, then there is a high probability that the test will spot it.  However, since most cows are not infected (99%) and we know that there is a ten percent chance of false positives, this results in a large part of the population that gets positive test results, but actually doesn't have BSE.
-
-A 10% false positive rate (tests positive, no BSE) is actually quite high, when the size of the true positive (tests positive, has BSE) population is much smaller than the false positive rate.
-
-```{r BayesStep4, fig.width=4, fig.height=2.5, echo=FALSE}
-offset_BSE = sqrt(0.01)
-offset_Positive = sqrt(0.108)
-
-xmin_Positive = 0.5 - offset_Positive/2
-ymin_Positive = 0.5 - offset_Positive/2
-
-xmin_BSE = xmin_Positive - (0.1-0.08964)
-#ymin_BSE = 0.5 - offset_BSE/2
-ymin_BSE = ymin_Positive
-# cover up 0.08964
-
-ggplot() + 
-  geom_rect(data=data.frame(xmin=0, ymin=0, xmax=1, ymax=1), 
-            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill="gray") + 
-  geom_rect(data=data.frame(xmin=xmin_BSE, ymin=ymin_BSE, 
-                            xmax=xmin_BSE + offset_BSE, 
-                            ymax=ymin_BSE + offset_BSE), 
-            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#0000FF77", fill="#0000FF77") + 
-  geom_rect(data=data.frame(xmin=xmin_Positive, ymin=ymin_Positive, 
-                            xmax=xmin_Positive + offset_Positive, 
-                            ymax=ymin_Positive + offset_Positive), 
-            aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color="#FF000077", fill="#FF000077") + theme_void() + 
-  geom_text(aes(x = 0.5, y = 0.75, label = "All Cows")) +
-  geom_text(aes(x = 0.5, y = 0.5, label = "Positive Tests")) + 
-  geom_text(aes(x = xmin_BSE + offset_BSE/2, y = ymin_BSE + offset_BSE/2, label = "BSE"))
-```
-
-What if we had different values for the probability that the test was accurate (i.e. different values for $P(B|A)$ and $P(B|A^{c})$)?
-
-We still have the same probability of a cow having BSE, so we keep $P(A)$=0.01.
-
-We need to calculate again $P(B)$ which is the probabilitiy of getting a positive result independent of whether the cow has BSE or not.
-
-In R, we represent $P(B|A)$ as the variable `p_B_given_A` and we make a sequence from 0 to 100, which indicates a range of values for the test being 0% accurrate all the way up to 100% accurate at spotting BSE given that the cow actually has BSE.
-
-$$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$ 
-
-
-```{r}
-# probability has BSE
-p_A = 0.01
-
-# probability tests positive given has BSE (i.e. how accurate the test is if you have BSE)
-p_B_given_A = seq(0.8,1,0.005)
-
-# probability that the test is positive (independent of if you have BSE or not)
-p_B = (p_A * p_B_given_A) +  # probability that the test is positive if you have BSE
-  ((1-p_A) * (1-p_B_given_A))  # probability that the test is positive if you don't have BSE
-
-df = data.frame(p_A = p_A,
-                p_B_given_A = p_B_given_A,
-                p_B = p_B)
-
-df$p_A_given_B = (df$p_B_given_A * df$p_A) / df$p_B
-
-head(df)
-
-ggplot(df, aes(x=p_B_given_A, y=p_A_given_B)) + 
-  geom_point() + 
-  xlab("P(B|A) = P(Positive Test Results|Has BSE)
-       If the cow has BSE, probability of spotting it with the test") + 
-  ylab("P(A|B) = P(Has BSE|Positive Test Results)
-       If cow has positive test results, probability that it actually has BSE")
-
-```
-
-There are two interesting things that we see here: 
-
-* Past a certain point, as the test becomes more accurate in spotting cows with BSE, the number of false positives drop at a higher rate than the corresponding increase in accuracy.
-* If BSE spreads, then your false positives go down, and the "accuracy" of the test (i.e. $P(B|A)$) goes up without actually changing anything with the test.  In other words, "accuracy" is partly a function of population size.
