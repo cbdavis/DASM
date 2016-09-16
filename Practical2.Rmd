@@ -561,17 +561,16 @@ dbinom(2, size=10, prob=0.5)
 
 We can add up the probabilities in a series of statements like this:
 ```{r}
-dbinom(7, size=10, prob=0.5) + 
-  dbinom(8, size=10, prob=0.5) + 
+dbinom(8, size=10, prob=0.5) + 
   dbinom(9, size=10, prob=0.5) + 
   dbinom(10, size=10, prob=0.5)
 ```
-This isn't a good approach if we have to sum up the probabilities for a lot of numbers like 7, 8, 9, ... 1000.  
+This isn't a good approach if we have to sum up the probabilities for a lot of numbers like 8, 9, ... 1000.  
 
 A much more efficient way is to pass a vector of numbers to `dbinom` and then use the `sum` function to sum up the probabilities:
 ```{r}
-# pass a vector of 7, 8, 9, 10 and then sum up the probabilities
-sum(dbinom(c(7:10), size=10, prob=0.5))
+# pass a vector of 8, 9, 10 and then sum up the probabilities
+sum(dbinom(c(8:10), size=10, prob=0.5))
 ```
 
 #### Now you stop and observe 1000 cars: what is the most likely number to go right and what is the standard deviation?
