@@ -603,12 +603,12 @@ sqrt(n * p * (1-p))
 
 #### What is the chance that this observation was made on a typical day?
 
-Probability of observing exactly 43 cars:
+Probability of observing exactly 43 cars turning right:
 ```{r}
 dbinom(43, size=n, prob=0.5)
 ```
 
-Probability of observing at most 43 cars:
+Probability of observing at most 43 cars turning right:
 ```{r}
 # sum up the probabilities for observing between 0 and 43 cars
 sum(dbinom(c(0:43), size=n, prob=0.5))
