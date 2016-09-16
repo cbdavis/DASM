@@ -125,13 +125,13 @@ As you can see:
 
 Now what would happen if we had different values for the probability that the test was accurate (i.e. different values for $P(B|A)$ and $P(B|A^{c})$)?
 
-To evalute this:
+To evaluate this:
 
 * We still use the same probability of a cow having BSE, so we keep $P(A)$=0.01.
-* We need to calculate again $P(B)$ which is the probabilitiy of getting a positive result independent of whether the cow has BSE or not.
+* We need to calculate again $P(B)$ which is the probability of getting a positive result independent of whether the cow has BSE or not.
 * All calculations are based on $P(A|B) = \frac{P(B|A)P(A)}{P(B)}$
 
-In R, we represent $P(B|A)$ as the variable `p_B_given_A` and we make a sequence from 0.8 to 1 in steps of 0.005 (`seq(0.8,1,0.005)`), which indicates a range of values for the test being 80% accurrate all the way up to 100% accurate at spotting BSE given that the cow actually has BSE.
+In R, we represent $P(B|A)$ as the variable `p_B_given_A` and we make a sequence from 0.8 to 1 in steps of 0.005 (`seq(0.8,1,0.005)`), which indicates a range of values for the test being 80% accurate all the way up to 100% accurate at spotting BSE given that the cow actually has BSE.
 
 
 ```{r}
@@ -180,7 +180,7 @@ There are two interesting things that we see here:
 
 R contains functions that allow you to easily work with distributions.  The names of these functions follow a standard format - you'll see a **d**, **r**, **p** or **q** and then the name of the distribution.  These letters stand for:
 
-* **d** - density functon for distribution
+* **d** - density function for distribution
 * **r** - random sample from distribution
 * **p** - cumulative distribution
 * **q** - quantile function
@@ -234,7 +234,7 @@ ggplot() +
 
 #### Find the probability that x > x0 or x < x0
 
-If you type `?pnorm` in the console, you'll find that the documention for `lower.tail` states that "*if TRUE (default), probabilities are P[X ≤ x] otherwise, P[X > x]*".  This applies for the other distributions as well.
+If you type `?pnorm` in the console, you'll find that the documentation for `lower.tail` states that "*if TRUE (default), probabilities are P[X ≤ x] otherwise, P[X > x]*".  This applies for the other distributions as well.
 
 ```{r}
 x0 = 1
@@ -306,7 +306,7 @@ qqline(x)
 
 ### Using Q-Q plots on a binomial distribution
 
-Type `?rbinom` into the console will bring up a page showing the following parameters that need to be specified to generate random numbers from a binonial distribution:
+Type `?rbinom` into the console will bring up a page showing the following parameters that need to be specified to generate random numbers from a binomial distribution:
 
 * `n`: number of observations
 * `size`: number of trials
@@ -351,7 +351,7 @@ qqline(x)
 
 ### Using Q-Q plots on real-world data sets
 
-We next use the `faithful` dataset which is included with R.  You can type `?faithful` in the RStudio console to get more information on it.  This data is about the [Old Faithful geyser](https://en.wikipedia.org/wiki/Old_Faithful) in Yellowstone National Park in the US.  This geyser is famous for erupting on a very regular schedule and the data set has information on how long the eruptions are (`faithful$eruptions`) and the amount of time until the next eruption (`faithful$waiting`).
+We next use the `faithful` data set which is included with R.  You can type `?faithful` in the RStudio console to get more information on it.  This data is about the [Old Faithful geyser](https://en.wikipedia.org/wiki/Old_Faithful) in Yellowstone National Park in the US.  This geyser is famous for erupting on a very regular schedule and the data set has information on how long the eruptions are (`faithful$eruptions`) and the amount of time until the next eruption (`faithful$waiting`).
 
 We can first make a Q-Q plot of the waiting times:
 ```{r}
@@ -365,7 +365,7 @@ This tells us that the eruptions are clearly not normally distributed.  To inves
 ggplot(faithful, aes(x=waiting)) + geom_histogram(binwidth=2)
 ```
 
-From the histogram, we see from this is that it's clearly bimodal as there are two distinct peaks.
+From the histogram, we see from this is that it's clearly bi-modal as there are two distinct peaks.
 
 To investigate further, we can do a scatter plot showing how the waiting time might be related to the length of the eruption.
 ```{r}
@@ -387,7 +387,7 @@ For this, we use the `which` command, which returns the indices of the matching 
 which(faithful$eruptions < 3)
 ```
 
-The numbers above correspond to the rows in the `faithful` dataset where the eruptions are less than three minutes.
+The numbers above correspond to the rows in the `faithful` data set where the eruptions are less than three minutes.
 
 Now we create the two separate data frames from the `faithful` data frame:
 
@@ -412,7 +412,7 @@ This shows that if we split the data into two clusters, then data in those clust
 
 ### Using Q-Q plots on other real-world data sets
 
-If you type `help(package="datasets")` into the RStudio Console you'll see a list of other datasets which are included with R.  You can experiment with these just as we did with the `faithful` dataset to see if this data is normally distributed as well.
+If you type `help(package="datasets")` into the RStudio Console you'll see a list of other data sets which are included with R.  You can experiment with these just as we did with the `faithful` data set to see if this data is normally distributed as well.
 
 
 ## Using quartile functions to calculate confidence intervals
@@ -480,7 +480,7 @@ times_true_mean_in_confidence_interval
 times_true_mean_in_confidence_interval / num_tests
 ```
 
-What if we ran this 10,000 times?  How would this percentage change as we repeatly took more random samples?
+What if we ran this 10,000 times?  How would this percentage change as we repeatedly took more random samples?
 
 Note that the x axis is scaled logarithmically.
 
@@ -630,6 +630,6 @@ The government says that 26% of the populations smoke.  You want to test this by
 
 A large detector is set up to detect neutrinos. It usually counts 2/day. 
 
-* What is the distribution you would use to estimate the probability of counting x neutrions in a given day?
+* What is the distribution you would use to estimate the probability of counting x neutrinos in a given day?
 * What is the probability of detecting 8/day? Are scientists justified in calling this a special event?
 * What if it counts 4/day?
