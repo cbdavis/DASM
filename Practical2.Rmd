@@ -170,7 +170,7 @@ ggplot(df, aes(x=p_B_given_A, y=p_A_given_B)) +
 
 There are two interesting things that we see here: 
 
-* Past a certain point, as the test becomes more accurate in spotting cows with BSE, the number of false positives drop at a higher rate than the corresponding increase in accuracy.
+* Past a certain point, as the test becomes more accurate in spotting cows with BSE, the percentage of false positives drops at a higher rate than the corresponding increase in accuracy.
 * If BSE spreads, then your false positives go down, and the "accuracy" of the test (i.e. $P(B|A)$) goes up without actually changing anything with the test.  In other words, "accuracy" is partly a function of population size.
 
 
