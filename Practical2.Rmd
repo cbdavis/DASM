@@ -551,7 +551,7 @@ ggplot(data, aes(x=x, y = vals)) +
 
 ```
 
-#### What is the chance that only 2 will go right? That more than 7 go right?
+#### What is the chance that only 2 will go right?
 
 ```{r}
 dbinom(2, size=10, prob=0.5)
