@@ -35,6 +35,8 @@ t test can be used:
 
 # Explain the t-test command and the options 
 
+See `?t.test for all options`
+
 # Practical part - t-test:
   
 ## One sample test:
@@ -73,10 +75,82 @@ what p-values do they observe?
 for the previous example, let them play with the power of the test 
 (see power.R for example)
 
+```{r}
+x0 = 28
+xa = seq(28.5, 33, by = 0.5)
+n = 20
+
+
+sigma = 5
+alpha = 0.05
+
+diff = xa - x0
+
+delta = abs(x0-xa)/sigma*sqrt(n)
+
+res = power.t.test(delta = diff, sd = sigma, sig.level = alpha, n = n, 
+                   type = "one.sample", alt = "one.sided")
+beta1 = 1- res$power
+
+frame = data.frame(xa, power = res$power)
+
+plot1 = ggplot(frame, aes(xa, power)) + geom_point(aes(size = 2)) + ggtitle("n = 20") +
+        theme_classic() + theme(axis.text = element_text(size = 18, color = "black")) + 
+        theme(axis.title = element_text(size = 20, color = "black")) + 
+        theme(legend.position="none")
+
+```
+
 ## compare to calculating the power of the test by hand
 
 (see power.R (last part), for example)
 
+```{r}
+x0 = 28
+xa = 30
+n = seq(10,100, by = 10)
+
+
+sigma = 5
+alpha = 0.05
+
+diff = xa - x0
+
+delta = abs(x0-xa)/sigma*sqrt(n)
+
+res = power.t.test(delta = diff, sd = sigma, sig.level = alpha, n = n, 
+                   type = "one.sample", alt = "one.sided")
+beta1 = 1- res$power
+
+frame = data.frame(n, power = res$power)
+
+plot2 = ggplot(frame, aes(n, power)) + geom_point(aes(size = 2)) + title("mua = 30") +
+  theme_classic() + theme(axis.text = element_text(size = 18, color = "black")) + 
+  theme(axis.title = element_text(size = 20, color = "black")) + 
+  theme(legend.position="none")
+
+
+plot1
+plot2
+
+# by hand
+x0 = 0.3
+x_bar = 0.456
+xa = 0.45
+s = 0.2128
+n = 9
+
+sigma = 0.25
+
+alpha = 0.01
+t_star = qt(1-alpha, n-1)
+
+t = (x_bar - x0)/s*sqrt(n)
+
+beta1 = pt(t_star, n-1, ncp = abs(x0-xa)/sigma*sqrt(n))
+
+
+```
 
 # Practical part – bootstrap 
 (I still want to discuss if we should introduce the bootstrap package)
@@ -155,76 +229,3 @@ plot1
 
 ```
 
-## power.R
-
-```{r}
-x0 = 28
-xa = seq(28.5, 33, by = 0.5)
-n = 20
-
-
-sigma = 5
-alpha = 0.05
-
-diff = xa - x0
-
-delta = abs(x0-xa)/sigma*sqrt(n)
-
-res = power.t.test(delta = diff, sd = sigma, sig.level = alpha, n = n, 
-                   type = "one.sample", alt = "one.sided")
-beta1 = 1- res$power
-
-frame = data.frame(xa, power = res$power)
-
-plot1 = ggplot(frame, aes(xa, power)) + geom_point(aes(size = 2)) + ggtitle("n = 20") +
-        theme_classic() + theme(axis.text = element_text(size = 18, color = "black")) + 
-        theme(axis.title = element_text(size = 20, color = "black")) + 
-        theme(legend.position="none")
-
-#second plot
-
-x0 = 28
-xa = 30
-n = seq(10,100, by = 10)
-
-
-sigma = 5
-alpha = 0.05
-
-diff = xa - x0
-
-delta = abs(x0-xa)/sigma*sqrt(n)
-
-res = power.t.test(delta = diff, sd = sigma, sig.level = alpha, n = n, 
-                   type = "one.sample", alt = "one.sided")
-beta1 = 1- res$power
-
-frame = data.frame(n, power = res$power)
-
-plot2 = ggplot(frame, aes(n, power)) + geom_point(aes(size = 2)) + ggtitle("mua = 30") +
-  theme_classic() + theme(axis.text = element_text(size = 18, color = "black")) + 
-  theme(axis.title = element_text(size = 20, color = "black")) + 
-  theme(legend.position="none")
-
-
-plot1
-plot2
-
-# by hand
-x0 = 0.3
-x_bar = 0.456
-xa = 0.45
-s = 0.2128
-n = 9
-
-sigma = 0.25
-
-alpha = 0.01
-t_star = qt(1-alpha, n-1)
-
-t = (x_bar - x0)/s*sqrt(n)
-
-beta1 = pt(t_star, n-1, ncp = abs(x0-xa)/sigma*sqrt(n))
-
-
-```
