@@ -275,27 +275,40 @@ mu_a is 30, then show the power as a function of sample size (32/50)
 should specify the power of 0.9. and the mu_a is 30 and then find the alternative to calculate the power.
 
 # Practical part – bootstrap 
-
 (this is optional if we have time)
+Lecture 3 - pages 28-30
+
+include the formula from slide 30
+
+sample doesn't follow a nice t-distribution, so we have to get these samples empirically.  
+For alpha = 0.05 (slide 30)
+
+(slide 28 shows how to do it)
 
 ```{r}
 
 #basic way of bootsrapping a 95% confidence interval for a small sample
 
 #take a small sample from a exponential distribution
+
+### TODO here they get actual 15 values, do histogram and see that it doesn't come from a normal distribution
 x = rexp(rate = 2, n = 15)
 hist(x)
+### TODO students could also do a q-q plot
 #mean and standard deviation of sample
 x_bar = mean(x)
 x_std = sd(x)
 
+#### TODO convert to loop?
 #resampling 1000 times
 D = 1000
 y = sample(x,D*length(x),replace = TRUE)
 y = matrix(y, ncol = D, byrow = FALSE)
 
+### TODO convert this to a loop
 #calculate the mean and standerd deviation for each resampled sample
 y_bar = sort(colMeans(y))
+# explain apply or do something else
 y_std = apply(y,2,sd)
 
 #calculate the t-statistic and sort by size
