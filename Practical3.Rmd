@@ -9,6 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Reference
+http://www.cyclismo.org/tutorial/R/pValues.html
+
 # Getting started
 
 Make sure to load the `ggplot2` library so we can do plotting.
@@ -19,7 +22,49 @@ library(ggplot2)
 # Hypothesis testing
 (step them through this example)
 
-parrot example from lecture (slide 20/50)
+*parrot example from lecture (slide 20/50)*
+
+From previous research we know that the average life span of a certain species of parrot in their native habitat is 28.0 years. We assume that the life span follows a normal distribution.  A researcher studies a sample of 20 parrots in a new habitat and finds an average life span of 30.2 years with a standard deviation of 5.0 years.  *Can he say with 95% certainty that they live longer in the new habitat?*
+
+Given the problem statement, we start assigning variables:
+```{r}
+n = 20       # sample size
+s = 5.0      # standard deviation
+x_bar = 30.2 # sample average
+```
+
+1. We have two hypotheses: 
+  + $H_{0}: \mu_{0} = 28$
+  + $H_{a}: \mu_{a} > 28$
+```{r}
+mu_0 = 28
+```
+2. Because we want 95% certainty, we use $\alpha = 0.05$ with a one sided test for the upper tail
+3. Find rejection region
+  + Statistic to use: t-statistics (sample < 30, from a normal distribution)
+  + Calculate $t_{(1-\alpha)}$ from table : $t_{(1-\alpha)}$ = 1.73 or via R:
+```{r}
+# df = 20 means 20 degrees of freedom because 20 parrots
+# we use lower.tail=TRUE since we are looking for the 95% quantile, starting from the lower tail
+# qt is the quantile function for the Student t Distribution
+t_1_minus_alpha = qt(0.95, df=n, lower.tail=TRUE)
+t_1_minus_alpha
+```
+  + Calculate t: $t = \frac{\bar{x} - \mu_{0}}{s/\sqrt{n}} = 1.97$  
+```{r}
+t = (x_bar - mu_0)/(s/sqrt(n))
+t
+```
+4. Because $t > t_{(1-\alpha)}$ (`r t` > `r t_1_minus_alpha`) we reject $H_{0}$, the null hypothesis.
+5. Calculate the p-value: p(t'>t) = 1 - Ft(t,n) = 0.045
+**TODO is this correct?  value differs from that on the slides**
+```{r}
+p_value = 1-pt(t, df=n-1)
+```
+
+From [Wikipedia](https://en.wikipedia.org/wiki/Degrees_of_freedom_(statistics)):
+
+> "In general, the degrees of freedom of an estimate of a parameter are equal to the number of independent scores that go into the estimate minus the number of parameters used as intermediate steps in the estimation of the parameter itself (e.g. the sample variance has N-1 degrees of freedom, since it is computed from N random scores minus the only 1 parameter estimated as intermediate step, which is the sample mean)"
 
 first calculate t-statistic
 calculate rejection region for alpha 0.5, have to go to limit 0.95
@@ -35,6 +80,34 @@ should plot t distribution (19 deg of freedom, alpha 0.05)
 add vertical lines to indicate where their own t-values are and where the rejection regions start
 
 show graphical solution, but not code
+
+Hint: to add lines with text, you can use the add statements such as the following when creating a plot:
+```{r, eval=FALSE}
++ geom_vline(xintercept = t, linetype="dashed") # add a vertical dashed line at x=t
++ annotate("label", x=t, y=0.3, label="put your text here") # add a label at the stated x and y coordinates
+```
+
+```{r, echo=FALSE}
+# generate a sequence from -3 to 3 in steps of 0.01
+x = seq(-3,3,0.01)
+
+# create data frame to hold x and y values
+dist = data.frame(x=x, 
+                  y = dt(x,df=19)) # y is equal to the t-test distribution sampled at values of x
+
+# plot the t-test distribution 
+# and show the location of t and t_1_minus_alpha
+
+ggplot(dist, aes(x,y)) + geom_line() + 
+  # show line and text annotation for t
+  geom_vline(xintercept = t, linetype="dashed") + 
+  annotate("label", x=t, y=0.3, label="t") + 
+  # show line and text annotation for t_1_minus_alpha
+  geom_vline(xintercept = t_1_minus_alpha, linetype="dashed") + 
+  annotate("label", x=t_1_minus_alpha, y=0.35, label="t[1-alpha]", parse=TRUE)
+
+```
+
 
 students do a 2-tailed test on their own (slide 20/50).  
 question is if the lifetime is different 
@@ -53,57 +126,52 @@ t test can be used:
 
 ## 4 types of t-test in the lecture: (lower tail, upper tail, two tailed)
 
+Do marijuana smokers score less points on short term memory test? 2 sets of people randomly selected from smokers and non-smokers.  Their scores are the following:
+
 ```{r}
 non_smoke = c(18,22,21,17,20,17,23,20,22,21)
 smoke = c(16,20,14,21,20,18,13,15,17,21)
 ```
 
-
 ### one sample t-test
 #### Smokers
 
-looking at smokers only, know that in the general population people on average score 20 on the test
+Looking at smokers only, we know that in the general population people on average score 20 on the test.  We can use a Q-Q plot to example if the data for the smokers is normally distributed.
 
 ```{r}
 qqnorm(smoke)
 qqline(smoke)
 ```
 
-Our null hypothesis is that smokers also score 20.  Our alternative hypothesis is that they score less. 
 
-Now we need to do a t-test to see if we can reject the null hypothesis that the smokers also score 20 (or even more)
-
-The syntax of the t-test is `t.test`, type in the RStudio console `?t.test` to see all options
-
-### two sample t-test
 
 ```{r}
 qqnorm(non_smoke)
 qqline(non_smoke)
 ```
 
-mean is different
-
-Calculate $\bar{x}$
+We now calculate the sample means for both the smoker and non-smoker scores:
 
 ```{r}
-x_bar2 = mean(smoke)
 x_bar1 = mean(non_smoke)
-print(x_bar2)
+x_bar2 = mean(smoke)
 print(x_bar1)
+print(x_bar2)
 ```
 
-SD is different
-
+and do the same for the standard deviations:
 ```{r}
-s2 = sd(smoke)
 s1 = sd(non_smoke)
-print(s2)
+s2 = sd(smoke)
 print(s1)
+print(s2)
 ```
 
+What we see from this is that both the means and the standard deviations are different.
 
-The syntax for the t-test command in R is:
+
+The syntax of the t-test is `t.test`, type in the RStudio console `?t.test` to see all options.  In the help window, you should see something like this: 
+
 ```{r, eval=FALSE}
 t.test(x, 
        alternative = c("two.sided", "less", "greater"),
@@ -111,8 +179,9 @@ t.test(x,
        conf.level = 0.95)
 ```
 
-Whenever you see something like `alternative = c("two.sided", "less", "greater")` that means that you should choose one of the values like `alternative = "two.sided"`
+Whenever you see something like `alternative = c("two.sided", "less", "greater")` that means that you should choose one of the values and the correct syntax for the function would be something like `alternative = "two.sided"`.  
 
+If you try something like `alternative = c("two.sided", "less")` it won't work and you'll see an error like `Error in match.arg(alternative) : 'arg' must be of length 1`
 
 For our t-test:
 
@@ -121,10 +190,16 @@ For our t-test:
 * the null hypothesis is that `mu=20`.
 * We leave out these other variables like `paired` and `var.equal`
 
+Our null hypothesis is that smokers also score 20.  Our alternative hypothesis is that they score less. 
+
+Now we need to do a t-test to see if we can reject the null hypothesis that the smokers also score 20 (or even more)
 
 ```{r}
 t.test(smoke, alternative = "less", mu=20, conf.level = 0.95)
 ```
+
+
+### two sample t-test
 
 Now on your own, try to do a two-sided test and see what happens if you actually make it so the alternative is not less but greater.  You should see the following results below if you did things correctly.
 
@@ -148,7 +223,7 @@ if you have a sample mean that is lower than your hypothesized mean, you should 
 Therefore, the two-sided test is a good choice since you can't go wrong.
 
 ```{r}
-val$statistic
+t_test_result$statistic
 ```
 
 will cover this in a later lecture, but now we give you the commands that you can use.
@@ -170,7 +245,7 @@ this test then calculates the difference in the means = mean of first sample min
 pay attention to order of x and y, and what `alternative` you choose
 
 #### two sample t-test - equal or unequal variances
-now `var.equal` is important 
+In this example we are dealing with equal or unequal variances, which means that the parameter `var.equal` is now important when using the `t.test` function.
 
 `var.equal` specifies if both samples have the same variance.  If you think they come from distributions with the same variance.  If you don't know, then it's better to fill it in as `FALSE`.  If they are the same, then your test is a bit less efficient, but if the variances are different and you fill in `TRUE` then you will get not good results.
 
@@ -190,8 +265,9 @@ t.test(non_smoke, smoke, alternative = "greater", var.equal = TRUE, conf.level =
 
 #### two sample t-test - paired
 
-here `paired` is important
+In this example, the `paired` parameter for the `t.test` function is important.
 
+In the previous test 
 the previous test with the smokers maybe wasn't good - our test could be messed up by chance.
 
 What people often do is have the same people in the test - first take test before they smoke, and then take the test again after they smoked.  If we assume that these values are measured on the same individual, then we have to choose these paried alternatives (this will be explained more in Lecture 4)
