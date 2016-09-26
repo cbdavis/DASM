@@ -19,49 +19,179 @@ A test of s in two different populations with size  $n_1$, $n_2$ involves the fo
 
 1) A confidence level 1-a
 2) Two independent, random samples of normal distributions
-3) Null hypothesis, H0: $s_1$ ≤ $s_2$, or $s1$ ≥ $s2$, or $s1$ = $s2$
+3) Null hypothesis, $H_0$: $s_1 \le s_2$, or $s_1 \ge s_2$, or $s_1 = s_2$
 4) Alternative hypothesis, $H_a$: 
-s1 > s2     (upper tail alternative)
-s1 < s2     (lower tail alternative)
-s1 = s2     (two tailed)
+  - $s_1 \gt s_2$     (upper tail alternative)
+  - $s_1 \lt s_2$     (lower tail alternative)
+  - $s_1 = s_2$     (two tailed)
 5) Test statistic: $F = \frac{{s_{1}}^2}{{s_{2}}^2}$
 
 
 ## 1.2 Syntax in R:
 ```{r, eval=FALSE}
-var.test(x, y, ratio = 1, alternative = c("two.sided", "less", "greater"),
+var.test(x, y, ratio = 1, 
+         alternative = c("two.sided", "less", "greater"),
          conf.level = 0.95, ...)
 ```
 
+## 1.3 Example 
 
-## 1.3 Example from the lecture (show and explain the students)
+(from the lecture (show and explain the students))
 
-Take 100 samples from two normal distributions with different mean, but the same variance. Will the test recognize that we should not reject the null hypothesis?
+Take 100 samples from two normal distributions with different mean, but the same variance.  Will the test recognize that we should not reject the null hypothesis?
 
-x <- rnorm(100, mean=0)  # if you don’t specify the variance it is set to 1
+```{r}
+x <- rnorm(100, mean=0)  # if you don’t specify the variance it is set to 1 by default
 y <- rnorm(100, mean=1)
- 
-var.test(x, y, ratio = 1, alternative = "two.sided”,
-         conf.level = 0.95, ...)      
-         
+```
+
 F test to compare two variances
+```{r}
+var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)      
+```
 
 ## 1.4 Exercise on you own 
  a) Take 100 random samples from normal distributions with a different variance e.g., mean = 0, sd = 1 and sd = 1.2 
+ 
+You should see:
+```{r, echo=FALSE} 
+x <- rnorm(100, mean=0, sd=1)  
+y <- rnorm(100, mean=0, sd=1.2)
+```
+ 
  … run the var.test again
-b) try both above examples again with n = 10 
+ You should see:
+```{r, echo=FALSE}
+var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
+```
+ b) try both above examples again with n = 10 
 
+Different means, same variance
+```{r, echo=FALSE}
+x <- rnorm(10, mean=0)  # if you don’t specify the variance it is set to 1 by default
+y <- rnorm(10, mean=1)
+var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
+```
+
+Same mean, different variance
+```{r, echo=FALSE}
+x <- rnorm(10, mean=0, sd=1)  # if you don’t specify the variance it is set to 1 by default
+y <- rnorm(10, mean=0, sd=1.2)
+var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
+```
 
 # Section 2: chi-square test for tabular data
 
 ## 1.1 Preliminaries constructing tables from categorical data 
 
-reminder about reading in data sets, getting an idea of the variables etc
-extract variables with the $ command 
-construct a table from one or two variables 
-syntax of the table command
+### reminder about reading in data sets, getting an idea of the variables etc
+
+```{r}
+colnames(iris)
+```
+
+```{r}
+summary(iris)
+```
+
+### extract variables with the $ command 
+```{r}
+iris$Sepal.Length
+```
+
+
+### syntax of the table command
+
+*table uses the cross-classifying factors to build a contingency table of the counts at each combination of factor levels.*
+
+```{r, eval=FALSE}
+table(...,
+      exclude = if (useNA == "no") c(NA, NaN),
+      useNA = c("no", "ifany", "always"),
+      dnn = list.names(...), deparse.level = 1)
+```
+
+**TODO** this needs to be simplified and clarified.  We just need an x and y, right?
+
+Arguments:
+
+* `...` - one or more objects which can be interpreted as factors (including character strings), or a list (or data frame) whose components can be so interpreted. (For as.table, arguments passed to specific methods; for as.data.frame, unused.)
+* `exclude` - levels to remove for all factors in .... If set to NULL, it implies `useNA = "always"`. See ‘Details’ for its interpretation for non-factor arguments.
+
+### construct a table from one or two variables 
+
+Here we create a table from the `cyl` (number of cylinders) column of the `mtcars` data set:
+```{r}
+table(mtcars$cyl)
+```
+
+Reading across, we see that there are 11 cars with 4 cylinders, 7 with 6 cylinders, and 14 with 8 cylinders.
+
+Next we create a table from the `cyl` and `gear` (number of forward gears) columns of the `mtcars` data set:
+
+```{r}
+table(mtcars$cyl, mtcars$gear)
+```
+
+With the `table` function, the first value you enter (`mtcars$cyl`) will show up on the rows, and the second (`mtcars$gear`) will show up in the columns.  For example, from the table we can see that there are 12 cars with 8 cyclinders and 3 gears, while there are 0 cars with 4 gears and eight cylinders.
 
 ## 1.2 Demonstrate on the example with buckled parents and children from lecture 6 (these are from a data set in R, but I need to look up on Monday, which one it was – book is at the office now)
+
+**TODO: This already exists as a table, right?  Is the raw data available? **
+
+```{r}
+seatbelt = rbind(c(56, 8), c(2, 16))
+colnames(seatbelt) = c("child_buckled", "child_unbuckled")
+rownames(seatbelt) = c("parent_buckled", "parent_unbuckled")
+
+seatbelt
+```
+
+Need to create expected matrix
+
+* $\alpha=0.05$
+* $H_0$: the variables are independent
+* $H_a$: the variables are dependent
+
+want to find $p(A \cap B) = p(A)p(B)$
+
+
+```{r}
+parent = rowSums(seatbelt)
+child = colSums(seatbelt)
+
+parent
+child
+```
+
+For the sake of convenience, we want to have the `rowSums` and `colSums` values available in such a way that we can access the values with the `$` operator like `parent$parent_buckled`.  To do this, we can convert the results to a list using `as.list`.  As you noticed in the previous results, we already have the names associated with the values (i.e. when printing the value of the `parent` variable, you see the names `parent_buckled` and `parent_unbuckled`).  If we didn't see any names like this, then converting it to a list wouldn't be useful.  
+
+```{r}
+parent = as.list(rowSums(seatbelt))
+child = as.list(colSums(seatbelt))
+
+# total population size (all adults & children)
+total = sum(seatbelt)
+
+# Expected value for parent buckled, child buckled
+EV_pb_cb = (parent$parent_buckled * child$child_buckled) / total
+EV_pb_cu = (parent$parent_buckled * child$child_unbuckled) / total
+EV_pu_cb = (parent$parent_unbuckled * child$child_buckled) / total
+EV_pu_cu = (parent$parent_unbuckled * child$child_unbuckled) / total
+
+# create a new matrix of the expected values
+# rbind combines the rows together
+seatbelt_EV = rbind(c(EV_pb_cb, EV_pb_cu), c(EV_pu_cb, EV_pu_cu))
+# copy the row and column names from the seatbelt matrix
+rownames(seatbelt_EV) = rownames(seatbelt)
+colnames(seatbelt_EV) = colnames(seatbelt)
+seatbelt_EV
+```
+
+We can now calculate $\chi^2$ using the matrices:
+```{r}
+sum(((seatbelt - seatbelt_EV)^2)/seatbelt_EV)
+```
 
 ## 1.3 Exercise:
 Let them construct a two way table from other categorical variables
@@ -70,25 +200,129 @@ Let them construct a two way table from other categorical variables
 
 ### 2.1 Reminder from the lecture
 
-Hypothesis: n events that occur with probabilities pi
+Hypothesis: n events that occur with probabilities $p_i$
 
-Observations: counts for each event (n1, n2, …, ni, …,)
+Observations: counts for each event ($n_1$, $n_2$, …, $n_i$, …,$n_k$)
 
 Test statistic:  
 
-$$ x^{2} = \sum{}\frac{(observed - expected)^{2}}{expected} = \sum_{i=1}^{k} \frac{(n_i-E_i)^2}{E_i}$$
+$$ \chi^{2} = \sum{}\frac{(observed - expected)^{2}}{expected} = \sum_{i=1}^{k} \frac{(n_i-E_i)^2}{E_i}$$
 
-with $E_i = n \pi$
+with $E_i = n * p_i$
 
 ### 2.2 Syntax of chi-square test
 
 chisq.test(x, p =) ** note to chris, I don’t want to introduce the other options, they can ignore them
+
+Arguments:
+
+* `x`	- a numeric vector or matrix. `x` and `y` can also both be factors.
+* `y`	- a numeric vector; ignored if `x` is a matrix. If `x` is a factor, `y` should be a factor of the same length.
+* `p` - a vector of probabilities of the same length of `x`. An error is given if any entry of `p` is negative.
 
 p should be a vector of length x. If it is not specified the program automatically assumes equal probabilities. 
 
 ### 2.3 Example 
 the dice from the lecture 6
 
+You roll a die 100 times, and these are the number of counts associated with each value of the die that was observed.
+
+```{r}
+die = c(1,2,3,4,5,6)
+count = c(11,16,25,13,21,14)
+```
+
+#### For a fair dice: what would be the expected probabilities?
+**TODO** rearranged this, was below next part
+
+We would expect $p_i = \frac{1}{6}$ for each value of $i$
+
+For the counts at each die value, we would expect:
+```{r}
+exp = rep(1/6, 6) * 100
+exp
+```
+
+#### Question: Is the die fair at 95% confidence level?
+
+* $H_0$: the probability of throwing each number is equal = $\frac{1}{6}$ 
+    * i.e. $p_i = \frac{1}{6}$ for all $i$ 
+* $H_a$: at least one number comes at a different frequency 
+    * i.e. $p_i \neq \frac{1}{6}$ for at least one $i$
+
+
+**TODO** do the degrees of freedom show up in the calculations?
+
+Degress of freedom is 6-1.  This is because to calculate $\chi^{2}$, we use $k$ observations ($n_i$), but we also use the total number of observations $n$, which results in $k – 1$ independent observations
+
+$\chi^{2} = \sum_{i=1}^{k} \frac{(n_i - n*p_i)^2}{n*p_i}$
+
+We can calculate this through a series of vector operations:
+
+```{r}
+chi_squared = sum(((count - exp)^2)/exp)
+chi_squared
+```
+
+Find rejection region for $\chi^{2}_{1-\alpha, df} = \chi^{2}_{0.95, 5}$ using the table at the end of the book ($\alpha=0.5$) or via R:
+
+```{r}
+qchisq(0.95, 5)
+```
+
+**TODO** check $\gt$ or $lt$ in lecture slide
+
+We now need to check if our calculated value for $\chi^{2}$ is within the rejection region.
+
+We see:
+$\chi^{2}_{1-\alpha, df} = \chi^{2}_{0.95, 5}$ = `r qchisq(0.95, 5)` $\gt$ `r chi_squared` $= \chi^{2}$
+
+Since we found that $\chi^{2} \lt \chi^{2}_{0.95, 5}$, we can't reject $H_0$
+
+Alternatively, we can also calculate the p-value directly in R:
+
+```{r}
+pchisq(8.48, 5, lower.tail = FALSE)
+```
+
+Since `r pchisq(8.48, 5, lower.tail = FALSE)` $\gt$ 0.05, we do not reject $H_0$
+
+Our data do not suggest that the die is biased.
+
+You can also use the `chisq.test` function to see the same results:
+```{r}
+chisq.test(count, p=rep(1/6, 6))
+```
+
+**TODO** Interpretation of peak probability occurring at 3?  This corresponds to the average expected value.  The peak should mean that we have the highest probability of getting a $\chi^2$ value of 3 with a fair die.  Is there an intuitive way to explain this?
+
+```{r, echo=FALSE}
+# manuals for adding math symbols to plots is at:
+# https://stat.ethz.ch/R-manual/R-patched/library/grDevices/html/plotmath.html
+# http://vis.supstat.com/2013/04/mathematical-annotation-in-r/
+library(ggplot2)
+chi_squared = chisq.test(count, p=rep(1/6, 6))
+x = seq(0,20,0.01)
+y = dchisq(x, df=5)
+df = data.frame(x=x, y=y)
+ggplot(df, aes(x,y)) + geom_line() + 
+  geom_area(data = subset(df, x > qchisq(0.95, 5)), 
+            aes(x=x, y=y), fill="red", alpha=0.5) + 
+  geom_vline(xintercept = chi_squared$statistic, linetype="dashed") + 
+  annotate("label", x = chi_squared$statistic, y=0.1, label="list(chi^2,'calculated')", parse=TRUE) + 
+  geom_vline(xintercept = qchisq(0.95, 5), linetype="dashed") + 
+  annotate("label", x = qchisq(0.95, 5), y=0.05, label="chi[list(0.95,5)]^{2}", parse=TRUE) + 
+  ylab("probability") + xlab(expression(chi^{2}))
+```
+
 ### 2.3 Try on your own:
 the example of the murder cases from the lecture 
 
+What are the test hypotheses, confidence level, df?
+
+If you do things correctly, you should see a $\chi^{2}$ value of:
+```{r, echo=FALSE}
+murders <- c(53, 42, 51, 45, 36, 37, 65)
+cst = chisq.test(murders,p=rep(1/7, 7))
+cst$statistic
+```
