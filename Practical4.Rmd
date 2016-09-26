@@ -21,9 +21,9 @@ A test of s in two different populations with size  $n_1$, $n_2$ involves the fo
 2) Two independent, random samples of normal distributions
 3) Null hypothesis, $H_0$: $s_1 \le s_2$, or $s_1 \ge s_2$, or $s_1 = s_2$
 4) Alternative hypothesis, $H_a$: 
-  - $s_1 \gt s_2$     (upper tail alternative)
-  - $s_1 \lt s_2$     (lower tail alternative)
-  - $s_1 = s_2$     (two tailed)
+    + $s_1 \gt s_2$     (upper tail alternative)
+    + $s_1 \lt s_2$     (lower tail alternative)
+    + $s_1 = s_2$     (two tailed)
 5) Test statistic: $F = \frac{{s_{1}}^2}{{s_{2}}^2}$
 
 
@@ -185,6 +185,17 @@ seatbelt_EV = rbind(c(EV_pb_cb, EV_pb_cu), c(EV_pu_cb, EV_pu_cu))
 # copy the row and column names from the seatbelt matrix
 rownames(seatbelt_EV) = rownames(seatbelt)
 colnames(seatbelt_EV) = colnames(seatbelt)
+seatbelt_EV
+```
+
+The method above is ok if your table only contains a very few elements.  A more efficient way to calculate `seatbelt_EV`, especially if you are dealing with a large table, would be to directly use vector operations.  Here `t()` transposes the vector returned by the `colSums` function.  This results in us multiplying a 2x1 matrix with a 1x2 matrix.
+
+Note the `%*%`, which specifies that we want to do matrix multiplication.  Simply using `*` would perform element-wise multiplication.  See [here](http://www.ats.ucla.edu/stat/r/library/matrix_alg.htm) for examples showing the difference.
+
+```{r}
+seatbelt_EV = (rowSums(seatbelt) %*% t(colSums(seatbelt)))/total
+# add in the rownames, the column names are already present
+rownames(seatbelt_EV) = rownames(seatbelt)
 seatbelt_EV
 ```
 
