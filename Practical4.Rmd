@@ -2,12 +2,23 @@
 title: "Practical 4"
 author: "Chris Davis"
 date: "September 26, 2016"
-output: html_document
+output: 
+    html_document:
+        variant: markdown_strict+raw_tex
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+```{r}
+library(ggplot2)
+```
+
+Notes:
+
+If it helps, there is a version of an earlier computer practicum gave last year that helped with the used a data set, where you could make tables and also groups fro ANO. Also in the beginning they learned to plot functions, but this you can ignore 
+also R code for making a table and a one-way ANOVA
 
 Computer practicum:
 
@@ -305,7 +316,8 @@ You can also use the `chisq.test` function to see the same results:
 chisq.test(count, p=rep(1/6, 6))
 ```
 
-**TODO** Interpretation of peak probability occurring at 3?  This corresponds to the average expected value.  The peak should mean that we have the highest probability of getting a $\chi^2$ value of 3 with a fair die.  Is there an intuitive way to explain this?
+
+The peak should mean that we have the highest probability of getting a $\chi^2$ value of 3 with a fair die.  
 
 ```{r, echo=FALSE}
 # manuals for adding math symbols to plots is at:
@@ -337,3 +349,121 @@ murders <- c(53, 42, 51, 45, 36, 37, 65)
 cst = chisq.test(murders,p=rep(1/7, 7))
 cst$statistic
 ```
+
+# Chi-square test of independence
+
+## Reminder of the lecture 6
+
+2-way table:
+
+**TODO** insert table here
+
+
+Hypothesis test:
+
+* $\alpha$ = 0.05
+* $H_0$ : the outcomes are independent
+* $H_a$ : outcomes are dependent
+
+Test statistic:
+
+$$\chi^2 = \sum_{i=1}^{k}\sum_{j=1}^{l} \frac{(n_{ij}-n_{i\cdot}*n_{\cdot j}/n)^2}{n_{i\cdot}*n_{\cdot j}/n} $$
+
+
+## Syntax
+
+x … two way table
+```{r, eval=FALSE}
+chisq.test(x) 
+```
+… again I like to keep it simple
+
+## Example from the lecture (buckled, unbuckled)
+
+```{r}
+seatbelt <- rbind(c(56,8),c(2,16))
+chisq.test(seatbelt)
+```
+
+## Another example of two categorical variables, that they can try on their own 
+heart attack
+
+# One way Anova test
+
+Here I want to use a different example from the lecture
+ 
+## Reminder of the lecture:
+
+Test if any of several means are different:
+
+* Compare within goup variance (SSDw) to between group variance (SSDb)
+
+If the means are all equal (i.e. the data are all from the same distribution) then the statistic: F =  SSDb/SSDw/(k-1)*(n-k) follows an F-distribution with (k-1), (n-1) degrees of freedom 
+
+**TODO** CD lines below added from lecture slides
+$${MS}_W = \frac{{SSD}_W}{(n-k)}$$
+$${MS}_B = \frac{{SSD}_B}{(k-1)}$$
+$$F = \frac{{MS}_B}{{MS}_W}$$
+
+* If means are the same within the groups $F$ should be around 1 
+* if they are different, then ${MS}_B >> {MS}_W$
+
+
+## Syntax of the test
+
+```{r, eval=FALSE}
+oneway.test(formula, data, subset, na.action, var.equal = FALSE)
+```
+
+Explanation of formula:
+
+* `formula`	- a formula of the form lhs ~ rhs where lhs gives the sample values and rhs the corresponding groups.
+* `data` - an optional matrix or data frame (or similar: see `model.frame`) containing the variables in the formula formula. By default the variables are taken from environment(formula).
+* `subset` - an optional vector specifying a subset of observations to be used.
+* `na.action` - a function which indicates what should happen when the data contain NAs. Defaults to `getOption("na.action")`.
+* `var.equal` - a logical variable indicating whether to treat the variances in the samples as equal. If `TRUE`, then a simple F test for the equality of means in a one-way analysis of variance is performed. If `FALSE`, an approximate method of Welch (1951) is used, which generalizes the commonly known 2-sample Welch test to the case of arbitrarily many samples.
+
+Format of input variable: data frame with the columns and values:
+
+**TODO**: fix width
+
+| cal | month |
+|-----|-------|
+|2216 | may|
+|1568 | may|
+|2233 | may|
+|1882 | may|
+|2019 | may|
+|2279 | sep|
+|2075 | sep|
+
+formula : `cal~month` (calories grouped by month)
+
+# example
+
+**NOTE** seems to be different slide numbers now.
+
+walk through the example of the lecture and construct also the input table (commands in the lecture for now slides 36 - 42)
+
+
+```{r}
+may <- c(2166,1568,2233,1882,2019) 
+sep <- c(2279,2075,2131,2009,1793) 
+dec <- c(2226,2154,2583,2010,2190) 
+
+cal = c(may, sep, dec) 
+month = c(rep("may", 5), 
+          rep("sep", 5), 
+          rep("dec", 5)) 
+data1 = data.frame(cal, month)
+
+ggplot(data1, aes(x=month, y=cal)) + geom_boxplot()
+
+# perform the 1-way ANOVA test
+oneway.test(cal~month, data1)
+```
+
+# Try on your own: 
+find another data set where data can be grouped and the means calculated by group, also let them make a box plot
+
+**TODO** give them a list of datasets to pick from?
