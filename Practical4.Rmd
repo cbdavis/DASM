@@ -2,12 +2,24 @@
 title: "Practical 4"
 author: "Chris Davis"
 date: "September 26, 2016"
-output: html_document
+output: 
+    html_document:
+        toc: true
+        number_sections: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+```{r}
+library(ggplot2)
+```
+
+Notes:
+
+If it helps, there is a version of an earlier computer practicum gave last year that helped with the used a data set, where you could make tables and also groups fro ANO. Also in the beginning they learned to plot functions, but this you can ignore 
+also R code for making a table and a one-way ANOVA
 
 Computer practicum:
 
@@ -17,9 +29,9 @@ Make sure to first load the `ggplot2` library:
 library(ggplot2)
 ```
 
-# Section 1: The test for equality in variance
+# The test for equality in variance
 
-## 1.1Reminder from lecture:
+## Reminder from lecture:
 
 A test of s in two different populations with size  $n_1$, $n_2$ involves the following:
 
@@ -33,7 +45,7 @@ A test of s in two different populations with size  $n_1$, $n_2$ involves the fo
 5) Test statistic: $F = \frac{{s_{1}}^2}{{s_{2}}^2}$
 
 
-## 1.2 Syntax in R:
+## Syntax in R:
 
 ```{r, eval=FALSE}
 var.test(x, y, ratio = 1, 
@@ -41,7 +53,7 @@ var.test(x, y, ratio = 1,
          conf.level = 0.95, ...)
 ```
 
-## 1.3 Example 
+## Example 
 
 (from the lecture (show and explain the students))
 
@@ -57,7 +69,7 @@ F test to compare two variances
 var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)      
 ```
 
-## 1.4 Exercise on you own 
+## Exercise on you own 
  a) Take 100 random samples from normal distributions with a different variance e.g., mean = 0, sd = 1 and sd = 1.2 
  
 You should see:
@@ -87,9 +99,9 @@ y <- rnorm(10, mean=0, sd=1.2)
 var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
 ```
 
-# Section 2: chi-square test for tabular data
+# Chi-square test for tabular data
 
-## 1.1 Preliminaries constructing tables from categorical data 
+## Preliminaries constructing tables from categorical data 
 
 ### reminder about reading in data sets, getting an idea of the variables etc
 
@@ -142,9 +154,158 @@ table(mtcars$cyl, mtcars$gear)
 
 With the `table` function, the first value you enter (`mtcars$cyl`) will show up on the rows, and the second (`mtcars$gear`) will show up in the columns.  For example, from the table we can see that there are 12 cars with 8 cyclinders and 3 gears, while there are 0 cars with 4 gears and eight cylinders.
 
-## 1.2 Demonstrate on the example with buckled parents and children from lecture 6 (these are from a data set in R, but I need to look up on Monday, which one it was – book is at the office now)
 
-**TODO: This already exists as a table, right?  Is the raw data available? **
+### Exercise:
+
+Load in data on heart attack victims.  With R you can download a file directly from the Internet.  Note that `sep="\t"` means that the file is tab delimited
+```{r}
+df = read.csv("http://courses.statistics.com/Intro1/Lesson2/heartatk4R.txt", sep="\t")
+```
+
+Now construct a two way table from the categorical variables `SEX` and `DIED`.  You should see:
+
+```{r, echo=FALSE}
+table(df$SEX, df$DIED)
+```
+
+## Chi-square test for goodness of fit
+
+### Reminder from the lecture
+
+Hypothesis: n events that occur with probabilities $p_i$
+
+Observations: counts for each event ($n_1$, $n_2$, …, $n_i$, …,$n_k$)
+
+Test statistic:  
+
+$$ \chi^{2} = \sum{}\frac{(observed - expected)^{2}}{expected} = \sum_{i=1}^{k} \frac{(n_i-E_i)^2}{E_i}$$
+
+with $E_i = n * p_i$
+
+### Syntax of chi-square test for goodness of fit
+
+For the chi-square test for goodness of fit, you only need to have two arguments specified:
+
+```{r, eval=FALSE}
+chisq.test(x, p) 
+```
+
+Arguments:
+
+* `x`	- a numeric vector or matrix. `x` and `y` can also both be factors.
+* `p` - a vector of probabilities of the same length of `x`. An error is given if any entry of `p` is negative.
+
+p should be a vector of length x. If it is not specified the program automatically assumes equal probabilities. 
+
+### Example 
+the dice from the lecture 6
+
+You roll a die 100 times, and these are the number of counts associated with each value of the die that was observed.
+
+```{r}
+die = c(1,2,3,4,5,6)
+count = c(11,16,25,13,21,14)
+```
+
+#### For a fair dice: what would be the expected probabilities?
+
+We would expect $p_i = \frac{1}{6}$ for each value of $i$
+
+For the counts at each die value, we would expect:
+```{r}
+exp = rep(1/6, 6) * 100
+exp
+```
+
+#### Question: Is the die fair at 95% confidence level?
+
+* $H_0$: the probability of throwing each number is equal = $\frac{1}{6}$ 
+    * i.e. $p_i = \frac{1}{6}$ for all $i$ 
+* $H_a$: at least one number comes at a different frequency 
+    * i.e. $p_i \neq \frac{1}{6}$ for at least one $i$
+
+**TODO** only show how to use `chisq.test`.  Can remove things before that.
+
+
+Use the `chisq.test` function to see the same results:
+```{r}
+chisq.test(count, p=rep(1/6, 6))
+```
+
+The peak should mean that we have the highest probability of getting a $\chi^2$ value of 3 with a fair die.  
+
+```{r, echo=FALSE}
+# manuals for adding math symbols to plots is at:
+# https://stat.ethz.ch/R-manual/R-patched/library/grDevices/html/plotmath.html
+# http://vis.supstat.com/2013/04/mathematical-annotation-in-r/
+library(ggplot2)
+chi_squared = chisq.test(count, p=rep(1/6, 6))
+x = seq(0,20,0.01)
+y = dchisq(x, df=5)
+df = data.frame(x=x, y=y)
+ggplot(df, aes(x,y)) + geom_line() + 
+  geom_area(data = subset(df, x > qchisq(0.95, 5)), 
+            aes(x=x, y=y), fill="red", alpha=0.5) + 
+  geom_vline(xintercept = chi_squared$statistic, linetype="dashed") + 
+  annotate("label", x = chi_squared$statistic, y=0.1, label="list(chi^2,'calculated')", parse=TRUE) + 
+  geom_vline(xintercept = qchisq(0.95, 5), linetype="dashed") + 
+  annotate("label", x = qchisq(0.95, 5), y=0.05, label="chi[list(0.95,5)]^{2}", parse=TRUE) + 
+  ylab("probability") + xlab(expression(chi^{2}))
+
+```
+
+### Try on your own:
+the example of the murder cases from the lecture 
+
+| Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | 
+|-|-|-|-|-|-|-|-|
+| 53| 42| 51| 45| 36| 37| 65 | 
+
+Are the murders equally distributed through the week or not at a confidence level of 0.95?
+
+What are the test hypotheses, df, and p-value?
+
+If you do things correctly (and set `correct=FALSE`), you should see an output of:
+```{r, echo=FALSE}
+murders <- c(53, 42, 51, 45, 36, 37, 65)
+cst = chisq.test(murders,p=rep(1/7, 7), correct=FALSE)
+print(cst)
+
+cst = chisq.test(murders,p=rep(1/7, 7))
+```
+
+## Chi-square test of independence
+
+### Review from lecture 6
+
+**TODO** include page numbers
+
+2-way table:
+
+**TODO** insert table here
+
+Hypothesis test:
+
+* $\alpha$ = 0.05
+* $H_0$ : the outcomes are independent
+* $H_a$ : outcomes are dependent
+
+Test statistic:
+
+$$\chi^2 = \sum_{i=1}^{k}\sum_{j=1}^{l} \frac{(n_{ij}-n_{i\cdot}*n_{\cdot j}/n)^2}{n_{i\cdot}*n_{\cdot j}/n} $$
+
+
+### Syntax
+
+x … two way table
+```{r, eval=FALSE}
+chisq.test(x) 
+```
+… again I like to keep it simple
+
+### Example from the lecture (buckled, unbuckled)
+
+**TODO** add explanatory text
 
 ```{r}
 seatbelt = rbind(c(56, 8), c(2, 16))
@@ -218,171 +379,124 @@ We can also do this directly via the `chisq.test` function.  Make sure to specif
 chisq.test(seatbelt, correct=FALSE)
 ```
 
+### Another example of two categorical variables, that they can try on their own 
 
-## 1.3 Exercise:
+(students get the table - page 556 of book), question 10.60
 
-Load in data on heart attack victims.  With R you can download a file directly from the Internet.  Note that `sep="\t"` means that the file is tab delimited
-```{r}
-df = read.csv("http://courses.statistics.com/Intro1/Lesson2/heartatk4R.txt", sep="\t")
-```
+Age
+Under 30 30–39 40–49 50 and Over Total
+Promoted
+Not promoted 9
+41 29
+41 32
+48 10
+40 80
+170
+Totals 50 70 80 50
 
-Now construct a two way table from the categorical variables `SEX` and `DIED`.  You should see:
+create the above table in R
 
-```{r, echo=FALSE}
-table(df$SEX, df$DIED)
-```
+perform the chisq.test on the data above.
 
-## 2 chi-square test for goodness of fit
+# One way Anova test
 
-### 2.1 Reminder from the lecture
+Here I want to use a different example from the lecture
+ 
+## Reminder of the lecture:
 
-Hypothesis: n events that occur with probabilities $p_i$
+Test if any of several means are different:
 
-Observations: counts for each event ($n_1$, $n_2$, …, $n_i$, …,$n_k$)
+* Compare within goup variance (SSDw) to between group variance (SSDb)
 
-Test statistic:  
+If the means are all equal (i.e. the data are all from the same distribution) then the statistic: F =  SSDb/SSDw/(k-1)*(n-k) follows an F-distribution with (k-1), (n-1) degrees of freedom 
 
-$$ \chi^{2} = \sum{}\frac{(observed - expected)^{2}}{expected} = \sum_{i=1}^{k} \frac{(n_i-E_i)^2}{E_i}$$
+**TODO** CD lines below added from lecture slides
+$${MS}_W = \frac{{SSD}_W}{(n-k)}$$
+$${MS}_B = \frac{{SSD}_B}{(k-1)}$$
+$$F = \frac{{MS}_B}{{MS}_W}$$
 
-with $E_i = n * p_i$
+* If means are the same within the groups $F$ should be around 1 
+* if they are different, then ${MS}_B >> {MS}_W$
 
-### 2.2 Syntax of chi-square test for goodness of fit
 
-For the chi-square test for goodness of fit, you only need to have two arguments specified:
+## Syntax of the test
 
 ```{r, eval=FALSE}
-chisq.test(x, p) 
+oneway.test(formula, data, subset, na.action, var.equal = FALSE)
 ```
 
-Arguments:
+Explanation of formula:
 
-* `x`	- a numeric vector or matrix. `x` and `y` can also both be factors.
-* `p` - a vector of probabilities of the same length of `x`. An error is given if any entry of `p` is negative.
+* `formula`	- a formula of the form lhs ~ rhs where lhs gives the sample values and rhs the corresponding groups.
+* `data` - an optional matrix or data frame (or similar: see `model.frame`) containing the variables in the formula formula. By default the variables are taken from environment(formula).
+* `subset` - an optional vector specifying a subset of observations to be used.  Normally we don't use this option.
+* `var.equal` - a logical variable indicating whether to treat the variances in the samples as equal. If `TRUE`, then a simple F test for the equality of means in a one-way analysis of variance is performed. If `FALSE`, an approximate method of Welch (1951) is used, which generalizes the commonly known 2-sample Welch test to the case of arbitrarily many samples.
 
-p should be a vector of length x. If it is not specified the program automatically assumes equal probabilities. 
+Format of input variable: data frame with the columns and values:
 
-### 2.3 Example 
-the dice from the lecture 6
+**TODO**: fix width
 
-You roll a die 100 times, and these are the number of counts associated with each value of the die that was observed.
+| cal | month |
+|-----|-------|
+|2216 | may|
+|1568 | may|
+|2233 | may|
+|1882 | may|
+|2019 | may|
+|2279 | sep|
+|2075 | sep|
 
+formula : `cal~month` (calories grouped by month)
+
+## example
+
+**NOTE** seems to be different slide numbers now.
+
+walk through the example of the lecture and construct also the input table (commands in the lecture for now slides 36 - 42)
+
+
+**TODO** add explanation for the code below - how we're stacking things up
 ```{r}
-die = c(1,2,3,4,5,6)
-count = c(11,16,25,13,21,14)
+may <- c(2166,1568,2233,1882,2019) 
+sep <- c(2279,2075,2131,2009,1793) 
+dec <- c(2226,2154,2583,2010,2190) 
+
+cal = c(may, sep, dec) 
+# we do 5 repetitions because...
+month = c(rep("may", 5), 
+          rep("sep", 5), 
+          rep("dec", 5)) 
+data1 = data.frame(cal, month)
+
+# perform the 1-way ANOVA test
+oneway.test(cal~month, data1)
 ```
 
-#### For a fair dice: what would be the expected probabilities?
+## Try on your own: 
 
-We would expect $p_i = \frac{1}{6}$ for each value of $i$
+zelazo data (ISwR package)
 
-For the counts at each die value, we would expect:
-```{r}
-exp = rep(1/6, 6) * 100
-exp
-```
+This is a list containing data on age at walking (in months) for four groups of infants:
 
-#### Question: Is the die fair at 95% confidence level?
+* active - test group receiving active training; these children had their walking and placing reflexes trained during four three-minute sessions that took place every day from their second to their eighth week of life.
+* passive - passive training group; these children received the same types of social and gross motor stimulation, but did not have their specific walking and placing reflexes trained.
+* none - no training; these children had no special training, but were tested along with the children who underwent active or passive training.
+* ctr.8w - eighth-week controls; these children had no training and were only tested at the age of 8 weeks.
 
-* $H_0$: the probability of throwing each number is equal = $\frac{1}{6}$ 
-    * i.e. $p_i = \frac{1}{6}$ for all $i$ 
-* $H_a$: at least one number comes at a different frequency 
-    * i.e. $p_i \neq \frac{1}{6}$ for at least one $i$
+$active
+[1]  9.00  9.50  9.75 10.00 13.00  9.50
 
-Degress of freedom is 6-1.  This is because to calculate $\chi^{2}$, we use $k$ observations ($n_i$), but we also use the total number of observations $n$, which results in $k – 1$ independent observations
+$passive
+[1] 11.00 10.00 10.00 11.75 10.50 15.00
 
-$\chi^{2} = \sum_{i=1}^{k} \frac{(n_i - n*p_i)^2}{n*p_i}$
+$none
+[1] 11.50 12.00  9.00 11.50 13.25 13.00
 
-We can calculate this through a series of vector operations by hand:
+$ctr.8w
+[1] 13.25 11.50 12.00 13.50 11.50
 
-```{r}
-chi_squared = sum(((count - exp)^2)/exp)
-chi_squared
-```
+Using what you learned above, first put the data into a format that can be used with the one way test, and conduct the test.  Create a box plot or a normal probability plot (`qqnorm` and `qqline` from the previous practical) to see if the data are roughly normally distributed.
 
-Find rejection region for $\chi^{2}_{1-\alpha, df} = \chi^{2}_{0.95, 5}$ using the table at the end of the book ($\alpha=0.5$) or via R:
+-----
 
-```{r}
-qchisq(0.95, 5)
-```
-
-We now need to check if our calculated value for $\chi^{2}$ is within the rejection region.
-
-We see:
-$\chi^{2}_{1-\alpha, df} = \chi^{2}_{0.95, 5}$ = `r qchisq(0.95, 5)` $\gt$ `r chi_squared` $= \chi^{2}$
-
-Since we found that $\chi^{2} \lt \chi^{2}_{0.95, 5}$, we can't reject $H_0$
-
-Alternatively, we can also calculate the p-value directly in R:
-
-```{r}
-pchisq(8.48, 5, lower.tail = FALSE)
-```
-
-Since `r pchisq(8.48, 5, lower.tail = FALSE)` $\gt$ 0.05, we do not reject $H_0$
-
-Our data do not suggest that the die is biased.
-
-You can also use the `chisq.test` function to see the same results:
-```{r}
-chisq.test(count, p=rep(1/6, 6))
-```
-
-**TODO** Interpretation of peak probability occurring at 3?  This corresponds to the average expected value.  The peak should mean that we have the highest probability of getting a $\chi^2$ value of 3 with a fair die.  Is there an intuitive way to explain this?
-
-```{r, echo=FALSE}
-# manuals for adding math symbols to plots is at:
-# https://stat.ethz.ch/R-manual/R-patched/library/grDevices/html/plotmath.html
-# http://vis.supstat.com/2013/04/mathematical-annotation-in-r/
-library(ggplot2)
-chi_squared = chisq.test(count, p=rep(1/6, 6))
-x = seq(0,20,0.01)
-y = dchisq(x, df=5)
-df = data.frame(x=x, y=y)
-ggplot(df, aes(x,y)) + geom_line() + 
-  geom_area(data = subset(df, x > qchisq(0.95, 5)), 
-            aes(x=x, y=y), fill="red", alpha=0.5) + 
-  geom_vline(xintercept = chi_squared$statistic, linetype="dashed") + 
-  annotate("label", x = chi_squared$statistic, y=0.1, label="list(chi^2,'calculated')", parse=TRUE) + 
-  geom_vline(xintercept = qchisq(0.95, 5), linetype="dashed") + 
-  annotate("label", x = qchisq(0.95, 5), y=0.05, label="chi[list(0.95,5)]^{2}", parse=TRUE) + 
-  ylab("probability") + xlab(expression(chi^{2}))
-
-```
-
-### 2.3 Try on your own:
-the example of the murder cases from the lecture 
-
-| Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | 
-|-|-|-|-|-|-|-|-|
-| 53| 42| 51| 45| 36| 37| 65 | 
-
-Are the murders equally distributed through the week or not at a confidence level of 0.95?
-
-What are the test hypotheses, df, and p-value?
-
-If you do things correctly (and set `correct=FALSE`), you should see an output of:
-```{r, echo=FALSE}
-murders <- c(53, 42, 51, 45, 36, 37, 65)
-cst = chisq.test(murders,p=rep(1/7, 7), correct=FALSE)
-print(cst)
-```
-
-
-(add in other pieces here)
-
-
-make a box plot - 
-calculate means by group
-mpg gear
-
-```{r}
-oneway.test(mpg~gear, mtcars)
-```
-
-can see that the variance is not completely equal.  
-Note that you might need to specify `x=as.factor(gear)` for ggplot to plot things correctly.
-
-```{r}
-ggplot(mtcars, aes(x=as.factor(gear), y=mpg)) + geom_boxplot()
-
-```
+dataset - US generator data, group by state, columns per fuel type mentioning generation, efficiency for fossil plants
