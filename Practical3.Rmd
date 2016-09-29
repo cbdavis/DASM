@@ -2,7 +2,10 @@
 title: "DASM Practical 3"
 author: "Chris Davis"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+output: 
+    html_document:
+        toc: true
+        number_sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -96,7 +99,7 @@ ggplot(dist, aes(x,y)) + geom_line() +
 
 ```
 
-## Exercise:
+## Exercise
 
 Now you should perform a 2-tailed test on your own.  Can you conclude that the lifetimes are different?
 
@@ -341,7 +344,7 @@ t.test(non_smoke, smoke, alternative = "greater", var.equal = TRUE, conf.level =
 
 In this example, the `paired` parameter for the `t.test` function is important.
 
-The previous test with the smokers maybe necessarily good as our test could be messed up by chance.  What people often do is have the same people in the test - first people take test before they smoke, and then take the test again after they smoked.  If we assume that these values are measured on the same individual, then we have to choose these paried alternatives (this will be explained more in Lecture 5, section 2.3)
+The previous test with the smokers maybe necessarily good as our test could be messed up by chance.  What people often do is have the same people in the test - first people take test before they smoke, and then take the test again after they smoked.  If we assume that these values are measured on the same individual, then we have to choose these paired alternatives (this will be explained more in Lecture 5, section 2.3)
 
 ```{r}
 # test values both before and after smoking:

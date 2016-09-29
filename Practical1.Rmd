@@ -2,7 +2,10 @@
 title: "DASM Practical 1"
 author: "Chris Davis"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+output: 
+    html_document:
+        toc: true
+        number_sections: true
 ---
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
