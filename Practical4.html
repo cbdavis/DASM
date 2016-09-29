@@ -201,13 +201,13 @@ y &lt;- rnorm(100, mean=1)</code></pre>
 ##  F test to compare two variances
 ## 
 ## data:  x and y
-## F = 1.3336, num df = 99, denom df = 99, p-value = 0.1539
+## F = 0.53233, num df = 99, denom df = 99, p-value = 0.001913
 ## alternative hypothesis: true ratio of variances is not equal to 1
 ## 95 percent confidence interval:
-##  0.8972845 1.9820034
+##  0.3581720 0.7911629
 ## sample estimates:
 ## ratio of variances 
-##           1.333574</code></pre>
+##          0.5323273</code></pre>
 </div>
 <div id="exercise-on-you-own" class="section level2">
 <h2><span class="header-section-number">1.4</span> Exercise on you own</h2>
@@ -219,13 +219,13 @@ y &lt;- rnorm(100, mean=1)</code></pre>
 ##  F test to compare two variances
 ## 
 ## data:  x and y
-## F = 0.49318, num df = 99, denom df = 99, p-value = 0.0005158
+## F = 0.63133, num df = 99, denom df = 99, p-value = 0.02306
 ## alternative hypothesis: true ratio of variances is not equal to 1
 ## 95 percent confidence interval:
-##  0.3318300 0.7329762
+##  0.4247872 0.9383086
 ## sample estimates:
 ## ratio of variances 
-##          0.4931769</code></pre>
+##          0.6313331</code></pre>
 <ul>
 <li>Try both of the examples above again with n = 10</li>
 </ul>
@@ -234,25 +234,25 @@ y &lt;- rnorm(100, mean=1)</code></pre>
 ##  F test to compare two variances
 ## 
 ## data:  x and y
-## F = 1.3214, num df = 9, denom df = 9, p-value = 0.6847
+## F = 0.99091, num df = 9, denom df = 9, p-value = 0.9894
 ## alternative hypothesis: true ratio of variances is not equal to 1
 ## 95 percent confidence interval:
-##  0.3282278 5.3201224
+##  0.2461272 3.9893853
 ## sample estimates:
 ## ratio of variances 
-##           1.321443</code></pre>
+##          0.9909069</code></pre>
 <p>For same mean, different variance you should see:</p>
 <pre><code>## 
 ##  F test to compare two variances
 ## 
 ## data:  x and y
-## F = 0.17565, num df = 9, denom df = 9, p-value = 0.01621
+## F = 0.69366, num df = 9, denom df = 9, p-value = 0.5946
 ## alternative hypothesis: true ratio of variances is not equal to 1
 ## 95 percent confidence interval:
-##  0.04362971 0.70717778
+##  0.1722954 2.7926725
 ## sample estimates:
 ## ratio of variances 
-##           0.175653</code></pre>
+##          0.6936604</code></pre>
 </div>
 </div>
 <div id="chi-square-test-for-tabular-data" class="section level1">
@@ -572,15 +572,15 @@ seatbelt_EV</code></pre>
 <h1><span class="header-section-number">3</span> One-way ANOVA test</h1>
 <div id="review-from-lecture-2" class="section level2">
 <h2><span class="header-section-number">3.1</span> Review from lecture</h2>
-<p>For this, we want to test if any of several means are different. We want to compare the within group variance (<span class="math inline">\({SSD}_W\)</span>) to the between group variance (<span class="math inline">\({SSD}_B\)</span>). If the means are all equal (i.e. the data are all from the same distribution) then the statistic <span class="math inline">\(F\)</span> follows an F-distribution with <span class="math inline">\((k-1)\)</span>, <span class="math inline">\((n-k)\)</span> degrees of freedom (<span class="math inline">\(F_{k-1,n-k}\)</span>).</p>
+<p>For this, we want to test if any of several means are different. We want to compare the within group variance (<span class="math inline">\({SSD}_{W}\)</span>) to the between group variance (<span class="math inline">\({SSD}_{B}\)</span>). If the means are all equal (i.e. the data are all from the same distribution) then the statistic <span class="math inline">\(F\)</span> follows an F-distribution with <span class="math inline">\((k-1)\)</span>, <span class="math inline">\((n-k)\)</span> degrees of freedom (<span class="math inline">\(F_{k-1,n-k}\)</span>).</p>
 <ul>
 <li><span class="math inline">\({SSD}_W = \sum_{i} \sum_{j} (x_{ij}-\bar{x}_i)^2\)</span></li>
 <li><span class="math inline">\({SSD}_B = \sum_{i} \sum_{j} (\bar{x}_i - \bar{x}_{\cdot})^2 = \sum_{i} n_{i} (\bar{x}_i - \bar{x}_{\cdot})^2\)</span></li>
-<li><span class="math inline">\({MS}_W = \frac{{SSD}_W}{(n-k)}\)</span></li>
-<li><span class="math inline">\({MS}_B = \frac{{SSD}_B}{(k-1)}\)</span></li>
-<li><p><span class="math inline">\(F = \frac{{MS}_B}{{MS}_W}\)</span></p></li>
+<li><span class="math inline">\({MS}_W = \frac{{SSD}_{W}}{(n-k)}\)</span></li>
+<li><span class="math inline">\({MS}_B = \frac{{SSD}_{B}}{(k-1)}\)</span></li>
+<li><p><span class="math inline">\(F = \frac{{MS}_{B}}{{MS}_{W}}\)</span></p></li>
 <li>If means are the same within the groups then <span class="math inline">\(F\)</span> should be around 1</li>
-<li><p>If the means are different, then <span class="math inline">\({MS}_B &gt;&gt; {MS}_W\)</span></p></li>
+<li><p>If the means are different, then <span class="math inline">\({MS}_{B} &gt;&gt; {MS}_{W}\)</span></p></li>
 </ul>
 </div>
 <div id="syntax-of-the-1-way-test" class="section level2">
