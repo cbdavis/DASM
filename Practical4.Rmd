@@ -18,7 +18,7 @@ library(ggplot2)
 
 # The test for equality in variance
 
-## Reminder from lecture:
+## Review from lecture
 
 A test of s in two different populations with size  $n_1$, $n_2$ involves the following:
 
@@ -32,13 +32,20 @@ A test of s in two different populations with size  $n_1$, $n_2$ involves the fo
 5) Test statistic: $F = \frac{{s_{1}}^2}{{s_{2}}^2}$
 
 
-## Syntax in R:
+## Syntax of `var.test`
 
 ```{r, eval=FALSE}
 var.test(x, y, ratio = 1, 
          alternative = c("two.sided", "less", "greater"),
          conf.level = 0.95, ...)
 ```
+
+Relevant arguments for this practical:
+
+* `x, y` - numeric vectors of data values
+* `ratio`	- the hypothesized ratio of the population variances of x and y.
+* `alternative` - a character string specifying the alternative hypothesis, must be one of "two.sided" (default), "greater" or "less". You can specify just the initial letter.
+* `conf.level` - confidence level for the returned confidence interval.
 
 ## Example 
 
@@ -55,9 +62,8 @@ var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
 ```
 
 ## Exercise on you own 
-a) Take 100 random samples from normal distributions with a different variance e.g., mean = 0, sd = 1 and sd = 1.2 
+* Take 100 random samples from normal distributions with a different variance e.g., `mean = 0`, `sd = 1` and `sd = 1.2` 
  
-You should see:
 ```{r, echo=FALSE} 
 x <- rnorm(100, mean=0, sd=1)  
 y <- rnorm(100, mean=0, sd=1.2)
@@ -67,16 +73,16 @@ Run the `var.test` again.  You should see:
 ```{r, echo=FALSE}
 var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
 ```
-b) try both above examples again with n = 10 
+* Try both of the examples above again with n = 10
 
-Resutls for different means, same variance:
+For different means, same variance you should see:
 ```{r, echo=FALSE}
 x <- rnorm(10, mean=0)  # if you don’t specify the variance it is set to 1 by default
 y <- rnorm(10, mean=1)
 var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
 ```
 
-Results for same mean, different variance:
+For same mean, different variance you should see:
 ```{r, echo=FALSE}
 x <- rnorm(10, mean=0, sd=1)  # if you don’t specify the variance it is set to 1 by default
 y <- rnorm(10, mean=0, sd=1.2)
@@ -85,23 +91,26 @@ var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
 
 # Chi-square test for tabular data
 
-## Preliminaries constructing tables from categorical data 
+## Preliminaries 
 
-### reminder about reading in data sets, getting an idea of the variables etc
+Before we begin constructing tables from categorical data, we should review a few useful functions for working with tabular data.
 
+### Working with table columns
+
+Get a list of columns in a data frame:
 ```{r}
 colnames(iris)
 ```
 
+Summarize a data frame, showing the columns and statistical information about the values in those columns:
 ```{r}
 summary(iris)
 ```
 
-### Extract variables with the $ command 
+Extracting columns with the $ command 
 ```{r}
 iris$Sepal.Length
 ```
-
 
 ### Syntax of the `table` command
 
@@ -118,9 +127,9 @@ The relevant argument for this practical is:
 
 * `...` - one or more objects which can be interpreted as factors (including character strings), or a list (or data frame) whose components can be so interpreted. (For as.table, arguments passed to specific methods; for as.data.frame, unused.)
 
-In the examples below you'll see that `...` takes the form of one or two variables which we use to construct the contigency table.
+In the examples below you'll see that `...` takes the form of one or two variables which we use to construct the contingency table.
 
-### construct a table from one or two variables 
+### Construct a table from one or two variables 
 
 Here we create a table from the `cyl` (number of cylinders) column of the `mtcars` data set:
 ```{r}
@@ -135,10 +144,9 @@ Next we create a table from the `cyl` and `gear` (number of forward gears) colum
 table(mtcars$cyl, mtcars$gear)
 ```
 
-With the `table` function, the first value you enter (`mtcars$cyl`) will show up on the rows, and the second (`mtcars$gear`) will show up in the columns.  For example, from the table we can see that there are 12 cars with 8 cyclinders and 3 gears, while there are 0 cars with 4 gears and eight cylinders.
+With the `table` function, the first value you enter (`mtcars$cyl`) will show up on the rows, and the second (`mtcars$gear`) will show up in the columns.  For example, from the table we can see that there are 12 cars with 8 cylinders and 3 gears, while there are 0 cars with 4 gears and eight cylinders.
 
-
-### Exercise:
+### Exercise
 
 Load in data on heart attack victims.  With R you can download a file directly from the Internet.  Note that `sep="\t"` means that the file is tab delimited
 ```{r}
@@ -153,7 +161,7 @@ table(df$SEX, df$DIED)
 
 ## Chi-square test for goodness of fit
 
-### Reminder from the lecture
+### Review from lecture
 
 Hypothesis: n events that occur with probabilities $p_i$
 
@@ -161,7 +169,7 @@ Observations: counts for each event ($n_1$, $n_2$, …, $n_i$, …,$n_k$)
 
 Test statistic:  
 
-$$ \chi^{2} = \sum{}\frac{(observed - expected)^{2}}{expected} = \sum_{i=1}^{k} \frac{(n_i-E_i)^2}{E_i}$$
+$\chi^{2} = \sum{}\frac{(observed - expected)^{2}}{expected} = \sum_{i=1}^{k} \frac{(n_i-E_i)^2}{E_i}$
 
 with $E_i = n * p_i$
 
@@ -175,13 +183,13 @@ chisq.test(x, p)
 
 Arguments:
 
-* `x`	- a numeric vector or matrix. `x` and `y` can also both be factors.
+* `x`	- a numeric vector or matrix. `x` can also be a vector of factors.
 * `p` - a vector of probabilities of the same length of `x`. An error is given if any entry of `p` is negative.
 
-p should be a vector of length x. If it is not specified the program automatically assumes equal probabilities. 
+If `p` is not specified, then `chisq.test` automatically assumes equal probabilities. 
 
 ### Example 
-the dice from the lecture 6
+This is the dice example mentioned in lecture 6.
 
 You roll a die 100 times, and these are the number of counts associated with each value of the die that was observed.
 
@@ -206,8 +214,6 @@ exp
     * i.e. $p_i = \frac{1}{6}$ for all $i$ 
 * $H_a$: at least one number comes at a different frequency 
     * i.e. $p_i \neq \frac{1}{6}$ for at least one $i$
-
-**TODO** only show how to use `chisq.test`.  Can remove things before that.
 
 
 Use the `chisq.test` function to see the same results:
@@ -237,8 +243,8 @@ ggplot(df, aes(x,y)) + geom_line() +
 
 ```
 
-### Try on your own:
-the example of the murder cases from the lecture 
+### Exercise
+This is the example of murder cases from the lecture 
 
 | Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | 
 |-|-|-|-|-|-|-|-|
@@ -257,13 +263,13 @@ print(cst)
 cst = chisq.test(murders,p=rep(1/7, 7))
 ```
 
+Based on these results, we reject $H_0$, since p < 0.05.  For at least one day of the week, murder rate is different from $\frac{1}{7}$ at the 95% confidence level 
+
 ## Chi-square test of independence
 
 ### Review from lecture 6
 
-**TODO** include page numbers
-
-2-way table:
+A 2-way table is of the form:
 
 <img src="./images/TwoWayTable.png" width=600>
 
@@ -275,8 +281,7 @@ Hypothesis test:
 
 Test statistic:
 
-$$\chi^2 = \sum_{i=1}^{k}\sum_{j=1}^{l} \frac{(n_{ij}-n_{i\cdot}*n_{\cdot j}/n)^2}{n_{i\cdot}*n_{\cdot j}/n} $$
-
+$\chi^2 = \sum_{i=1}^{k}\sum_{j=1}^{l} \frac{(n_{ij}-n_{i\cdot}*n_{\cdot j}/n)^2}{n_{i\cdot}*n_{\cdot j}/n}$
 
 ### Syntax
 
@@ -285,7 +290,7 @@ The syntax for performing a `chisq.test` for a two way table is very simple - in
 chisq.test(x) 
 ```
 
-### Example from the lecture (buckled, unbuckled)
+### Example
 
 A set of cars are observed and per car it is recorded whether the parents and the children are wearing their seatbelts.  We can construct the two-way table of the observations in the code below:
 
@@ -303,7 +308,7 @@ We use the following hypotheses and confidence level:
 * $H_a$: the variables are dependent
 * $\alpha=0.05$
 
-We now need to create expected matrix which would show what the expected values would be if the variables are independent.  For this wee need to find  $p(A \cap B) = p(A)p(B)$
+We now need to create expected matrix which would show what the expected values would be if the variables are independent.  For this we need to find  $p(A \cap B) = p(A)p(B)$
 
 ```{r}
 # calculate sums over the rows and columns
@@ -374,15 +379,15 @@ Create the above table in R and perform the `chisq.test` on it.  Is there a stat
 
 # One-way ANOVA test
 
-## Reminder from the lecture:
+## Review from lecture
 
-For this, we want to test if any of several means are different.  We want to compare the within group variance (SSDw) to the between group variance (SSDb).  If the means are all equal (i.e. the data are all from the same distribution) then the statistic $F$ follows an F-distribution with $(k-1)$, $(n-k)$ degrees of freedom ($F_{k-1,n-k}$).
+For this, we want to test if any of several means are different.  We want to compare the within group variance (${SSD}_W$) to the between group variance (${SSD}_B$).  If the means are all equal (i.e. the data are all from the same distribution) then the statistic $F$ follows an F-distribution with $(k-1)$, $(n-k)$ degrees of freedom ($F_{k-1,n-k}$).
 
 * ${SSD}_W = \sum_{i} \sum_{j} (x_{ij}-\bar{x}_i)^2$
 * ${SSD}_B = \sum_{i} \sum_{j} (\bar{x}_i - \bar{x}_{\cdot})^2 = \sum_{i} n_{i} (\bar{x}_i - \bar{x}_{\cdot})^2$
 * ${MS}_W = \frac{{SSD}_W}{(n-k)}$
 * ${MS}_B = \frac{{SSD}_B}{(k-1)}$
-* =$F = \frac{{MS}_B}{{MS}_W}$
+* $F = \frac{{MS}_B}{{MS}_W}$
 
 * If means are the same within the groups then $F$ should be around 1
 * If the means are different, then ${MS}_B >> {MS}_W$
@@ -393,26 +398,14 @@ For this, we want to test if any of several means are different.  We want to com
 oneway.test(formula, data, subset, na.action, var.equal = FALSE)
 ```
 
-Explanation of formula:
+Relevant arguments:
 
 * `formula`	- a formula of the form lhs ~ rhs where lhs gives the sample values and rhs the corresponding groups.
 * `data` - an optional matrix or data frame (or similar: see `model.frame`) containing the variables in the formula formula. By default the variables are taken from environment(formula).
 * `subset` - an optional vector specifying a subset of observations to be used.  Normally we don't use this option.
 * `var.equal` - a logical variable indicating whether to treat the variances in the samples as equal. If `TRUE`, then a simple F test for the equality of means in a one-way analysis of variance is performed. If `FALSE`, an approximate method of Welch (1951) is used, which generalizes the commonly known 2-sample Welch test to the case of arbitrarily many samples.
 
-Format of input variable: data frame with the columns and values:
-
-| cal | month |
-|-----|-------|
-|2216 | may|
-|1568 | may|
-|2233 | may|
-|1882 | may|
-|2019 | may|
-|2279 | sep|
-|2075 | sep|
-
-The formula we will use is `cal~month` (calories grouped by month).  Both `cal` and `month` correspond to the names of the columns in a data frame
+The formula we will use is `cal~month` (calories grouped by month).  Both `cal` and `month` correspond to the names of the columns in a data frame.
 
 ## Example
 
