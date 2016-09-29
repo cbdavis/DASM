@@ -381,16 +381,16 @@ Create the above table in R and perform the `chisq.test` on it.  Is there a stat
 
 ## Review from lecture
 
-For this, we want to test if any of several means are different.  We want to compare the within group variance (${SSD}_W$) to the between group variance (${SSD}_B$).  If the means are all equal (i.e. the data are all from the same distribution) then the statistic $F$ follows an F-distribution with $(k-1)$, $(n-k)$ degrees of freedom ($F_{k-1,n-k}$).
+For this, we want to test if any of several means are different.  We want to compare the within group variance (${SSD}_{W}$) to the between group variance (${SSD}_{B}$).  If the means are all equal (i.e. the data are all from the same distribution) then the statistic $F$ follows an F-distribution with $(k-1)$, $(n-k)$ degrees of freedom ($F_{k-1,n-k}$).
 
 * ${SSD}_W = \sum_{i} \sum_{j} (x_{ij}-\bar{x}_i)^2$
 * ${SSD}_B = \sum_{i} \sum_{j} (\bar{x}_i - \bar{x}_{\cdot})^2 = \sum_{i} n_{i} (\bar{x}_i - \bar{x}_{\cdot})^2$
-* ${MS}_W = \frac{{SSD}_W}{(n-k)}$
-* ${MS}_B = \frac{{SSD}_B}{(k-1)}$
-* $F = \frac{{MS}_B}{{MS}_W}$
+* ${MS}_W = \frac{{SSD}_{W}}{(n-k)}$
+* ${MS}_B = \frac{{SSD}_{B}}{(k-1)}$
+* $F = \frac{{MS}_{B}}{{MS}_{W}}$
 
 * If means are the same within the groups then $F$ should be around 1
-* If the means are different, then ${MS}_B >> {MS}_W$
+* If the means are different, then ${MS}_{B} >> {MS}_{W}$
 
 ## Syntax of the 1-way test
 
