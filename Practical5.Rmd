@@ -1,0 +1,64 @@
+---
+title: "Practical 5"
+author: "Chris Davis"
+date: "October 3, 2016"
+output: 
+    html_document:
+        toc: true
+        number_sections: true
+
+---
+
+# Monte Carlo simulation 
+
+## Short reminder of the lecture
+
+x = f(u,v)
+
+u has uncertainty su 
+v has uncertainty sv
+
+Construct normal distribution fn,u around u with standard deviation su 
+Construct normal distribution fn,v around v with standard deviation sv
+
+Take a random value u1 from  fn,u and v1 from fn,v  and calculate x1 = f(u1, v1)
+
+Repeat n times
+
+Take average (or median) of all xi (i = 1, …n) 
+
+## Example from the lecture (page 25, for now; might be slightly different)
+(Chris, maybe add some explanation)
+
+```{r}
+n <- 1000
+p <- rnorm(n, mean = 2, sd = 0.5)
+q <- rnorm(n, mean = 5, sd = 1)
+f <- p*q/(p+q)
+f_bar <- mean(f)
+sig <- sd(f)
+```
+
+## Try on your own:
+
+Give them a different formula  x = f(u,v)
+Let them try a monte carlo simulation with different n 
+ Tasks:
+a) plot the histogram of x
+b) calculate mean(x) and std(x)
+
+
+If there is enough time you could explain, how to do it with a loop for different n and re-create a plot like in lecture pgs 27, 28
+
+# Working with real data sets
+
+This is not related to the lecture, so I think I leave this to you. 
+
+I attach two practicals that they had last year, where I taught them the basic of working with data frames, subsets, dates and times etc … 
+
+I think it would be good to keep the structure that we had so far:
+a) Introduce a concept
+b) walk them through an example 
+c) let them try an exercise by themselves
+
+
