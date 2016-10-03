@@ -73,22 +73,23 @@ I think it would be good to keep the structure that we had so far:
 * walk them through an example 
 * let them try an exercise by themselves
 
-
-
-
 The Guerry data file:
+
+**TODO** have the students download this to their own computer, explain right click, etc (copy from Practical 1).  Add link (where don't show url directly)
 
 Read it in: 
 ```{r}
 data1 <- read.csv(file ="https://raw.githubusercontent.com/cbdavis/DASM/master/data/Guerry.csv")
 ```
+
+**TODO** explain the different columns - 17 observations per region, 1 NA, etc - how factors and numbers are shown differently.  If you don't see quantiles, it's counting factors
+
 Get an idea what is in it:
 ```{r}
 summary(data1)
 ```
 
 This is a data set from the Guerry R package, so to get an idea about the variables we need to install the package:
-
 ```{r, eval=FALSE}
 install.packages("Guerry")
 ```
@@ -101,7 +102,6 @@ library(Guerry)
 and then bring up the help information that relates to this specific data frame which is included in the package:
 ```{r}
 help(Guerry)
-
 ```
 
 French cities and statistics about them
@@ -117,6 +117,8 @@ French cities and statistics about them
 **TODO** what is meant here?  This seems to be done in two commands further below
 
 hint: data1~xxx, groups data by the categories contained in the variable xxx
+
+**TODO** split this into two boxplots as shown below
 
 ```{r}
 ggplot(data1, aes(x=Region, y=Literacy)) + geom_boxplot() + facet_wrap(~MainCity)
@@ -212,3 +214,10 @@ c <- data1[c(1,5,9), 7]
 tab = table(data1$MainCity, data1$Region)
 tab
 ```
+
+See /home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical_2015_example_chris.pptx
+```{r}
+stuff = read.csv("/home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical4.csv")
+```
+
+**TODO** if too much material, leave out the boxplots
