@@ -163,6 +163,9 @@ data1 <- read.csv(file ="Guerry.csv")
 data1 <- read.csv(file ="./data/Guerry.csv")
 ```
 
+Note that every time you read in a .csv file you will have a data frame, even if there is only a single column present.
+
+
 As mentioned in the previous practicals, we use `summary` to get an idea about what is in the data frame:
 ```{r}
 summary(data1)
@@ -195,12 +198,26 @@ NA's: 1
 
 **TODO** need to explain logical indexing - also if have values that are NA, by default NA will be included.  With subset, NA is excluded, also with filter and dplyr.  Indexing can be useful either way - sometimes you want to keep the NAs since the other columns may have valid data that you want to use.
 
+We can find the number of variables (columns)
+```{r}
+length(data1)
+```
 
-Reminder: reading in a .csv file gives you a data frame
+or by:
+```{r}
+ncol(data1)
+```
 
-e.g., `length(input1)` gives you the number of variables, not the length of the data
+Similarly, the number of rows can be found via:
+```{r}
+nrow(data1)
+```
 
-`dim(input1)` shows the number of rows and columns
+And the number of rows and columns via:
+
+```r
+dim(data1)
+```
 
 select subsets from a data frame
 	
@@ -223,39 +240,23 @@ and then bring up the help information that relates to this specific data frame 
 help(Guerry)
 ```
 
-French cities and statistics about them
+This data set contains statistics about French cities.  There are several different types of columns:
 
-* A few categories: Region, Main_city
-* A few numerical variables: e.g., Crime pers … Suicides
-* A few rank variables: Donations, 
-
-1) Select any numerical variable and plot a histogram
-
-2) Choose variable "Literacy" and make a box plot per region and city size (MainCity)  
-
-**TODO** what is meant here?  This seems to be done in two commands further below
-
-hint: data1~xxx, groups data by the categories contained in the variable xxx
-
-**TODO** split this into two boxplots as shown below
-
-```{r}
-ggplot(data1, aes(x=Region, y=Literacy)) + geom_boxplot() + facet_wrap(~MainCity)
-```
+* A few categories: `Region`, `Main_city`
+* A few numerical variables: e.g., `Crime_pers`, `Distance`
+* A few rank variables: `Donation_clergy`
 
 1) Select any numerical variable and plot a histogram
 
 ```{r}	
-hist(data1$Infants)
+ggplot(data1, aes(x=Infants)) + geom_histogram(bins=50)
 ```
 
-2) Choose numerical variable and make a box plot per region and city size (MainCity)  
-
-**TODO** this seems to be what is mentioned above
+2) Choose variable "Literacy" and make a box plot per region and city size (MainCity)  
 
 ```{r}
-boxplot(data1$Literacy~data1$Region)
-boxplot(data1$Literacy~data1$MainCity)
+ggplot(data1, aes(x=Region, y=Literacy)) + geom_boxplot()
+ggplot(data1, aes(x=MainCity, y=Literacy)) + geom_boxplot()
 ```
 
 3) we see that the box in the small cities looks weird, we want to take a closer look 
@@ -270,13 +271,15 @@ a
 3b) Now we want to see the actual data points in the small cities only:
 Subset command!
 
-**TODO** which dataset is this?  Only focus on using with data1?
+**TODO** talk briefly about logical operators & |
 
 The subset( ) function is the easiest way to select variables and observations. In the following example, we select all rows that have a value of age greater than or equal to 20 or age less then 10. We keep the ID and Weight columns.
 
  using subset function 
 ```{r, eval=FALSE}
 newdata <- subset(mydata, age >= 20 | age < 10, select=c(ID, Weight))
+
+newdata <- mydata %>% filter(age >= 20 | age < 10) %>% select(ID, Weight)
 ```
 
 In the next example, we select all men over the age of 25 and we keep variables weight through income (weight, income and all columns between them).
