@@ -6,8 +6,8 @@ output:
     html_document:
         toc: true
         number_sections: true
-
 ---
+
 
 ```{r, eval=FALSE}
 install.packages("dplyr")
@@ -22,27 +22,39 @@ library(dplyr)
 
 ## Short reminder of the lecture
 
-x = f(u,v)
+$x = f(u,v)$
 
-u has uncertainty su 
-v has uncertainty sv
+* $u$ has uncertainty $s_u$
+* $v$ has uncertainty $s_v$
 
-Construct normal distribution fn,u around u with standard deviation su 
-Construct normal distribution fn,v around v with standard deviation sv
+* Construct normal distribution fn,u around $u$ with standard deviation $s_u$ 
+* Construct normal distribution fn,v around $v$ with standard deviation $s_v$
 
-Take a random value u1 from  fn,u and v1 from fn,v  and calculate x1 = f(u1, v1)
+Take a random value u1 from  fn,u and $v_1$ from fn,v  and calculate $x1 = f(u1, v1)$
 
 Repeat n times
 
-Take average (or median) of all xi (i = 1, …n) 
+Take average (or median) of all $x_i$ (i = 1, …n) 
 
 ## Example from the lecture (page 25, for now; might be slightly different)
 (Chris, maybe add some explanation)
 
+assume that the uncertainties for $p$ and $q$ follow normal distributions
+
+* for $p$, $\mu = 2$ and $\delta = 0.5$
+* for $q$, $\mu = 5$ and $\delta = 1$
+
+**TODO** how is the formula derived?
+
+$f = \frac{p \cdot q}{p + q}$
+
 ```{r}
+# take n samples
 n <- 1000
+# take n samples from normal distributions with different means and standard deviations
 p <- rnorm(n, mean = 2, sd = 0.5)
 q <- rnorm(n, mean = 5, sd = 1)
+# calculate f(u,v)
 f <- p*q/(p+q)
 f_bar <- mean(f)
 sig <- sd(f)
@@ -60,6 +72,8 @@ Tasks:
 * calculate mean(x) and std(x)
 
 If there is enough time you could explain, how to do it with a loop for different n and re-create a plot like in lecture pgs 27, 28
+
+**TODO** this is on page 33,34 now, right?
 
 # Working with real data sets
 
@@ -221,3 +235,281 @@ stuff = read.csv("/home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPr
 ```
 
 **TODO** if too much material, leave out the boxplots
+
+# Dates and Times
+
+Useful resources: 
+
+* [Working with Time Series Data in R ](http://faculty.washington.edu/ezivot/econ424/Working%20with%20Time%20Series%20Data%20in%20R.pdf)
+* [R cheat sheet](http://blog.yhat.com/static/pdf/R_date_cheat_sheet.pdf). Note the `Date` and `POSIXct` columns.  We don't use the `lubridate` library for this example.
+
+## Integers to Dates
+1) Dates, not involving times of the day, are natively stored on your computer as integer numbers with 1 Jan 1970  = 0 and 1 corresponding to 1 day. Due to this, you need to specify `origin="1970-01-01"` in the example below.  
+
+e.g., The number 365 corresponds 1 Jan 1971
+
+To tell R that a number is a date, not just a number you use the command.  
+```{r}
+as.Date(365, origin="1970-01-01")
+```
+ 
+## Strings to Dates
+R can also convert strings to dates
+```{r}
+as.Date("1971-01-01")   # always use the order of year, month, day
+```
+
+## Vectors of Date Ranges
+You can make vectors filled with series of dates by
+```{r}
+t = seq(from = as.Date("2000-11-30"), to = as.Date("2005-05-26"), by="1 day")
+```
+
+`by=` can be e.g, 1 month, 2 years, 5 days, etc...
+
+Try to make a weekly time vector from 5 June 2005 to 20 August 2006
+
+Otherwise you can treat time vectors as normal vectors 
+(use them in plots, add, subtract, ...)
+
+# Dates and Times
+
+POSIXct does more or less the same as Date, but stores the time variable as numbers of seconds since midnight GMT 1970-01-01.  As a result, this allows us to store data which expresses the time on a specific date.
+
+```{r}
+t.str = "2013-12-19 10:17:07"    # default format
+t.obj = as.POSIXct(t.str) 
+t.obj
+```
+
+If you have any other format than default format e.g., if you need to read in data that are not in the default format, then you can give R the format the data are in:
+
+```{r}
+t.str1 = "19-12-2013 10:17:07"
+t.obj1 = as.POSIXct(t.str1, format="%d-%m-%Y %H:%M:%S")
+t.obj1
+```
+
+To get an overview of all the format types type `help(strptime)`
+
+## Changing format of date
+
+**TODO** need to explain the big table before here, point out %a, %d, %b, %Y, show what they mean, then show it in the example
+
+You can change the format of the output date:
+```{r}
+t.obj1
+format(t.obj1, "%a %d %b. %Y")
+```
+
+## Adding and subtracting dates
+You can add and subtract POSIXt objects and perform logical operations on them. If you have a vector of POSIXt objects, you can use the `min()`, `max()` and `range()` functions. 
+
+```{r}
+t.str2 = "2013-12-19 18:20:07"
+t.obj2 = as.POSIXct(t.str2)
+```
+
+Subtract two date times:
+```{r}
+t.obj1 - t.obj2
+```
+
+## Exercise 1
+
+Exercise: read in Pr_20May1.csv
+it contains a time series of monthly temp. from Jan. 1946 to Dec. 2014
+Make a vector with the dates corresponding to each data point
+
+1) Real data can have inconvenient column names
+
+How to rename columns in a data set:
+e.g. data set: input1
+
+```{r, eval=FALSE}	
+#rename column
+names(input1)[1] <- "x" 	# gives the first column the name "x"
+names(input1)[2] <- "y"		# gives the second column the name "y"
+```
+
+## Exercise 2
+
+**TODO** Is this the Guerry data file covered elsewhere in this practical?
+
+Load the data set "Practical4.csv"from nestor and rename the column with the weird name
+
+2) Real data can have missing values
+
+Missing values in R are named NA
+But in some data sets the missing values can have any name (e.g.NaN …)
+Often they are also indicated by an unrealistic number (e.g., -999)
+
+For R to handle the missing values, you have to rename them as NA, if the are not named like that, R does not recognize them
+	
+e.g. a data frame called input1 with -999 for missing values
+
+
+```{r, eval=FALSE}	
+input1[input1 == -999] <-NA
+```
+
+What does this command do?
+
+`x<-(input1 == -999)`  gives a vector/matrix of the same size as input 1
+
+This vector is logical (contains `TRUE`, `FALSE`, and `NA`)
+
+If such a matrix is put into input1 it selects only the fields where x shows `TRUE`
+
+Then it only the fields that are `-999` are replaced by `NA`
+	
+2) Real data can have missing values
+
+Exercise 2:
+
+try replacing the -999 in the data set by NA
+
+take a look at the logical vector x
+
+and the data set before and after replacement
+
+3) Reminder: reading in a .csv file gives you a data frame
+
+e.g., `length(input1)` gives you the number of variables, not the length of the data
+
+select subsets from a data frame
+	
+e.g., 
+```{r, eval=FALSE}
+input_s <- input1[1:10, c(2,3)]   # selects row 1:10 and column 2 and 3
+input_s <- input1[, c("x", "y")]  # selects all rows, and the columns named "x" and "y"
+```
+
+`input_s` is also a data frame!
+
+select individual vectors: 
+```{r, eval=FALSE}
+x <- input1$x
+```
+or
+```{r, eval=FALSE}
+x <- input1$x[1:10]  #just select the first 10 rows
+```
+
+make the whole data frame into a matrix
+```{r, eval=FALSE}
+input_m <- as.matrix(input1)
+```
+
+`length(input_m)` gives the number of all elements in the matrix
+
+`input_m$x` does not work any more
+
+4) dates and times can be in any format
+
+**TODO** was this covered last week (in class?)
+
+This was covered last week with the use of: as.POSIXct() 
+
+Reminder common date/time format codes:
+
+see `?strptime`
+
+**TODO** include table
+
+| Code | Description              | Example |
+|------|--------------------------|---------|
+| %a | Abbreviated weekday name | Mon |
+| %A | Full weekday name | Monday |
+| %b | Abbreviated month name | Jan |
+| %B | Full month name | January |
+| %c | Date and time. Locale-specific on output, "%a %b %e %H:%M:%S %Y" on input. | |
+| %d | Day of the month as decimal number (01–31) | 01 |
+| %H | Hours as decimal number (00–23) | 16 |
+| %I | Hours as decimal number (01–12) | 08 |
+| %j | Day of year as decimal number (001–366) | 234 | 
+| %m | Month as decimal number (01–12) | 07 |
+| %M | Minute as decimal number (00–59) | 12 | 
+| %p | AM/PM indicator | AM |
+| %S | Second as integer (00–59) | 35 | 
+| %U | Week of the year as decimal number (00–53) using Sunday as the first day 1 of the week (and typically with the first Sunday of the year as day 1 of week 1). The US convention. | |
+| %w | Weekday as decimal number (0–6, Sunday is 0). | 1 |
+| %W | Week of the year as decimal number (00–53) using Monday as the first day of week (and typically with the first Monday of the year as day 1 of week 1). The UK convention. | | 
+| %x | Date. Locale-specific on output, "%y/%m/%d" on input. | | 
+| %X | Time. Locale-specific on output, "%H:%M:%S" on input. | |
+| %y | Year without century (00–99) | 91 |
+| %Y | Year with century | 1991 |
+| %z | Signed offset in hours and minutes from UTC, so -0800 is 8 hours behind UTC | |
+| %Z | Time zone abbreviation as a character string | PST |
+
+
+4) dates and times can be in any format
+
+
+Exercise 3: 
+
+**TODO** not covered in last practical
+
+* Make time vector of the date in the data set you imported
+* make a new vector that formats the date, so that it just shows the month (hint: use the command: `format(date, format = " …" )` covered in the last practical
+
+
+5) sometimes real data sets don't directly contain all the information you want
+
+e.g., you have data covering a year and you are wondering if there is a difference between summer and winter, or between day and night; but you only have a vector with date and time
+
+Make new category variables (e.g. for anova, box plots etc..)
+
+e.g. `input1$y` varies between 0 and 5
+
+```{r, eval=FALSE}
+x1 <- c() 	# start with empty vector
+x1[input1$y < 1] <- "low"
+x1[(input1$y >=1) & (input1$y < 3)] <- "medium"
+x1[input1$y>=3] <- "high"
+```
+
+`x1` is now a vector of length `input1$y` and consists of values `"low"`, `"medium"`, `"high"`
+
+Exercise 4
+
+Make a vector that correctly assigns the seasons to your data set ( use the meteorological definition of season e.g. winter is dec, jan, feb; spring is mar, apr, may .. 
+Look up the logical operators you might need on the internet
+  
+5)combine new data with your data set, or combine several data sets
+
+e.g. second data set input 2 with the same number of rows
+
+```{r, eval=FALSE}
+data_new <- cbind(input1, input2) 	#column bind
+```
+
+e.g., second data set with new values in the same columns 
+
+data_new <- rbind(input1, input2)		#row bind; adds the new values at the bottom
+
+e.g., add a new vector x to a data frame
+
+```{r, eval=FALSE}
+x1 <- data.frame(name1 = x) 	#first make the vector into a data frame with col name: name1
+input1 <- cbind(input1,x1)
+```
+
+Exercise 5
+add the vector of months and the vector of seasons to your data frome
+
+6) working with data sets containing NAs
+
+see R code for this practical for some tips and tricks
+  
+6) making summary tables
+
+A box plot can plot data grouped by categories, it might be nice to have such summary information in a table
+
+This can be done by aggregate()
+
+e.g.
+
+```{r, eval=FALSE}
+table1 <- aggregate(input1, list(input1$season), mean, na.rm = TRUE)  
+```

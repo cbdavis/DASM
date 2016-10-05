@@ -129,6 +129,17 @@ $(document).ready(function () {
 <li><a href="#try-on-your-own"><span class="toc-section-number">1.3</span> Try on your own:</a></li>
 </ul></li>
 <li><a href="#working-with-real-data-sets"><span class="toc-section-number">2</span> Working with real data sets</a></li>
+<li><a href="#dates-and-times"><span class="toc-section-number">3</span> Dates and Times</a><ul>
+<li><a href="#integers-to-dates"><span class="toc-section-number">3.1</span> Integers to Dates</a></li>
+<li><a href="#strings-to-dates"><span class="toc-section-number">3.2</span> Strings to Dates</a></li>
+<li><a href="#vectors-of-date-ranges"><span class="toc-section-number">3.3</span> Vectors of Date Ranges</a></li>
+</ul></li>
+<li><a href="#dates-and-times-1"><span class="toc-section-number">4</span> Dates and Times</a><ul>
+<li><a href="#changing-format-of-date"><span class="toc-section-number">4.1</span> Changing format of date</a></li>
+<li><a href="#adding-and-subtracting-dates"><span class="toc-section-number">4.2</span> Adding and subtracting dates</a></li>
+<li><a href="#exercise-1"><span class="toc-section-number">4.3</span> Exercise 1</a></li>
+<li><a href="#exercise-2"><span class="toc-section-number">4.4</span> Exercise 2</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -139,19 +150,33 @@ library(dplyr)</code></pre>
 <h1><span class="header-section-number">1</span> Monte Carlo simulation</h1>
 <div id="short-reminder-of-the-lecture" class="section level2">
 <h2><span class="header-section-number">1.1</span> Short reminder of the lecture</h2>
-<p>x = f(u,v)</p>
-<p>u has uncertainty su v has uncertainty sv</p>
-<p>Construct normal distribution fn,u around u with standard deviation su Construct normal distribution fn,v around v with standard deviation sv</p>
-<p>Take a random value u1 from fn,u and v1 from fn,v and calculate x1 = f(u1, v1)</p>
+<p><span class="math inline">\(x = f(u,v)\)</span></p>
+<ul>
+<li><span class="math inline">\(u\)</span> has uncertainty <span class="math inline">\(s_u\)</span></li>
+<li><p><span class="math inline">\(v\)</span> has uncertainty <span class="math inline">\(s_v\)</span></p></li>
+<li>Construct normal distribution fn,u around <span class="math inline">\(u\)</span> with standard deviation <span class="math inline">\(s_u\)</span></li>
+<li><p>Construct normal distribution fn,v around <span class="math inline">\(v\)</span> with standard deviation <span class="math inline">\(s_v\)</span></p></li>
+</ul>
+<p>Take a random value u1 from fn,u and <span class="math inline">\(v_1\)</span> from fn,v and calculate <span class="math inline">\(x1 = f(u1, v1)\)</span></p>
 <p>Repeat n times</p>
-<p>Take average (or median) of all xi (i = 1, …n)</p>
+<p>Take average (or median) of all <span class="math inline">\(x_i\)</span> (i = 1, …n)</p>
 </div>
 <div id="example-from-the-lecture-page-25-for-now-might-be-slightly-different" class="section level2">
 <h2><span class="header-section-number">1.2</span> Example from the lecture (page 25, for now; might be slightly different)</h2>
 <p>(Chris, maybe add some explanation)</p>
-<pre class="r"><code>n &lt;- 1000
+<p>assume that the uncertainties for <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span> follow normal distributions</p>
+<ul>
+<li>for <span class="math inline">\(p\)</span>, <span class="math inline">\(\mu = 2\)</span> and <span class="math inline">\(\delta = 0.5\)</span></li>
+<li>for <span class="math inline">\(q\)</span>, <span class="math inline">\(\mu = 5\)</span> and <span class="math inline">\(\delta = 1\)</span></li>
+</ul>
+<p><strong>TODO</strong> how is the formula derived?</p>
+<p><span class="math inline">\(f = \frac{p \cdot q}{p + q}\)</span></p>
+<pre class="r"><code># take n samples
+n &lt;- 1000
+# take n samples from normal distributions with different means and standard deviations
 p &lt;- rnorm(n, mean = 2, sd = 0.5)
 q &lt;- rnorm(n, mean = 5, sd = 1)
+# calculate f(u,v)
 f &lt;- p*q/(p+q)
 f_bar &lt;- mean(f)
 sig &lt;- sd(f)</code></pre>
@@ -166,6 +191,7 @@ sig &lt;- sd(f)</code></pre>
 <li>calculate mean(x) and std(x)</li>
 </ul>
 <p>If there is enough time you could explain, how to do it with a loop for different n and re-create a plot like in lecture pgs 27, 28</p>
+<p><strong>TODO</strong> this is on page 33,34 now, right?</p>
 </div>
 </div>
 <div id="working-with-real-data-sets" class="section level1">
@@ -182,6 +208,7 @@ sig &lt;- sd(f)</code></pre>
 <p><strong>TODO</strong> have the students download this to their own computer, explain right click, etc (copy from Practical 1). Add link (where don’t show url directly)</p>
 <p>Read it in:</p>
 <pre class="r"><code>data1 &lt;- read.csv(file =&quot;https://raw.githubusercontent.com/cbdavis/DASM/master/data/Guerry.csv&quot;)</code></pre>
+<p><strong>TODO</strong> explain the different columns - 17 observations per region, 1 NA, etc - how factors and numbers are shown differently. If you don’t see quantiles, it’s counting factors</p>
 <p>Get an idea what is in it:</p>
 <pre class="r"><code>summary(data1)</code></pre>
 <pre><code>##       dept         Region      Department   Crime_pers      Crime_prop   
@@ -250,6 +277,7 @@ sig &lt;- sd(f)</code></pre>
 </ol>
 <p><strong>TODO</strong> what is meant here? This seems to be done in two commands further below</p>
 <p>hint: data1~xxx, groups data by the categories contained in the variable xxx</p>
+<p><strong>TODO</strong> split this into two boxplots as shown below</p>
 <pre class="r"><code>ggplot(data1, aes(x=Region, y=Literacy)) + geom_boxplot() + facet_wrap(~MainCity)</code></pre>
 <p><img src="data:image/png;base64,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" width="672" /></p>
 <ol style="list-style-type: decimal">
@@ -323,6 +351,301 @@ tab</code></pre>
 ##   1:Sm   1  4  0  3  2
 ##   2:Med 16 11 13 12 13
 ##   3:Lg   0  2  4  2  2</code></pre>
+<p>See /home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical_2015_example_chris.pptx</p>
+<pre class="r"><code>stuff = read.csv(&quot;/home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical4.csv&quot;)</code></pre>
+<p><strong>TODO</strong> if too much material, leave out the boxplots</p>
+</div>
+<div id="dates-and-times" class="section level1">
+<h1><span class="header-section-number">3</span> Dates and Times</h1>
+<p>Useful resources:</p>
+<ul>
+<li><a href="http://faculty.washington.edu/ezivot/econ424/Working%20with%20Time%20Series%20Data%20in%20R.pdf">Working with Time Series Data in R</a></li>
+<li><a href="http://blog.yhat.com/static/pdf/R_date_cheat_sheet.pdf">R cheat sheet</a>. Note the <code>Date</code> and <code>POSIXct</code> columns. We don’t use the <code>lubridate</code> library for this example.</li>
+</ul>
+<div id="integers-to-dates" class="section level2">
+<h2><span class="header-section-number">3.1</span> Integers to Dates</h2>
+<ol style="list-style-type: decimal">
+<li>Dates, not involving times of the day, are natively stored on your computer as integer numbers with 1 Jan 1970 = 0 and 1 corresponding to 1 day. Due to this, you need to specify <code>origin=&quot;1970-01-01&quot;</code> in the example below.</li>
+</ol>
+<p>e.g., The number 365 corresponds 1 Jan 1971</p>
+<p>To tell R that a number is a date, not just a number you use the command.</p>
+<pre class="r"><code>as.Date(365, origin=&quot;1970-01-01&quot;)</code></pre>
+<pre><code>## [1] &quot;1971-01-01&quot;</code></pre>
+</div>
+<div id="strings-to-dates" class="section level2">
+<h2><span class="header-section-number">3.2</span> Strings to Dates</h2>
+<p>R can also convert strings to dates</p>
+<pre class="r"><code>as.Date(&quot;1971-01-01&quot;)   # always use the order of year, month, day</code></pre>
+<pre><code>## [1] &quot;1971-01-01&quot;</code></pre>
+</div>
+<div id="vectors-of-date-ranges" class="section level2">
+<h2><span class="header-section-number">3.3</span> Vectors of Date Ranges</h2>
+<p>You can make vectors filled with series of dates by</p>
+<pre class="r"><code>t = seq(from = as.Date(&quot;2000-11-30&quot;), to = as.Date(&quot;2005-05-26&quot;), by=&quot;1 day&quot;)</code></pre>
+<p><code>by=</code> can be e.g, 1 month, 2 years, 5 days, etc…</p>
+<p>Try to make a weekly time vector from 5 June 2005 to 20 August 2006</p>
+<p>Otherwise you can treat time vectors as normal vectors (use them in plots, add, subtract, …)</p>
+</div>
+</div>
+<div id="dates-and-times-1" class="section level1">
+<h1><span class="header-section-number">4</span> Dates and Times</h1>
+<p>POSIXct does more or less the same as Date, but stores the time variable as numbers of seconds since midnight GMT 1970-01-01. As a result, this allows us to store data which expresses the time on a specific date.</p>
+<pre class="r"><code>t.str = &quot;2013-12-19 10:17:07&quot;    # default format
+t.obj = as.POSIXct(t.str) 
+t.obj</code></pre>
+<pre><code>## [1] &quot;2013-12-19 10:17:07 CET&quot;</code></pre>
+<p>If you have any other format than default format e.g., if you need to read in data that are not in the default format, then you can give R the format the data are in:</p>
+<pre class="r"><code>t.str1 = &quot;19-12-2013 10:17:07&quot;
+t.obj1 = as.POSIXct(t.str1, format=&quot;%d-%m-%Y %H:%M:%S&quot;)
+t.obj1</code></pre>
+<pre><code>## [1] &quot;2013-12-19 10:17:07 CET&quot;</code></pre>
+<p>To get an overview of all the format types type <code>help(strptime)</code></p>
+<div id="changing-format-of-date" class="section level2">
+<h2><span class="header-section-number">4.1</span> Changing format of date</h2>
+<p><strong>TODO</strong> need to explain the big table before here, point out %a, %d, %b, %Y, show what they mean, then show it in the example</p>
+<p>You can change the format of the output date:</p>
+<pre class="r"><code>t.obj1</code></pre>
+<pre><code>## [1] &quot;2013-12-19 10:17:07 CET&quot;</code></pre>
+<pre class="r"><code>format(t.obj1, &quot;%a %d %b. %Y&quot;)</code></pre>
+<pre><code>## [1] &quot;Thu 19 Dec. 2013&quot;</code></pre>
+</div>
+<div id="adding-and-subtracting-dates" class="section level2">
+<h2><span class="header-section-number">4.2</span> Adding and subtracting dates</h2>
+<p>You can add and subtract POSIXt objects and perform logical operations on them. If you have a vector of POSIXt objects, you can use the <code>min()</code>, <code>max()</code> and <code>range()</code> functions.</p>
+<pre class="r"><code>t.str2 = &quot;2013-12-19 18:20:07&quot;
+t.obj2 = as.POSIXct(t.str2)</code></pre>
+<p>Subtract two date times:</p>
+<pre class="r"><code>t.obj1 - t.obj2</code></pre>
+<pre><code>## Time difference of -8.05 hours</code></pre>
+</div>
+<div id="exercise-1" class="section level2">
+<h2><span class="header-section-number">4.3</span> Exercise 1</h2>
+<p>Exercise: read in Pr_20May1.csv it contains a time series of monthly temp. from Jan. 1946 to Dec. 2014 Make a vector with the dates corresponding to each data point</p>
+<ol style="list-style-type: decimal">
+<li>Real data can have inconvenient column names</li>
+</ol>
+<p>How to rename columns in a data set: e.g. data set: input1</p>
+<pre class="r"><code>#rename column
+names(input1)[1] &lt;- &quot;x&quot;     # gives the first column the name &quot;x&quot;
+names(input1)[2] &lt;- &quot;y&quot;     # gives the second column the name &quot;y&quot;</code></pre>
+</div>
+<div id="exercise-2" class="section level2">
+<h2><span class="header-section-number">4.4</span> Exercise 2</h2>
+<p><strong>TODO</strong> Is this the Guerry data file covered elsewhere in this practical?</p>
+<p>Load the data set “Practical4.csv”from nestor and rename the column with the weird name</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Real data can have missing values</li>
+</ol>
+<p>Missing values in R are named NA But in some data sets the missing values can have any name (e.g.NaN …) Often they are also indicated by an unrealistic number (e.g., -999)</p>
+<p>For R to handle the missing values, you have to rename them as NA, if the are not named like that, R does not recognize them</p>
+<p>e.g. a data frame called input1 with -999 for missing values</p>
+<pre class="r"><code>input1[input1 == -999] &lt;-NA</code></pre>
+<p>What does this command do?</p>
+<p><code>x&lt;-(input1 == -999)</code> gives a vector/matrix of the same size as input 1</p>
+<p>This vector is logical (contains <code>TRUE</code>, <code>FALSE</code>, and <code>NA</code>)</p>
+<p>If such a matrix is put into input1 it selects only the fields where x shows <code>TRUE</code></p>
+<p>Then it only the fields that are <code>-999</code> are replaced by <code>NA</code></p>
+<ol start="2" style="list-style-type: decimal">
+<li>Real data can have missing values</li>
+</ol>
+<p>Exercise 2:</p>
+<p>try replacing the -999 in the data set by NA</p>
+<p>take a look at the logical vector x</p>
+<p>and the data set before and after replacement</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Reminder: reading in a .csv file gives you a data frame</li>
+</ol>
+<p>e.g., <code>length(input1)</code> gives you the number of variables, not the length of the data</p>
+<p>select subsets from a data frame</p>
+<p>e.g.,</p>
+<pre class="r"><code>input_s &lt;- input1[1:10, c(2,3)]   # selects row 1:10 and column 2 and 3
+input_s &lt;- input1[, c(&quot;x&quot;, &quot;y&quot;)]  # selects all rows, and the columns named &quot;x&quot; and &quot;y&quot;</code></pre>
+<p><code>input_s</code> is also a data frame!</p>
+<p>select individual vectors:</p>
+<pre class="r"><code>x &lt;- input1$x</code></pre>
+<p>or</p>
+<pre class="r"><code>x &lt;- input1$x[1:10]  #just select the first 10 rows</code></pre>
+<p>make the whole data frame into a matrix</p>
+<pre class="r"><code>input_m &lt;- as.matrix(input1)</code></pre>
+<p><code>length(input_m)</code> gives the number of all elements in the matrix</p>
+<p><code>input_m$x</code> does not work any more</p>
+<ol start="4" style="list-style-type: decimal">
+<li>dates and times can be in any format</li>
+</ol>
+<p><strong>TODO</strong> was this covered last week (in class?)</p>
+<p>This was covered last week with the use of: as.POSIXct()</p>
+<p>Reminder common date/time format codes:</p>
+<p>see <code>?strptime</code></p>
+<p><strong>TODO</strong> include table</p>
+<table style="width:61%;">
+<colgroup>
+<col width="9%"></col>
+<col width="37%"></col>
+<col width="13%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Code</th>
+<th align="left">Description</th>
+<th align="left">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">%a</td>
+<td align="left">Abbreviated weekday name</td>
+<td align="left">Mon</td>
+</tr>
+<tr class="even">
+<td align="left">%A</td>
+<td align="left">Full weekday name</td>
+<td align="left">Monday</td>
+</tr>
+<tr class="odd">
+<td align="left">%b</td>
+<td align="left">Abbreviated month name</td>
+<td align="left">Jan</td>
+</tr>
+<tr class="even">
+<td align="left">%B</td>
+<td align="left">Full month name</td>
+<td align="left">January</td>
+</tr>
+<tr class="odd">
+<td align="left">%c</td>
+<td align="left">Date and time. Locale-specific on output, “%a %b %e %H:%M:%S %Y” on input.</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">%d</td>
+<td align="left">Day of the month as decimal number (01–31)</td>
+<td align="left">01</td>
+</tr>
+<tr class="odd">
+<td align="left">%H</td>
+<td align="left">Hours as decimal number (00–23)</td>
+<td align="left">16</td>
+</tr>
+<tr class="even">
+<td align="left">%I</td>
+<td align="left">Hours as decimal number (01–12)</td>
+<td align="left">08</td>
+</tr>
+<tr class="odd">
+<td align="left">%j</td>
+<td align="left">Day of year as decimal number (001–366)</td>
+<td align="left">234</td>
+</tr>
+<tr class="even">
+<td align="left">%m</td>
+<td align="left">Month as decimal number (01–12)</td>
+<td align="left">07</td>
+</tr>
+<tr class="odd">
+<td align="left">%M</td>
+<td align="left">Minute as decimal number (00–59)</td>
+<td align="left">12</td>
+</tr>
+<tr class="even">
+<td align="left">%p</td>
+<td align="left">AM/PM indicator</td>
+<td align="left">AM</td>
+</tr>
+<tr class="odd">
+<td align="left">%S</td>
+<td align="left">Second as integer (00–59)</td>
+<td align="left">35</td>
+</tr>
+<tr class="even">
+<td align="left">%U</td>
+<td align="left">Week of the year as decimal number (00–53) using Sunday as the first day 1 of the week (and typically with the first Sunday of the year as day 1 of week 1). The US convention.</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">%w</td>
+<td align="left">Weekday as decimal number (0–6, Sunday is 0).</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">%W</td>
+<td align="left">Week of the year as decimal number (00–53) using Monday as the first day of week (and typically with the first Monday of the year as day 1 of week 1). The UK convention.</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">%x</td>
+<td align="left">Date. Locale-specific on output, “%y/%m/%d” on input.</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">%X</td>
+<td align="left">Time. Locale-specific on output, “%H:%M:%S” on input.</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">%y</td>
+<td align="left">Year without century (00–99)</td>
+<td align="left">91</td>
+</tr>
+<tr class="even">
+<td align="left">%Y</td>
+<td align="left">Year with century</td>
+<td align="left">1991</td>
+</tr>
+<tr class="odd">
+<td align="left">%z</td>
+<td align="left">Signed offset in hours and minutes from UTC, so -0800 is 8 hours behind UTC</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">%Z</td>
+<td align="left">Time zone abbreviation as a character string</td>
+<td align="left">PST</td>
+</tr>
+</tbody>
+</table>
+<ol start="4" style="list-style-type: decimal">
+<li>dates and times can be in any format</li>
+</ol>
+<p>Exercise 3:</p>
+<p><strong>TODO</strong> not covered in last practical</p>
+<ul>
+<li>Make time vector of the date in the data set you imported</li>
+<li>make a new vector that formats the date, so that it just shows the month (hint: use the command: <code>format(date, format = &quot; …&quot; )</code> covered in the last practical</li>
+</ul>
+<ol start="5" style="list-style-type: decimal">
+<li>sometimes real data sets don’t directly contain all the information you want</li>
+</ol>
+<p>e.g., you have data covering a year and you are wondering if there is a difference between summer and winter, or between day and night; but you only have a vector with date and time</p>
+<p>Make new category variables (e.g. for anova, box plots etc..)</p>
+<p>e.g. <code>input1$y</code> varies between 0 and 5</p>
+<pre class="r"><code>x1 &lt;- c()   # start with empty vector
+x1[input1$y &lt; 1] &lt;- &quot;low&quot;
+x1[(input1$y &gt;=1) &amp; (input1$y &lt; 3)] &lt;- &quot;medium&quot;
+x1[input1$y&gt;=3] &lt;- &quot;high&quot;</code></pre>
+<p><code>x1</code> is now a vector of length <code>input1$y</code> and consists of values <code>&quot;low&quot;</code>, <code>&quot;medium&quot;</code>, <code>&quot;high&quot;</code></p>
+<p>Exercise 4</p>
+<p>Make a vector that correctly assigns the seasons to your data set ( use the meteorological definition of season e.g. winter is dec, jan, feb; spring is mar, apr, may .. Look up the logical operators you might need on the internet</p>
+<p>5)combine new data with your data set, or combine several data sets</p>
+<p>e.g. second data set input 2 with the same number of rows</p>
+<pre class="r"><code>data_new &lt;- cbind(input1, input2)   #column bind</code></pre>
+<p>e.g., second data set with new values in the same columns</p>
+<p>data_new &lt;- rbind(input1, input2) #row bind; adds the new values at the bottom</p>
+<p>e.g., add a new vector x to a data frame</p>
+<pre class="r"><code>x1 &lt;- data.frame(name1 = x)     #first make the vector into a data frame with col name: name1
+input1 &lt;- cbind(input1,x1)</code></pre>
+<p>Exercise 5 add the vector of months and the vector of seasons to your data frome</p>
+<ol start="6" style="list-style-type: decimal">
+<li>working with data sets containing NAs</li>
+</ol>
+<p>see R code for this practical for some tips and tricks</p>
+<ol start="6" style="list-style-type: decimal">
+<li>making summary tables</li>
+</ol>
+<p>A box plot can plot data grouped by categories, it might be nice to have such summary information in a table</p>
+<p>This can be done by aggregate()</p>
+<p>e.g.</p>
+<pre class="r"><code>table1 &lt;- aggregate(input1, list(input1$season), mean, na.rm = TRUE)  </code></pre>
+</div>
 </div>
 
 
