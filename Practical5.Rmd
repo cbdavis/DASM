@@ -1,7 +1,7 @@
 ---
 title: "Practical 5"
 author: "Chris Davis"
-date: "October 3, 2016"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
     html_document:
         toc: true
@@ -36,19 +36,18 @@ Repeat n times
 
 Take average (or median) of all $x_i$ (i = 1, …n) 
 
-## Example from the lecture (page 25, for now; might be slightly different)
-(Chris, maybe add some explanation)
+## Example
 
-assume that the uncertainties for $p$ and $q$ follow normal distributions
+Assume that for a research project you are told to calculate the uncertainty for the following formula:
 
-* for $p$, $\mu = 2$ and $\delta = 0.5$
-* for $q$, $\mu = 5$ and $\delta = 1$
+$$f = \frac{p \cdot q}{p + q}$$
 
-Assume that for your research you want to calculate f, this is made up (better words), example formula
+For both $p$ and $q$ we have evidence of the following means and standard deviations:
 
-your professors says here's a formula, calculate the uncertainty
+* $p$: $\mu = 2$ and $\delta = 0.5$
+* $q$: $\mu = 5$ and $\delta = 1$
 
-$f = \frac{p \cdot q}{p + q}$
+We assume that the uncertainties for $p$ and $q$ follow normal distributions
 
 ```{r}
 # take n samples
@@ -56,32 +55,88 @@ n <- 1000
 # take n samples from normal distributions with different means and standard deviations
 p <- rnorm(n, mean = 2, sd = 0.5)
 q <- rnorm(n, mean = 5, sd = 1)
-# calculate f(u,v)
+```
+
+Calculate f(p,q)
+```{r}
 f <- p*q/(p+q)
+```
+
+Plot the histogram, using 100 bins (`breaks=100`)
+```{r}
+hist(f, breaks=100)
+```
+
+Calculate the mean
+```{r}
 f_bar <- mean(f)
+```
+
+calculate the standard deviation
+```{r}
 sig <- sd(f)
 ```
 
-## Try on your own:
+## Exercise
 
-Give them a different formula  x = f(u,v)
+Now you've been given a different formula:
+$$f = u^2 + u + v$$
 
-Let them try a monte carlo simulation with different n 
+And you've been told to perform a monte carlo simulation with 10000 samples this time.
 
-Tasks:
+* $u$: $\mu = 1.2$ and $\delta = 3$
+* $v$: $\mu = 5$ and $\delta = 1.7$
+
+
+Your tasks are to:
  
-* plot the histogram of x
-* calculate mean(x) and std(x)
+Plot the histogram of x
+```{r, echo=FALSE}
+n <- 10000
+# take n samples from normal distributions with different means and standard deviations
+u <- rnorm(n, mean = 1.2, sd = 3)
+v <- rnorm(n, mean = 5, sd = 1.7)
+# calculate f(p,q)
+f <- (u^2 + u + v)
+hist(f, breaks=100)
+```
 
-**TODO** just show the results
-If there is enough time you could explain, how to do it with a loop for different n and re-create a plot like in lecture pgs 27, 28
-**TODO** this is on page 33,34 now, right?
+Calculate mean(x) and std(x)
+```{r, echo=FALSE}
+# calculate the mean
+f_bar <- mean(f)
+f_bar
+# calculate the standard deviation
+sig <- sd(f)
+sig
+```
 
-# Working with real data sets
+Similar to what we saw before, with more samples, the mean and standard deviation converge (See page 33,34 of Lecture 7)
 
-This is not related to the lecture, so I think I leave this to you. 
+```{r}
+numSamples = 3000
+f_bars = c()
+sds = c()
+for (n in seq(numSamples)){
+  set.seed(1234)
+  u <- rnorm(n, mean = 1.2, sd = 3)
+  v <- rnorm(n, mean = 5, sd = 1.7)
+  f <- (u^2 + u + v)
+  f_bars = c(f_bars, mean(f))
+  sds = c(sds, sd(f))
+}
 
-I attach two practicals that they had last year, where I taught them the basic of working with data frames, subsets, dates and times etc … 
+df = data.frame(x=c(c(1:numSamples), c(1:numSamples)),
+                y = f_bars, sds, 
+                type = c(rep("Mean", numSamples), 
+                         rep("Standard Deviation", numSamples)))
+
+ggplot(df, aes(x, y)) + geom_line() + facet_wrap(~type) + 
+  xlab("sample") + ylab("value") + 
+  ggtitle("Values for Mean and SD with Increasing Numbers of Samples")
+```
+
+# Working with Real Data Sets
 
 I think it would be good to keep the structure that we had so far:
 
@@ -91,22 +146,55 @@ I think it would be good to keep the structure that we had so far:
 
 The Guerry data file:
 
-**TODO** have the students download this to their own computer, explain right click, etc (copy from Practical 1).  Add link (where don't show url directly)
+For this, you'll need acsv file.  To get it, **right click** on this link: [Guerry.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Guerry.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
 
-Read it in: 
+Internet Explorer might try to save this as "Guerry.**txt**", make sure to save this as "Guerry.**csv**" or adjust your code so that it knows to read the correct file.
+
+One thing you need to check is your working directory. This is the directory where R looks for any files.  You can set this in RStudio `Session` -> `Set Working Directory` -> `Choose Directory`
+
+<center><img src="./images/RStudioSetWorkingDirectory.png" style="border:2px solid black"></center>
+
+Read it in the data file: 
+```{r, eval=FALSE}
+data1 <- read.csv(file ="Guerry.csv")
+```
+
+```{r, echo=FALSE}
+data1 <- read.csv(file ="./data/Guerry.csv")
+```
+
+As mentioned in the previous practicals, we use `summary` to get an idea about what is in the data frame:
 ```{r}
-data1 <- read.csv(file ="https://raw.githubusercontent.com/cbdavis/DASM/master/data/Guerry.csv")
+summary(data1)
 ```
 
 **TODO** explain the different columns - 17 observations per region, 1 NA, etc - how factors and numbers are shown differently.  If you don't see quantiles, it's counting factors
 
+If we take a closer look at the results, we see that the `dept` column is numeric since `summary` displays information about the minimum, median, mean, max and quantiles.
+```
+      dept    
+ Min.   :  1.00
+ 1st Qu.: 24.25
+ Median : 45.50
+ Mean   : 46.88
+ 3rd Qu.: 66.75
+ Max.   :200.00
+```
+
+However, for `Region`, we are looking at counts of values, as this column contains factors indicating the particular region (`C`, `E`, `N`, `S` or `W`).  Also `NA's: 1` tells us that we have one `NA` which indicates a missing value (Not Available).  We'll discuss later in more detail how these can be dealt with in R.
+
+```
+ Region
+C   :17
+E   :17
+N   :17
+S   :17
+W   :17
+NA's: 1
+```
+
 **TODO** need to explain logical indexing - also if have values that are NA, by default NA will be included.  With subset, NA is excluded, also with filter and dplyr.  Indexing can be useful either way - sometimes you want to keep the NAs since the other columns may have valid data that you want to use.
 
-
-Get an idea what is in it:
-```{r}
-summary(data1)
-```
 
 Reminder: reading in a .csv file gives you a data frame
 
