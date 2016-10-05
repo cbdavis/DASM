@@ -44,7 +44,9 @@ assume that the uncertainties for $p$ and $q$ follow normal distributions
 * for $p$, $\mu = 2$ and $\delta = 0.5$
 * for $q$, $\mu = 5$ and $\delta = 1$
 
-**TODO** how is the formula derived?
+Assume that for your research you want to calculate f, this is made up (better words), example formula
+
+your professors says here's a formula, calculate the uncertainty
 
 $f = \frac{p \cdot q}{p + q}$
 
@@ -71,8 +73,8 @@ Tasks:
 * plot the histogram of x
 * calculate mean(x) and std(x)
 
+**TODO** just show the results
 If there is enough time you could explain, how to do it with a loop for different n and re-create a plot like in lecture pgs 27, 28
-
 **TODO** this is on page 33,34 now, right?
 
 # Working with real data sets
@@ -98,10 +100,25 @@ data1 <- read.csv(file ="https://raw.githubusercontent.com/cbdavis/DASM/master/d
 
 **TODO** explain the different columns - 17 observations per region, 1 NA, etc - how factors and numbers are shown differently.  If you don't see quantiles, it's counting factors
 
+**TODO** need to explain logical indexing - also if have values that are NA, by default NA will be included.  With subset, NA is excluded, also with filter and dplyr.  Indexing can be useful either way - sometimes you want to keep the NAs since the other columns may have valid data that you want to use.
+
+
 Get an idea what is in it:
 ```{r}
 summary(data1)
 ```
+
+Reminder: reading in a .csv file gives you a data frame
+
+e.g., `length(input1)` gives you the number of variables, not the length of the data
+
+`dim(input1)` shows the number of rows and columns
+
+select subsets from a data frame
+	
+as mentioned above
+
+and then we can also address by column names
 
 This is a data set from the Guerry R package, so to get an idea about the variables we need to install the package:
 ```{r, eval=FALSE}
@@ -178,8 +195,15 @@ In the next example, we select all men over the age of 25 and we keep variables 
 
 using subset function (part 2)
 
+**TODO** explain the logical operators - & |
+
+**TODO** put in a note about how dplyr deals with NA.  Whatever happens, the NA are gone.  If you want the NA with dplyr - do 2 comparisons - numeric | is.na()
+
+
 ```{r, eval=FALSE}
 newdata <- subset(mydata, sex=="m" & age > 25, select=weight:income)
+
+newdata = mydata %>% filter(sex=="m" & age > 25) %>% select(weight,income)
 ```
 
 3b) Now: apply to data1
@@ -215,12 +239,49 @@ data2 = data1 %>% filter(!(MainCity == "1:Sm" & Crime_prop > 15000))
 boxplot(data2$Crime_prop~data2$MainCity)
 ```
 
+
+
 5) select any row and column you want 
+
+here you can make a submatrix of a larger matrix, etc. 
+sub dataframe - depends on the data type
 
 ```{r}
 b <- data1[1:3, 5:9]
 c <- data1[c(1,5,9), 7]
 ```
+
+pretend that you have a data frame named input1
+
+(students just see an explanation - don't run this code)
+
+```{r, eval=FALSE}
+# can select a consecutive sequence, and also non-consecutive sequence (2 and 4)
+input_s <- input1[1:10, c(2,4)]   # selects row 1:10 and column 2 and 4
+input_s <- input1[, c("x", "y")]  # selects all rows, and the columns named "x" and "y"
+```
+
+`input_s` is also a data frame!
+
+
+select individual vectors: 
+```{r, eval=FALSE}
+x <- input1$x
+```
+or
+```{r, eval=FALSE}
+x <- input1$x[1:10]  #just select the first 10 rows
+```
+
+make the whole data frame into a matrix
+```{r, eval=FALSE}
+input_m <- as.matrix(input1)
+```
+
+`length(input_m)` gives the number of all elements in the matrix
+
+`input_m$x` does not work any more
+
 
 6) Make a table of city size vs region
 
@@ -229,10 +290,6 @@ tab = table(data1$MainCity, data1$Region)
 tab
 ```
 
-See /home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical_2015_example_chris.pptx
-```{r}
-stuff = read.csv("/home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical4.csv")
-```
 
 **TODO** if too much material, leave out the boxplots
 
@@ -242,6 +299,7 @@ Useful resources:
 
 * [Working with Time Series Data in R ](http://faculty.washington.edu/ezivot/econ424/Working%20with%20Time%20Series%20Data%20in%20R.pdf)
 * [R cheat sheet](http://blog.yhat.com/static/pdf/R_date_cheat_sheet.pdf). Note the `Date` and `POSIXct` columns.  We don't use the `lubridate` library for this example.
+
 
 ## Integers to Dates
 1) Dates, not involving times of the day, are natively stored on your computer as integer numbers with 1 Jan 1970  = 0 and 1 corresponding to 1 day. Due to this, you need to specify `origin="1970-01-01"` in the example below.  
@@ -315,28 +373,66 @@ Subtract two date times:
 t.obj1 - t.obj2
 ```
 
+**TODO** add in extra exercises for subtracting & formatting dates based on above examples
+
 ## Exercise 1
+
+Load in the data
 
 Exercise: read in Pr_20May1.csv
 it contains a time series of monthly temp. from Jan. 1946 to Dec. 2014
 Make a vector with the dates corresponding to each data point
+
+```{r, echo=FALSE}
+pr = read.csv("/home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Pr_20May1.csv")
+t = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by="1 month")
+pr$t = t
+library(ggplot2)
+ggplot(pr, aes(x=t, y=x)) + geom_line()
+```
+
+**TODO** big break - handling real data - create new top level heading
+
+Now we are starting to handle real data, here is an example.  All this goes over what has to be done
+
+* dealing with NA
+* dealing with strange/ unwieldy column names
+* dealing with dates
+
 
 1) Real data can have inconvenient column names
 
 How to rename columns in a data set:
 e.g. data set: input1
 
+
+**TODO** put this where the student can download it - put on nestor, also for github
+
+explanation here of how to rename columns
+
 ```{r, eval=FALSE}	
 #rename column
+colnames(input1)[1] <- "x" 	# gives the first column the name "x"
+colnames(input1)[2] <- "y"		# gives the second column the name "y"
+
 names(input1)[1] <- "x" 	# gives the first column the name "x"
 names(input1)[2] <- "y"		# gives the second column the name "y"
 ```
 
 ## Exercise 2
 
-**TODO** Is this the Guerry data file covered elsewhere in this practical?
+**TODO** stuff = input1 in notes
+Load the data set "Practical4.csv"from nestor and rename the column with the long weird name
+See /home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical_2015_example_chris.pptx
 
-Load the data set "Practical4.csv"from nestor and rename the column with the weird name
+Try to load the file yourselves
+
+```{r, echo=FALSE}
+input1 = read.csv("/home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical4.csv")
+```
+
+
+
 
 2) Real data can have missing values
 
@@ -348,7 +444,7 @@ For R to handle the missing values, you have to rename them as NA, if the are no
 	
 e.g. a data frame called input1 with -999 for missing values
 
-
+Explain what this comment means
 ```{r, eval=FALSE}	
 input1[input1 == -999] <-NA
 ```
@@ -357,6 +453,7 @@ What does this command do?
 
 `x<-(input1 == -999)`  gives a vector/matrix of the same size as input 1
 
+**TODO** in this case it's a logical matrix
 This vector is logical (contains `TRUE`, `FALSE`, and `NA`)
 
 If such a matrix is put into input1 it selects only the fields where x shows `TRUE`
@@ -367,53 +464,26 @@ Then it only the fields that are `-999` are replaced by `NA`
 
 Exercise 2:
 
+before: run summary
+```{r}
+summary(input1)
+```
+
+```{r, echo=FALSE}
+input1[input1 == -999] <-NA
+```
+
+```
+
 try replacing the -999 in the data set by NA
 
-take a look at the logical vector x
-
-and the data set before and after replacement
-
-3) Reminder: reading in a .csv file gives you a data frame
-
-e.g., `length(input1)` gives you the number of variables, not the length of the data
-
-select subsets from a data frame
-	
-e.g., 
-```{r, eval=FALSE}
-input_s <- input1[1:10, c(2,3)]   # selects row 1:10 and column 2 and 3
-input_s <- input1[, c("x", "y")]  # selects all rows, and the columns named "x" and "y"
+If you do it correctly, you should see:
+```{r}
+summary(input1)
 ```
-
-`input_s` is also a data frame!
-
-select individual vectors: 
-```{r, eval=FALSE}
-x <- input1$x
-```
-or
-```{r, eval=FALSE}
-x <- input1$x[1:10]  #just select the first 10 rows
-```
-
-make the whole data frame into a matrix
-```{r, eval=FALSE}
-input_m <- as.matrix(input1)
-```
-
-`length(input_m)` gives the number of all elements in the matrix
-
-`input_m$x` does not work any more
 
 4) dates and times can be in any format
-
-**TODO** was this covered last week (in class?)
-
-This was covered last week with the use of: as.POSIXct() 
-
-Reminder common date/time format codes:
-
-see `?strptime`
+Then we deal with the dates and times
 
 **TODO** include table
 
@@ -443,18 +513,16 @@ see `?strptime`
 | %Z | Time zone abbreviation as a character string | PST |
 
 
-4) dates and times can be in any format
-
-
 Exercise 3: 
 
-**TODO** not covered in last practical
+**TODO** use stuff/input1 data set
 
-* Make time vector of the date in the data set you imported
+* Make time vector of the date in the data set you imported (the `date_start` column)
 * make a new vector that formats the date, so that it just shows the month (hint: use the command: `format(date, format = " …" )` covered in the last practical
 
+**TODO** put in the r code for showing the months & the solution
 
-5) sometimes real data sets don't directly contain all the information you want
+4) sometimes real data sets don't directly contain all the information you want
 
 e.g., you have data covering a year and you are wondering if there is a difference between summer and winter, or between day and night; but you only have a vector with date and time
 
@@ -475,10 +543,14 @@ Exercise 4
 
 Make a vector that correctly assigns the seasons to your data set ( use the meteorological definition of season e.g. winter is dec, jan, feb; spring is mar, apr, may .. 
 Look up the logical operators you might need on the internet
+
+**TODO** show what correct output should look like
   
 5)combine new data with your data set, or combine several data sets
 
 e.g. second data set input 2 with the same number of rows
+
+**TODO** merge in the season vector with the data frame
 
 ```{r, eval=FALSE}
 data_new <- cbind(input1, input2) 	#column bind
@@ -486,30 +558,10 @@ data_new <- cbind(input1, input2) 	#column bind
 
 e.g., second data set with new values in the same columns 
 
-data_new <- rbind(input1, input2)		#row bind; adds the new values at the bottom
-
 e.g., add a new vector x to a data frame
 
-```{r, eval=FALSE}
-x1 <- data.frame(name1 = x) 	#first make the vector into a data frame with col name: name1
-input1 <- cbind(input1,x1)
-```
+**TODO** you can add vectors to data frames (show)
 
 Exercise 5
 add the vector of months and the vector of seasons to your data frome
 
-6) working with data sets containing NAs
-
-see R code for this practical for some tips and tricks
-  
-6) making summary tables
-
-A box plot can plot data grouped by categories, it might be nice to have such summary information in a table
-
-This can be done by aggregate()
-
-e.g.
-
-```{r, eval=FALSE}
-table1 <- aggregate(input1, list(input1$season), mean, na.rm = TRUE)  
-```

@@ -209,6 +209,7 @@ sig &lt;- sd(f)</code></pre>
 <p>Read it in:</p>
 <pre class="r"><code>data1 &lt;- read.csv(file =&quot;https://raw.githubusercontent.com/cbdavis/DASM/master/data/Guerry.csv&quot;)</code></pre>
 <p><strong>TODO</strong> explain the different columns - 17 observations per region, 1 NA, etc - how factors and numbers are shown differently. If you don’t see quantiles, it’s counting factors</p>
+<p><strong>TODO</strong> need to explain logical indexing - also if have values that are NA, by default NA will be included. With subset, NA is excluded, also with filter and dplyr. Indexing can be useful either way - sometimes you want to keep the NAs since the other columns may have valid data that you want to use.</p>
 <p>Get an idea what is in it:</p>
 <pre class="r"><code>summary(data1)</code></pre>
 <pre><code>##       dept         Region      Department   Crime_pers      Crime_prop   
