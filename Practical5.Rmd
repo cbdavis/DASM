@@ -9,10 +9,6 @@ output:
 ---
 
 
-```{r, eval=FALSE}
-install.packages("dplyr")
-```
-
 ```{r, message=FALSE, echo=FALSE}
 library(ggplot2)
 library(dplyr)
@@ -20,32 +16,31 @@ library(dplyr)
 
 # Monte Carlo simulation 
 
-## Short review from the lecture
+## Quick review
 
-$x = f(u,v)$
+We have a function $x = f(u,v)$ where:
 
 * $u$ has uncertainty $s_u$
 * $v$ has uncertainty $s_v$
 
-* Construct normal distribution fn,u around $u$ with standard deviation $s_u$ 
-* Construct normal distribution fn,v around $v$ with standard deviation $s_v$
+We then:
 
-Take a random value u1 from  fn,u and $v_1$ from fn,v  and calculate $x1 = f(u1, v1)$
-
-Repeat n times
-
-Take average (or median) of all $x_i$ (i = 1, …n) 
+* Construct a normal distribution $f_{n,u}$ using the mean of $u$ and a standard deviation $s_u$ 
+* Construct a normal distribution $f_{n,v}$ using the mean of $v$ and a standard deviation $s_v$
+* Take a random value $u_1$ from  fn,u and $v_1$ from fn,v  and calculate $x_1 = f(u_1, v_1)$
+* Repeat n times
+* Take average (or median) of all $x_i$ for (i = 1, ... n) 
 
 ## Example
 
 Assume that for a research project you are told to calculate the uncertainty for the following formula:
 
-$$f = \frac{p \cdot q}{p + q}$$
+$$f(p,q) = \frac{p \cdot q}{p + q}$$
 
 For both $p$ and $q$ we have evidence of the following means and standard deviations:
 
-* $p$: $\mu = 2$ and $\delta = 0.5$
-* $q$: $\mu = 5$ and $\delta = 1$
+* $p$: $\mu = 2$ and $\sigma = 0.5$
+* $q$: $\mu = 5$ and $\sigma = 1$
 
 We assume that the uncertainties for $p$ and $q$ follow normal distributions
 
@@ -57,71 +52,39 @@ p <- rnorm(n, mean = 2, sd = 0.5)
 q <- rnorm(n, mean = 5, sd = 1)
 ```
 
-Calculate f(p,q)
+Calculate values for $f(p,q) = \frac{p \cdot q}{p + q}$
 ```{r}
 f <- p*q/(p+q)
 ```
 
-Plot the histogram, using 100 bins (`breaks=100`)
+Plot the histogram, using 100 bins (use `breaks=100`)
 ```{r}
 hist(f, breaks=100)
 ```
 
-Calculate the mean
+We now calculate the mean:
 ```{r}
-f_bar <- mean(f)
-```
-
-calculate the standard deviation
-```{r}
-sig <- sd(f)
-```
-
-## Exercise
-
-Now you've been given a different formula:
-$$f = u^2 + u + v$$
-
-And you've been told to perform a monte carlo simulation with 10000 samples this time.
-
-* $u$: $\mu = 1.2$ and $\delta = 3$
-* $v$: $\mu = 5$ and $\delta = 1.7$
-
-
-Your tasks are to:
- 
-Plot the histogram of x
-```{r, echo=FALSE}
-n <- 10000
-# take n samples from normal distributions with different means and standard deviations
-u <- rnorm(n, mean = 1.2, sd = 3)
-v <- rnorm(n, mean = 5, sd = 1.7)
-# calculate f(p,q)
-f <- (u^2 + u + v)
-hist(f, breaks=100)
-```
-
-Calculate mean(x) and std(x)
-```{r, echo=FALSE}
-# calculate the mean
 f_bar <- mean(f)
 f_bar
-# calculate the standard deviation
+```
+
+and then calculate the standard deviation:
+```{r}
 sig <- sd(f)
 sig
 ```
 
-Similar to what we saw before, with more samples, the mean and standard deviation converge (See page 33,34 of Lecture 7)
+Below we can see how both the mean and the standard deviation converge on a single value as we increase the number of samples from the distributions we defined for $p$ and $q$ (See page 33,34 of Lecture 7).  Note the log scale for the x axis.
 
-```{r}
+```{r, echo=FALSE}
 numSamples = 3000
 f_bars = c()
 sds = c()
 for (n in seq(numSamples)){
   set.seed(1234)
-  u <- rnorm(n, mean = 1.2, sd = 3)
-  v <- rnorm(n, mean = 5, sd = 1.7)
-  f <- (u^2 + u + v)
+  p <- rnorm(n, mean = 2, sd = 0.5)
+  q <- rnorm(n, mean = 5, sd = 1)
+  f <- p*q/(p+q)
   f_bars = c(f_bars, mean(f))
   sds = c(sds, sd(f))
 }
@@ -133,20 +96,51 @@ df = data.frame(x=c(c(1:numSamples), c(1:numSamples)),
 
 ggplot(df, aes(x, y)) + geom_line() + facet_wrap(~type) + 
   xlab("sample") + ylab("value") + 
-  ggtitle("Values for Mean and SD with Increasing Numbers of Samples")
+  ggtitle("Values for Mean and SD with Increasing Numbers of Samples") + scale_x_log10()
+```
+
+
+## Exercise
+
+Now you've been given a different formula: 
+
+$$f = u^2 + u + v$$
+
+...and you've been told to perform a monte carlo simulation with 10000 samples this time.  We again assume that the variables `u` and `v` are normally distributed with the following means and standard deviations:
+
+* $u$: $\mu = 1.2$ and $\sigma = 3$
+* $v$: $\mu = 5$ and $\sigma = 1.7$
+
+Now try to recreate the following results on your own.
+ 
+Plot the histogram of $x = f(u,v) = u^2 + u + v$
+
+```{r, echo=FALSE}
+n <- 10000
+# take n samples from normal distributions with different means and standard deviations
+u <- rnorm(n, mean = 1.2, sd = 3)
+v <- rnorm(n, mean = 5, sd = 1.7)
+# calculate f(p,q)
+f <- (u^2 + u + v)
+hist(f, breaks=100)
+```
+
+Calculate mean(x) and std(x) for $x = f(u,v)$
+
+```{r, echo=FALSE}
+# calculate the mean
+f_bar <- mean(f)
+f_bar
+# calculate the standard deviation
+sig <- sd(f)
+sig
 ```
 
 # Working with Real Data Sets
 
-I think it would be good to keep the structure that we had so far:
+## Example.  
 
-* Introduce a concept
-* walk them through an example 
-* let them try an exercise by themselves
-
-The Guerry data file:
-
-For this, you'll need acsv file.  To get it, **right click** on this link: [Guerry.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Guerry.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
+For this example, you'll need a csv file.  To get it, **right click** on this link: [Guerry.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Guerry.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
 
 Internet Explorer might try to save this as "Guerry.**txt**", make sure to save this as "Guerry.**csv**" or adjust your code so that it knows to read the correct file.
 
@@ -154,7 +148,7 @@ One thing you need to check is your working directory. This is the directory whe
 
 <center><img src="./images/RStudioSetWorkingDirectory.png" style="border:2px solid black"></center>
 
-Read it in the data file: 
+Once you've done all this, you can now read in the data file: 
 ```{r, eval=FALSE}
 data1 <- read.csv(file ="Guerry.csv")
 ```
@@ -165,13 +159,10 @@ data1 <- read.csv(file ="./data/Guerry.csv")
 
 Note that every time you read in a .csv file you will have a data frame, even if there is only a single column present.
 
-
 As mentioned in the previous practicals, we use `summary` to get an idea about what is in the data frame:
 ```{r}
 summary(data1)
 ```
-
-**TODO** explain the different columns - 17 observations per region, 1 NA, etc - how factors and numbers are shown differently.  If you don't see quantiles, it's counting factors
 
 If we take a closer look at the results, we see that the `dept` column is numeric since `summary` displays information about the minimum, median, mean, max and quantiles.
 ```
@@ -184,7 +175,7 @@ If we take a closer look at the results, we see that the `dept` column is numeri
  Max.   :200.00
 ```
 
-However, for `Region`, we are looking at counts of values, as this column contains factors indicating the particular region (`C`, `E`, `N`, `S` or `W`).  Also `NA's: 1` tells us that we have one `NA` which indicates a missing value (Not Available).  We'll discuss later in more detail how these can be dealt with in R.
+However, for `Region`, we don't see quantiles, etc but we are looking at counts of values, as this column contains factors indicating the particular region (`C`, `E`, `N`, `S` or `W`).  Also note that `NA's: 1` tells us that we have one `NA` which indicates a missing value (Not Available).  We'll discuss later in more detail how these can be dealt with in R.
 
 ```
  Region
@@ -195,8 +186,6 @@ S   :17
 W   :17
 NA's: 1
 ```
-
-**TODO** need to explain logical indexing - also if have values that are NA, by default NA will be included.  With subset, NA is excluded, also with filter and dplyr.  Indexing can be useful either way - sometimes you want to keep the NAs since the other columns may have valid data that you want to use.
 
 We can find the number of variables (columns)
 ```{r}
@@ -275,8 +264,6 @@ install.packages("dplyr")
 library(dplyr)
 ```
 
-**TODO** talk briefly about logical operators & | ==
-
 In the following example, we take a subset of the `mtcars` data set.  We first keep a selection of rows by usiing `filter`, and then use `select` to keep certain columns.  
 
 ```{r, eval=FALSE}
@@ -294,7 +281,7 @@ In other words:
 
 In the next example, we select all men over the age of 25 and we keep variables weight through income (weight, income and all columns between them).
 
-We can also filter on multiple columns:
+We can also filter on multiple columns by adding commas in the `filter` function.
 ```{r}
 mtcars %>% 
   filter((hp >= 250 | hp < 100), 
@@ -307,6 +294,24 @@ A few notes:
 
 * The `==` symbol in `cyl == 4` means that we check if the value is equal to 4.
 * We use parentheses in `(hp >= 250 | hp < 100)` to group these two conditions together, as we want to match either of these conditions.
+* In the `filter` function, each of these statements should be set up so that it returns `TRUE` or `FALSE`, as shown in the examples below.  Only rows with `TRUE` for all of the tests specified in `filter` will be returned.
+
+```{r}
+# set the value for a variable
+hp_val = 300
+# is this bigger than or equal to 250?
+hp_val >= 250
+# is this bigger than or equal to 250 or less than 100?
+(hp_val >= 250 | hp_val < 100)
+# is it equal to 300?
+hp_val == 300
+```
+
+Regarding `NA` values:
+
+* If you are doing a numeric comparisons (i.e. `hp >= 250`) using the `filter` function, then `NA` values will be filtered out.  
+* If you want to do a numeric comparison and also keep `NA` values, then you need to specify something like `hp >= 250 | is.na(hp)`.  The function `is.na()` will return `TRUE` for any `NA` values.
+
 
 **TODO** put in a note about how dplyr deals with NA.  Whatever happens, the NA are gone.  If you want the NA with dplyr - do 2 comparisons - numeric | is.na()
 
@@ -343,6 +348,9 @@ ggplot(data2, aes(x=MainCity, y=Crime_prop)) + geom_boxplot()
 
 here you can make a submatrix of a larger matrix, etc. 
 sub dataframe - depends on the data type
+
+**TODO** need to explain logical indexing - also if have values that are NA, by default NA will be included.  With subset, NA is excluded, also with filter and dplyr.  Indexing can be useful either way - sometimes you want to keep the NAs since the other columns may have valid data that you want to use.
+
 
 ```{r}
 b <- data1[1:3, 5:9]
