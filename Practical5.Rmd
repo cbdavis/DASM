@@ -530,45 +530,34 @@ When dealing with real data sets, you will commonly run into several issues.  Yo
 
 ## Inconvenient column names
 
-How to rename columns in a data set:
-e.g. data set: input1
+You may find that the column names for a data frame are excessively long, or may contain extra spaces or strange characters.  You can fix this by using the `colnames` command.
 
-
-**TODO** put this where the student can download it - put on nestor, also for github
-
-explanation here of how to rename columns
+With a hypothetical data frame called `input1`, you can change the first and second column names by doing:
 
 ```{r, eval=FALSE}	
-#rename column
 colnames(input1)[1] <- "x" 	# gives the first column the name "x"
 colnames(input1)[2] <- "y"		# gives the second column the name "y"
+```
 
-names(input1)[1] <- "x" 	# gives the first column the name "x"
-names(input1)[2] <- "y"		# gives the second column the name "y"
+If there are only two columns in the entire data frame, then you could do:
+```{r, eval=FALSE}
+colnames(input1) = c("x", "y")
+```
+
+If there are more than two columns, then you have to specify the indices, otherwise you will get an error.
+```{r, eval=FALSE}
+colnames(input1)[c(1:2)] = c("x", "y")
 ```
 
 ## Exercise 2
 
-**TODO** stuff = input1 in notes
-Load the data set "Practical4.csv"from nestor and rename the column with the long weird name
-See /home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical_2015_example_chris.pptx
-
-Try to load the file yourselves
+For this example, you'll need to read the [Carbon.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Carbon.csv) data into R as a data frame called `input1`.
 
 ```{r, echo=FALSE}
-input1 = read.csv("/home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Practical4.csv")
+input1 = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/data/Carbon.csv")
 ```
 
-
-
-
-2) Real data can have missing values
-
-Missing values in R are named NA
-But in some data sets the missing values can have any name (e.g.NaN …)
-Often they are also indicated by an unrealistic number (e.g., -999)
-
-For R to handle the missing values, you have to rename them as NA, if the are not named like that, R does not recognize them
+Real data may often have missing values, which are represented in R as `NA`.  In some data sets you may see them represented in other forms like `NaN` (not a number) or by an unrealistic number (e.g., -999).  For R to handle the missing values, you have to rename them as `NA`, if they are not named like that, then R does not recognize them and will try to process them as an actual number.
 	
 e.g. a data frame called input1 with -999 for missing values
 
