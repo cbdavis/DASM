@@ -214,16 +214,9 @@ nrow(data1)
 ```
 
 And the number of rows and columns via:
-
-```r
+```{r}
 dim(data1)
 ```
-
-select subsets from a data frame
-	
-as mentioned above
-
-and then we can also address by column names
 
 This is a data set from the Guerry R package, so to get an idea about the variables we need to install the package:
 ```{r, eval=FALSE}
@@ -269,68 +262,82 @@ a
 ```
 
 3b) Now we want to see the actual data points in the small cities only:
-Subset command!
 
-**TODO** talk briefly about logical operators & |
+To do this, we'll use the **[dplyr package](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)**.  The dplyr library takes a very similar approach to what we see with ggplot.  We start off with data in a data frame, and then we perform a series of operations or data transformations which are connected together via the `%>%` symbol which acts as a sort of "pipe" through which data flows.  
 
-The subset( ) function is the easiest way to select variables and observations. In the following example, we select all rows that have a value of age greater than or equal to 20 or age less then 10. We keep the ID and Weight columns.
+In very general terms, we may create a series of statements that look like:
 
- using subset function 
-```{r, eval=FALSE}
-newdata <- subset(mydata, age >= 20 | age < 10, select=c(ID, Weight))
+some data frame `%>%` operation 1 `%>%` operation 2
 
-newdata <- mydata %>% filter(age >= 20 | age < 10) %>% select(ID, Weight)
+First we need to install and load the `dplyr` package
+```{r}
+install.packages("dplyr")
+library(dplyr)
 ```
+
+**TODO** talk briefly about logical operators & | ==
+
+In the following example, we take a subset of the `mtcars` data set.  We first keep a selection of rows by usiing `filter`, and then use `select` to keep certain columns.  
+
+```{r, eval=FALSE}
+mtcars %>% 
+  filter(hp >= 250 | hp < 100) %>% 
+  select(mpg, cyl)
+```
+
+In other words:
+
+* `filter(hp >= 250 | hp < 100)` - keep all rows where `hp` is greater than or equal to 250 or is less than 100.  
+    * Note that the `|` symbol specifies a logical "or".  This just means that you want to find values matching `hp >= 250` or `hp < 100`
+    * The `&` symbol is a logical "and".  You could modify the statement above to use `hp >= 250 & hp < 100`, although this would return no rows since a value can't be both greater than 250 and less than 100.
+* `select(mpg, cyl)` - keep only the `mpg` and `cyl` columns.
 
 In the next example, we select all men over the age of 25 and we keep variables weight through income (weight, income and all columns between them).
 
-using subset function (part 2)
+We can also filter on multiple columns:
+```{r}
+mtcars %>% 
+  filter((hp >= 250 | hp < 100), 
+         cyl == 4, 
+         mpg > 30) %>% 
+  select(mpg, cyl)
+```
 
-**TODO** explain the logical operators - & |
+A few notes:
+
+* The `==` symbol in `cyl == 4` means that we check if the value is equal to 4.
+* We use parentheses in `(hp >= 250 | hp < 100)` to group these two conditions together, as we want to match either of these conditions.
 
 **TODO** put in a note about how dplyr deals with NA.  Whatever happens, the NA are gone.  If you want the NA with dplyr - do 2 comparisons - numeric | is.na()
 
 
-```{r, eval=FALSE}
-newdata <- subset(mydata, sex=="m" & age > 25, select=weight:income)
-
-newdata = mydata %>% filter(sex=="m" & age > 25) %>% select(weight,income)
-```
-
 3b) Now: apply to data1
 
-Note that the `==` is a check to see if two values are equal to each other
-
 ```{r}
-small_data <- subset(data1, MainCity ==  "1:Sm", select = Literacy)
-plot(small_data)
-
-small_data <- data1 %>% filter(MainCity ==  "1:Sm") %>% select(Literacy)
-plot(small_data)
-
+small_data <- data1 %>% filter(MainCity ==  "1:Sm") %>% select(Crime_prop)
+print(small_data)
 ```
 
 4) Make a boxplot of crime vs city size
 
-You see a large outlier in the small cities. This would disturb a test like ANOVA. remove the outlier
+From above, we can see that there's a large outlier in the small cities, and this would disturb a test like ANOVA. We need to remove this.
 
-**TODO** the part with `!(MainCity == "1:Sm" & Crime_prop > 15000)` really needs to be explained
-
-* `!` means
-* `==` means
-* `&` means
-* then `(`...`)` means
+We then use the `filter` function with `dplyr` to keep all rows (really just 1 row) where we don't have a combination of a small city and a `Crime_prop` greater than 15000.
 
 ```{r}
-data2 <- subset(data1, !(MainCity == "1:Sm" & Crime_prop > 15000))
-boxplot(data2$Crime_prop~data2$MainCity)
-
-# dplyr method
 data2 = data1 %>% filter(!(MainCity == "1:Sm" & Crime_prop > 15000))
-boxplot(data2$Crime_prop~data2$MainCity)
 ```
 
+You'll notice that the `filter` statement is a bit more complex this time.  Starting from the middle of the statement:
 
+* `&` is again our logical "and" which means that we're looking for situations where the conditions on either side are both true.
+* `MainCity == "1:Sm"` and `Crime_prop > 15000` show that we are trying to match rows where the values meet these conditions.
+* Most importantly is the `!` symbol on the outside of this clause, which says that we only want to keep rows that **don't** match the conditions specified in the clause `(MainCity == "1:Sm" & Crime_prop > 15000)`
+ 
+Now we can see that the boxplot looks more reasonable.
+```{r}
+ggplot(data2, aes(x=MainCity, y=Crime_prop)) + geom_boxplot()
+```
 
 5) select any row and column you want 
 
@@ -656,3 +663,7 @@ e.g., add a new vector x to a data frame
 Exercise 5
 add the vector of months and the vector of seasons to your data frome
 
+# Resources
+[Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.  We will cover `dplyr` in a later practical.
+
+<a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf"><img src="./images/dplyrScreenShot.png" style="height:200px; width:auto"></a>
