@@ -502,8 +502,6 @@ Subtract two date times:
 t.obj1 - t.obj2
 ```
 
-**TODO** add in extra exercises for subtracting & formatting dates based on above examples
-
 ## Exercise 1
 
 Download the [Pr_20May1.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Pr_20May1.csv) to your computer in the same way that you did for the other csv file in this practical.
@@ -549,75 +547,62 @@ If there are more than two columns, then you have to specify the indices, otherw
 colnames(input1)[c(1:2)] = c("x", "y")
 ```
 
-## Exercise 2
+## Replacing values with NA 
 
-For this example, you'll need to read the [Carbon.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Carbon.csv) data into R as a data frame called `input1`.
+Real data may often have missing values, which are represented in R as `NA`.  In some data sets you may see them represented in other forms like `NaN` (not a number) or by an unrealistic number (e.g., -999).  For R to handle the missing values, you have to rename them as `NA`, if they are not named like that, then R does not recognize them and will try to process them as an actual number.
+
+Let's say that for a data frame we have called `df`, `NA` values are currently represented as `-999`.  If we type into the console `df == -999`, we'll get a matrix of `TRUE`, `FALSE` or `NA` values (if `NA` is already present).  
+
+To replace these -999 values, we use the command below which says that for all locations in the data frame with a value of -999, we should assign to those locations the value `NA` instead.
+
+```{r, eval=FALSE}	
+df[df == -999] <-NA
+```
+
+### Exercise 1
+
+For this exercise, download the [Carbon.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Carbon.csv) data into R as a data frame called `input1`.
 
 ```{r, echo=FALSE}
 input1 = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/data/Carbon.csv")
 ```
 
-Real data may often have missing values, which are represented in R as `NA`.  In some data sets you may see them represented in other forms like `NaN` (not a number) or by an unrealistic number (e.g., -999).  For R to handle the missing values, you have to rename them as `NA`, if they are not named like that, then R does not recognize them and will try to process them as an actual number.
-	
-e.g. a data frame called input1 with -999 for missing values
-
-Explain what this comment means
-```{r, eval=FALSE}	
-input1[input1 == -999] <-NA
-```
-
-What does this command do?
-
-`x<-(input1 == -999)`  gives a vector/matrix of the same size as input 1
-
-**TODO** in this case it's a logical matrix
-This vector is logical (contains `TRUE`, `FALSE`, and `NA`)
-
-If such a matrix is put into input1 it selects only the fields where x shows `TRUE`
-
-Then it only the fields that are `-999` are replaced by `NA`
-	
-2) Real data can have missing values
-
-Exercise 2:
-
-before: run summary
-```{r}
-summary(input1)
-```
+After loading in the csv file into R, try to replace the -999 values with `NA`.  If you run `summary` before the replacement you should see:
 
 ```{r, echo=FALSE}
-input1[input1 == -999] <-NA
-```
-
-```
-
-try replacing the -999 in the data set by NA
-
-If you do it correctly, you should see:
-```{r}
 summary(input1)
 ```
 
-4) dates and times can be in any format
-Then we deal with the dates and times
+After replacing them, using `summary` you should see that several columns now have `NA` values:
+```{r, echo=FALSE}
+input1[input1 == -999] <-NA
+summary(input1)
+```
 
-Exercise 3: 
+### Exercise 2
 
-**TODO** use stuff/input1 data set
+Using the same `Carbon.csv` data set:
 
-* Make time vector of the date in the data set you imported (the `date_start` column)
-* make a new vector that formats the date, so that it just shows the month (hint: use the command: `format(date, format = " …" )` covered in the last practical
+* Make time vector of the date (the `date_start` column).  If you type `class(input1$date_start)` you'll see that it's currently represented as a factor.
+* Make a new vector that formats the date, so that it just shows the month (see examples above).  You may also have to use `as.Date()` to convert the `date_start` values from a factor to a Date object.
 
-**TODO** put in the r code for showing the months & the solution
+If you do this correctly, you should see:
+```{r}
+months = format(as.Date(input1$date_start), "%B")
+months
+```
 
-4) sometimes real data sets don't directly contain all the information you want
+We can now add this vector directly to the data frame:
+```{r}
+input1$months = months
+```
 
-e.g., you have data covering a year and you are wondering if there is a difference between summer and winter, or between day and night; but you only have a vector with date and time
+## Creating Category Variables
+Sometimes real data sets don't directly contain all the information you want.  For example, you have data covering a year and you are wondering if there is a difference between summer and winter, or between day and night; but you only have a vector with date and time.  
 
-Make new category variables (e.g. for anova, box plots etc..)
+We may want to create new category variables which could be useful for ANOVA, box plots, etc.
 
-e.g. `input1$y` varies between 0 and 5
+For this example, assume that `input1$y` varies between 0 and 5.  Given different ranges of `y`, we can specify categories of `"low"`, `"medium"` and `"high"`
 
 ```{r, eval=FALSE}
 x1 <- c() 	# start with empty vector
@@ -628,33 +613,21 @@ x1[input1$y>=3] <- "high"
 
 `x1` is now a vector of length `input1$y` and consists of values `"low"`, `"medium"`, `"high"`
 
-Exercise 4
+### Exercise 3
 
-Make a vector that correctly assigns the seasons to your data set ( use the meteorological definition of season e.g. winter is dec, jan, feb; spring is mar, apr, may .. 
-Look up the logical operators you might need on the internet
+Using the `Carbon.csv` data set, make a vector that correctly assigns the seasons to your data set (use the meteorological definition of season e.g. winter is dec, jan, feb; spring is mar, apr, may, etc.)
 
-**TODO** show what correct output should look like
-  
-5)combine new data with your data set, or combine several data sets
-
-e.g. second data set input 2 with the same number of rows
-
-**TODO** merge in the season vector with the data frame
+Note that you can use the syntax below for matching text values.  
 
 ```{r, eval=FALSE}
-data_new <- cbind(input1, input2) 	#column bind
+x1[input1$y %in% c("big", "large", "enormous")] <- "huge"
 ```
 
-e.g., second data set with new values in the same columns 
+### Exercise 4
 
-e.g., add a new vector x to a data frame
-
-**TODO** you can add vectors to data frames (show)
-
-Exercise 5
-add the vector of months and the vector of seasons to your data frome
+Now add the vector of months and the vector of seasons to your data frame.
 
 # Resources
-[Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.  We will cover `dplyr` in a later practical.
 
-<a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf"><img src="./images/dplyrScreenShot.png" style="height:200px; width:auto"></a>
+* [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames. 
+
