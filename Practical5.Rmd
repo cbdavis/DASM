@@ -25,8 +25,8 @@ We have a function $x = f(u,v)$ where:
 
 We then:
 
-* Construct a normal distribution $f_{n,u}$ using the mean of $u$ and a standard deviation $s_u$ 
-* Construct a normal distribution $f_{n,v}$ using the mean of $v$ and a standard deviation $s_v$
+* Construct a normal distribution $f_{n,u}$ using the mean found for $u$ and a standard deviation $s_u$ 
+* Construct a normal distribution $f_{n,v}$ using the mean found for $v$ and a standard deviation $s_v$
 * Take a random value $u_1$ from  fn,u and $v_1$ from fn,v  and calculate $x_1 = f(u_1, v_1)$
 * Repeat n times
 * Take average (or median) of all $x_i$ for (i = 1, ... n) 
@@ -74,7 +74,7 @@ sig <- sd(f)
 sig
 ```
 
-Below we can see how both the mean and the standard deviation converge on a single value as we increase the number of samples from the distributions we defined for $p$ and $q$ (See page 33,34 of Lecture 7).  Note the log scale for the x axis.
+Below we can see how both the mean and the standard deviation converge on a single value as we increase the number of samples from the distributions we defined for $p$ and $q$ (see page 33,34 of Lecture 7 for more explanation).  Note the log scale for the x axis.
 
 ```{r, echo=FALSE}
 numSamples = 3000
@@ -104,7 +104,7 @@ ggplot(df, aes(x, y)) + geom_line() + facet_wrap(~type) +
 
 Now you've been given a different formula: 
 
-$$f = u^2 + u + v$$
+$$f(u,v) = u^2 + u + v$$
 
 ...and you've been told to perform a monte carlo simulation with 10000 samples this time.  We again assume that the variables `u` and `v` are normally distributed with the following means and standard deviations:
 
@@ -138,7 +138,7 @@ sig
 
 # Working with Real Data Sets
 
-## Example.  
+## Example
 
 For this example, you'll need a csv file.  To get it, **right click** on this link: [Guerry.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Guerry.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
 
@@ -202,12 +202,12 @@ Similarly, the number of rows can be found via:
 nrow(data1)
 ```
 
-And the number of rows and columns via:
+And we can find the dimension of the data frame (i.e. the number of rows and columns) via:
 ```{r}
 dim(data1)
 ```
 
-This is a data set from the Guerry R package, so to get an idea about the variables we need to install the package:
+The data you have just loaded in is from the Guerry R package, so to get an idea about the variables we need to install the package:
 ```{r, eval=FALSE}
 install.packages("Guerry")
 ```
@@ -222,39 +222,42 @@ and then bring up the help information that relates to this specific data frame 
 help(Guerry)
 ```
 
-This data set contains statistics about French cities.  There are several different types of columns:
+This data set contains statistics about French cities.  As you can see, there are several different types of columns:
 
 * A few categories: `Region`, `Main_city`
 * A few numerical variables: e.g., `Crime_pers`, `Distance`
-* A few rank variables: `Donation_clergy`
+* A few rank variables: `Donation_clergy`, etc.  These show which city is 1st, 2nd, etc.
 
-1) Select any numerical variable and plot a histogram
+### Select a numerical variable and plot a histogram
 
 ```{r}	
 ggplot(data1, aes(x=Infants)) + geom_histogram(bins=50)
 ```
 
-2) Choose variable "Literacy" and make a box plot per region and city size (MainCity)  
+### Make a box plot of `Literacy` per city size (`MainCity`) 
 
 ```{r}
-ggplot(data1, aes(x=Region, y=Literacy)) + geom_boxplot()
 ggplot(data1, aes(x=MainCity, y=Literacy)) + geom_boxplot()
 ```
 
-3) we see that the box in the small cities looks weird, we want to take a closer look 
+### Managing outliers
 
-3a) First we want to know how many variables are in the small, medium and large cities
+In the plot above, we see that the box for the small cities looks strange as it is quite skewed.  We now take a closer look 
+
+First we want to know how many variables are in the small, medium and large cities:
 
 ```{r}
 a <- table(data1$MainCity)
 a
 ```
 
-3b) Now we want to see the actual data points in the small cities only:
+This shows that we have 10 observations for small cities.
 
-To do this, we'll use the **[dplyr package](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)**.  The dplyr library takes a very similar approach to what we see with ggplot.  We start off with data in a data frame, and then we perform a series of operations or data transformations which are connected together via the `%>%` symbol which acts as a sort of "pipe" through which data flows.  
+#### Creating subsets of data frames
 
-In very general terms, we may create a series of statements that look like:
+Next we want to see the actual data points in the small cities only.  To do this, we'll use the **[dplyr package](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)**.  The dplyr library takes a very similar approach to what we saw with `ggplot`.  We start off with data in a data frame, and then we perform a series of operations or data transformations which are connected together via the `%>%` symbol which acts as a sort of "pipe" through which data flows.  
+
+In very general terms, with the dplyr library we can create a series of statements that look like:
 
 some data frame `%>%` operation 1 `%>%` operation 2
 
@@ -278,8 +281,7 @@ In other words:
     * Note that the `|` symbol specifies a logical "or".  This just means that you want to find values matching `hp >= 250` or `hp < 100`
     * The `&` symbol is a logical "and".  You could modify the statement above to use `hp >= 250 & hp < 100`, although this would return no rows since a value can't be both greater than 250 and less than 100.
 * `select(mpg, cyl)` - keep only the `mpg` and `cyl` columns.
-
-In the next example, we select all men over the age of 25 and we keep variables weight through income (weight, income and all columns between them).
+* The command above is basically of the form: `mtcars` `%>%` "keep these rows" `%>` "keep these columns"
 
 We can also filter on multiple columns by adding commas in the `filter` function.
 ```{r}
@@ -312,22 +314,18 @@ Regarding `NA` values:
 * If you are doing a numeric comparisons (i.e. `hp >= 250`) using the `filter` function, then `NA` values will be filtered out.  
 * If you want to do a numeric comparison and also keep `NA` values, then you need to specify something like `hp >= 250 | is.na(hp)`.  The function `is.na()` will return `TRUE` for any `NA` values.
 
-
-**TODO** put in a note about how dplyr deals with NA.  Whatever happens, the NA are gone.  If you want the NA with dplyr - do 2 comparisons - numeric | is.na()
-
-
-3b) Now: apply to data1
+Now we use dplyr to make subsets of `data1`
 
 ```{r}
 small_data <- data1 %>% filter(MainCity ==  "1:Sm") %>% select(Crime_prop)
 print(small_data)
 ```
 
-4) Make a boxplot of crime vs city size
+### Filter outliers and make a boxplot of crime vs city size
 
 From above, we can see that there's a large outlier in the small cities, and this would disturb a test like ANOVA. We need to remove this.
 
-We then use the `filter` function with `dplyr` to keep all rows (really just 1 row) where we don't have a combination of a small city and a `Crime_prop` greater than 15000.
+We then use the `filter` function with `dplyr` to keep all rows where we don't have a combination of a small city and a `Crime_prop` greater than 15000.
 
 ```{r}
 data2 = data1 %>% filter(!(MainCity == "1:Sm" & Crime_prop > 15000))
@@ -344,75 +342,62 @@ Now we can see that the boxplot looks more reasonable.
 ggplot(data2, aes(x=MainCity, y=Crime_prop)) + geom_boxplot()
 ```
 
-5) select any row and column you want 
+### Select any row and column by indices
 
-here you can make a submatrix of a larger matrix, etc. 
-sub dataframe - depends on the data type
-
-**TODO** need to explain logical indexing - also if have values that are NA, by default NA will be included.  With subset, NA is excluded, also with filter and dplyr.  Indexing can be useful either way - sometimes you want to keep the NAs since the other columns may have valid data that you want to use.
-
+You can also create subsets of data frames by using numeric indices that indicate the row and column numbers.  This technique will work with matrices as well.  Note in the examples below that in some cases you're specifying a sequence of numbers (`5:9` = 5,6,7,8,9), while in other cases, you are specifying a set of numbers (`c(1,5,9)` is just the numbers 1, 5 and 9).  You can also mix in the names of the columns with numeric indices as well.
 
 ```{r}
 b <- data1[1:3, 5:9]
+b
 c <- data1[c(1,5,9), 7]
+c
+d <- data1[c(1,5,9),c("Region", "Infants")]
+d
 ```
 
-pretend that you have a data frame named input1
+Note that both `b` and `d` are data frames, although `c` is a vector of integers.
 
-(students just see an explanation - don't run this code)
-
-```{r, eval=FALSE}
-# can select a consecutive sequence, and also non-consecutive sequence (2 and 4)
-input_s <- input1[1:10, c(2,4)]   # selects row 1:10 and column 2 and 4
-input_s <- input1[, c("x", "y")]  # selects all rows, and the columns named "x" and "y"
-```
-
-`input_s` is also a data frame!
-
-
-select individual vectors: 
-```{r, eval=FALSE}
-x <- input1$x
+### Select individual columns
+```{r}
+x <- data1$Crime_prop
 ```
 or
-```{r, eval=FALSE}
-x <- input1$x[1:10]  #just select the first 10 rows
+```{r}
+x <- data1$Crime_prop[1:10]  #just select the first 10 rows
 ```
 
-make the whole data frame into a matrix
-```{r, eval=FALSE}
-input_m <- as.matrix(input1)
+
+### Make the whole data frame into a matrix
+```{r}
+data1_m <- as.matrix(data1)
 ```
 
-`length(input_m)` gives the number of all elements in the matrix
+We can get the total number of all elements in the matrix:
+```{r}
+length(data1_m)
+```
 
-`input_m$x` does not work any more
+Note that we can't access columns via `$` anymore.  In other words, we can't do `data1_m$Crime_prop`
 
-
-6) Make a table of city size vs region
+### Make a table of city size vs region
 
 ```{r}
 tab = table(data1$MainCity, data1$Region)
 tab
 ```
 
-
-**TODO** if too much material, leave out the boxplots
-
 # Dates and Times
 
 Useful resources: 
 
 * [Working with Time Series Data in R ](http://faculty.washington.edu/ezivot/econ424/Working%20with%20Time%20Series%20Data%20in%20R.pdf)
-* [R cheat sheet](http://blog.yhat.com/static/pdf/R_date_cheat_sheet.pdf). Note the `Date` and `POSIXct` columns.  We don't use the `lubridate` library for this example.
-
+* [R cheat sheet](http://blog.yhat.com/static/pdf/R_date_cheat_sheet.pdf). The columns for `Date` and `POSIXct` are relevant for this practical.  We don't use the `lubridate` library for this example, although it does similar things.  
 
 ## Integers to Dates
-1) Dates, not involving times of the day, are natively stored on your computer as integer numbers with 1 Jan 1970  = 0 and 1 corresponding to 1 day. Due to this, you need to specify `origin="1970-01-01"` in the example below.  
 
-e.g., The number 365 corresponds 1 Jan 1971
+Dates, not involving times of the day, are natively stored on your computer as integer numbers with 1 Jan 1970  = 0 and 1 corresponding to 1 day. Due to this, you need to specify `origin="1970-01-01"` in the example below.  
 
-To tell R that a number is a date, not just a number you use the command.  
+For example, the number 365 corresponds January 1, 1971.  To tell R that a number is a date, not just a number you use the command `as.Date`:
 ```{r}
 as.Date(365, origin="1970-01-01")
 ```
@@ -424,21 +409,26 @@ as.Date("1971-01-01")   # always use the order of year, month, day
 ```
 
 ## Vectors of Date Ranges
-You can make vectors filled with series of dates by
+You can make vectors filled with series of dates using `seq`
 ```{r}
-t = seq(from = as.Date("2000-11-30"), to = as.Date("2005-05-26"), by="1 day")
+t = seq(from = as.Date("2000-11-30"), to = as.Date("2000-12-26"), by="1 day")
+t
 ```
 
 `by=` can be e.g, 1 month, 2 years, 5 days, etc...
 
-Try to make a weekly time vector from 5 June 2005 to 20 August 2006
+Now try to make a weekly time vector from 5 June 2005 to 20 August 2006.  You should see:
 
-Otherwise you can treat time vectors as normal vectors 
-(use them in plots, add, subtract, ...)
+```{r, echo=FALSE}
+t = seq(from = as.Date("2005-06-05"), to = as.Date("2006-08-20"), by="1 week")
+t
+```
+
+In general, you can treat date & time vectors as normal vectors, which means that you can use them in plots, add and substract them, etc.
 
 # Dates and Times
 
-POSIXct does more or less the same as Date, but stores the time variable as numbers of seconds since midnight GMT 1970-01-01.  As a result, this allows us to store data which expresses the time on a specific date.
+`POSIXct` does more or less the same as `Date`, but it stores the time variable as numbers of seconds since midnight GMT 1970-01-01.  As a result, this allows us to store data which expresses the time on a specific date.
 
 ```{r}
 t.str = "2013-12-19 10:17:07"    # default format
@@ -454,13 +444,46 @@ t.obj1 = as.POSIXct(t.str1, format="%d-%m-%Y %H:%M:%S")
 t.obj1
 ```
 
-To get an overview of all the format types type `help(strptime)`
+`"%d-%m-%Y %H:%M:%S"` says that we have a time that is specified in the form of day, month and year (separated by `-`) which is then followed by a space and the hours, minutes and seconds (separated by `:`).
+
+To get an overview of all the format types type `help(strptime)`.  Below is a table which summarizes commonly used codes.
+
+| Code | Description              | Example |
+|------|--------------------------|---------|
+| %a | Abbreviated weekday name | Mon |
+| %A | Full weekday name | Monday |
+| %b | Abbreviated month name | Jan |
+| %B | Full month name | January |
+| %c | Date and time. Locale-specific on output, "%a %b %e %H:%M:%S %Y" on input. | |
+| %d | Day of the month as decimal number (01–31) | 01 |
+| %H | Hours as decimal number (00–23) | 16 |
+| %I | Hours as decimal number (01–12) | 08 |
+| %j | Day of year as decimal number (001–366) | 234 | 
+| %m | Month as decimal number (01–12) | 07 |
+| %M | Minute as decimal number (00–59) | 12 | 
+| %p | AM/PM indicator | AM |
+| %S | Second as integer (00–59) | 35 | 
+| %U | Week of the year as decimal number (00–53) using Sunday as the first day 1 of the week (and typically with the first Sunday of the year as day 1 of week 1). The US convention. | |
+| %w | Weekday as decimal number (0–6, Sunday is 0). | 1 |
+| %W | Week of the year as decimal number (00–53) using Monday as the first day of week (and typically with the first Monday of the year as day 1 of week 1). The UK convention. | | 
+| %x | Date. Locale-specific on output, "%y/%m/%d" on input. | | 
+| %X | Time. Locale-specific on output, "%H:%M:%S" on input. | |
+| %y | Year without century (00–99) | 91 |
+| %Y | Year with century | 1991 |
+| %z | Signed offset in hours and minutes from UTC, so -0800 is 8 hours behind UTC | |
+| %Z | Time zone abbreviation as a character string | PST |
 
 ## Changing format of date
 
-**TODO** need to explain the big table before here, point out %a, %d, %b, %Y, show what they mean, then show it in the example
+You can change the format of the output date using the codes mentioned above.
 
-You can change the format of the output date:
+| Code | Description              | Example |
+|------|--------------------------|---------|
+| %a | Abbreviated weekday name | Mon |
+| %d | Day of the month as decimal number (01–31) | 01 |
+| %b | Abbreviated month name | Jan |
+| %Y | Year with century | 1991 |
+
 ```{r}
 t.obj1
 format(t.obj1, "%a %d %b. %Y")
@@ -590,34 +613,6 @@ summary(input1)
 
 4) dates and times can be in any format
 Then we deal with the dates and times
-
-**TODO** include table
-
-| Code | Description              | Example |
-|------|--------------------------|---------|
-| %a | Abbreviated weekday name | Mon |
-| %A | Full weekday name | Monday |
-| %b | Abbreviated month name | Jan |
-| %B | Full month name | January |
-| %c | Date and time. Locale-specific on output, "%a %b %e %H:%M:%S %Y" on input. | |
-| %d | Day of the month as decimal number (01–31) | 01 |
-| %H | Hours as decimal number (00–23) | 16 |
-| %I | Hours as decimal number (01–12) | 08 |
-| %j | Day of year as decimal number (001–366) | 234 | 
-| %m | Month as decimal number (01–12) | 07 |
-| %M | Minute as decimal number (00–59) | 12 | 
-| %p | AM/PM indicator | AM |
-| %S | Second as integer (00–59) | 35 | 
-| %U | Week of the year as decimal number (00–53) using Sunday as the first day 1 of the week (and typically with the first Sunday of the year as day 1 of week 1). The US convention. | |
-| %w | Weekday as decimal number (0–6, Sunday is 0). | 1 |
-| %W | Week of the year as decimal number (00–53) using Monday as the first day of week (and typically with the first Monday of the year as day 1 of week 1). The UK convention. | | 
-| %x | Date. Locale-specific on output, "%y/%m/%d" on input. | | 
-| %X | Time. Locale-specific on output, "%H:%M:%S" on input. | |
-| %y | Year without century (00–99) | 91 |
-| %Y | Year with century | 1991 |
-| %z | Signed offset in hours and minutes from UTC, so -0800 is 8 hours behind UTC | |
-| %Z | Time zone abbreviation as a character string | PST |
-
 
 Exercise 3: 
 
