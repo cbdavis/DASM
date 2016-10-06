@@ -13,14 +13,14 @@ output:
 install.packages("dplyr")
 ```
 
-```{r, message=FALSE}
+```{r, message=FALSE, echo=FALSE}
 library(ggplot2)
 library(dplyr)
 ```
 
 # Monte Carlo simulation 
 
-## Short reminder of the lecture
+## Short review from the lecture
 
 $x = f(u,v)$
 
@@ -270,7 +270,7 @@ In very general terms, we may create a series of statements that look like:
 some data frame `%>%` operation 1 `%>%` operation 2
 
 First we need to install and load the `dplyr` package
-```{r}
+```{r, eval=FALSE}
 install.packages("dplyr")
 library(dplyr)
 ```
