@@ -267,7 +267,7 @@ install.packages("dplyr")
 library(dplyr)
 ```
 
-In the following example, we take a subset of the `mtcars` data set.  We first keep a selection of rows by usiing `filter`, and then use `select` to keep certain columns.  
+In the following example, we take a subset of the `mtcars` data set.  We first keep a selection of rows by using `filter`, and then use `select` to keep certain columns.  
 
 ```{r, eval=FALSE}
 mtcars %>% 
@@ -424,7 +424,7 @@ t = seq(from = as.Date("2005-06-05"), to = as.Date("2006-08-20"), by="1 week")
 t
 ```
 
-In general, you can treat date & time vectors as normal vectors, which means that you can use them in plots, add and substract them, etc.
+In general, you can treat date & time vectors as normal vectors, which means that you can use them in plots, add and subtract them, etc.
 
 # Dates and Times
 
