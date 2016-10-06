@@ -506,30 +506,29 @@ t.obj1 - t.obj2
 
 ## Exercise 1
 
-Load in the data
+Download the [Pr_20May1.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Pr_20May1.csv) to your computer in the same way that you did for the other csv file in this practical.
 
-Exercise: read in Pr_20May1.csv
-it contains a time series of monthly temp. from Jan. 1946 to Dec. 2014
-Make a vector with the dates corresponding to each data point
+This data contains a time series of monthly temperature data from Jan. 1946 to Dec. 2014, however the data set you just downloaded only has a single column with the temperatures and does not have a column included which corresponds to these dates.  
+
+Fix this by making a vector with the dates corresponding to each data point, and make a plot of the temperatures over time.
 
 ```{r, echo=FALSE}
-pr = read.csv("/home/cbdavis/Desktop/svn/ChrisDavis/Education/DASM/ComputerPracticals/Pr_20May1.csv")
+pr = read.csv("./data/Pr_20May1.csv")
 t = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by="1 month")
 pr$t = t
 library(ggplot2)
 ggplot(pr, aes(x=t, y=x)) + geom_line()
 ```
 
-**TODO** big break - handling real data - create new top level heading
+# Managing issues in real data
 
-Now we are starting to handle real data, here is an example.  All this goes over what has to be done
+When dealing with real data sets, you will commonly run into several issues.  You will often find yourself:
 
-* dealing with NA
-* dealing with strange/ unwieldy column names
+* dealing with NA values
+* dealing with strange/unwieldy/messy column names
 * dealing with dates
 
-
-1) Real data can have inconvenient column names
+## Inconvenient column names
 
 How to rename columns in a data set:
 e.g. data set: input1
