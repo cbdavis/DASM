@@ -3,8 +3,6 @@ title: "Practical 4"
 author: "Chris Davis"
 date: "September 26, 2016"
 output:
-  pdf_document:
-    toc: yes
   html_document:
     number_sections: yes
     toc: yes
