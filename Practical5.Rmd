@@ -281,7 +281,7 @@ In other words:
     * Note that the `|` symbol specifies a logical "or".  This just means that you want to find values matching `hp >= 250` or `hp < 100`
     * The `&` symbol is a logical "and".  You could modify the statement above to use `hp >= 250 & hp < 100`, although this would return no rows since a value can't be both greater than 250 and less than 100.
 * `select(mpg, cyl)` - keep only the `mpg` and `cyl` columns.
-* The command above is basically of the form: `mtcars` `%>%` "keep these rows" `%>` "keep these columns"
+* The command above is basically of the form: `mtcars` `%>%` "keep these rows" `%>%` "keep these columns"
 
 We can also filter on multiple columns by adding commas in the `filter` function.
 ```{r}
