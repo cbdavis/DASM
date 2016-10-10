@@ -8,41 +8,58 @@ output:
     toc: yes
 ---
 
+Install the `GGally` library.  We will need this later for pairs plotting.
+```{r, eval=FALSE}
+install.packages("GGally")
+install.packages("lmodel2")
+```
+
+Load required libraries
+```{r}
+library(GGally)
+library(ggplot2)
+library(lmodel2)
+```
+
+**TODO** Anscombe's quartet? `?anscombe`
+
 # Basic linear fitting with and without weights 
 
 ## Reminder of the lecture
 We have data (x, y), where x is a deterministic variable and y is a random variable that is dependent on x. 
-We fit a linear regression line to the data with slope and intercept 
+We fit a linear regression line to the data with slope $\beta_1$ and intercept $\beta_0$
 
 by finding the minimum of the RSS
 
+$RSS(\beta_0, \beta_1) = \sum_{i=1}^{n} (y_{i} - \beta_0 - \beta_1 x_i)^2$
 
 with is found at
 
+* $\hat{\beta}_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i-\bar{x})^2}$
+* $\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$
 
 This equation requires that the variance in y is the same for all xi 
 
 If this is not the case, then we apply weighted regression, by minimizing:
 
+$RSS(\beta_0, \beta_1) = \sum_{i=1}^{n} w_i (y_{i} - \beta_0 - \beta_1 x_i)^2$
 
+with $w_i = 1 / \sigma_i$
 
-with wi = 1/i 
+## Syntax
 
+In R, the slope and intercept can be calculated by the command:
 
-## R syntax:
-
-a) For the In R the slope and intercept can be calculated by the command:
-In R:
 ```{r, eval=FALSE}
 b1 = cov(x,y)/var(x)
 b0 = mean(y) – b1*mean(x)
 ```
 
+For the general linear regression, use `lm()`
 
-b) For the general linear regression, use lm()
-syntax (explain, e.g., what is meant by formula tec…)
+syntax (explain, e.g., what is meant by formula etc…)
 
-```{r}
+```{r, eval=FALSE}
 xx = lm(formula, data, subset, weights, na.action,
    method = "qr", model = TRUE, x = FALSE, y = FALSE, qr = TRUE,
    singular.ok = TRUE, contrasts = NULL, offset, ...)
@@ -53,56 +70,92 @@ not used in this course
 Make a nice example:
 e.g., data x, y, with y error bars s 
 
-```{r}
+```{r, eval=FALSE}
 z = lm(x~y, weights = 1/s)
 ```
 
 c) look at the basic regression output 
-> summary(z)
+```{r, eval=FALSE}
+summary(z)
+```
 
-d) explain how to plot an error bar plot in gg-polt 
+d) explain how to plot an error bar plot in ggplot 
 
 e) add the regression line to the error bar plot 
 (note to chris with normal plotting you could just do abline(reg), I’m not totally sure, if this also works in ggplot)
 
-#abline plots the regression line on the plot 
-#usage = abline(a,b), with a = intercept, b = slope
 
+abline plots the regression line on the plot 
+usage = abline(a,b), with a = intercept, b = slope
 
-## Do it yourself:
+## Exercise
 
 read in data 1, make an error bar plot, do a fit with and without weights, add the regression line to the pot  and look at the regression output 
 
+
 ```{r}
-data1 <- read.csv("file path/data1.txt")
+data1 <- read.csv("./data/Practical6_Data.txt")
 
 #plot an error bar graph
 
 #fit a "normal" fit
 model5 <-lm(y_values~x_values, data1)
-abline(model5) 
+#abline(model5) 
+
+ggplot(model5$model, aes(x=x_values, y=y_values)) + geom_point() + 
+  geom_abline(slope = model5$coefficients[2], intercept = model5$coefficients[1])
 
 
 #to get the information about the fit
 summary(model5)
+```
 
+
+**TODO** explain how we can use `color="standard LS fit"` - color is a factor, so R picks colors from a pallette
+
+```{r}
 # take into account the error bars
-model6 <-lm(y_values~x_values, data= data1, 
+model6 <-lm(y_values~x_values, data = data1, 
             weights = 1/data1$y_errors)
 
 # to get information about the fit
 summary(model6)
 
+ggplot(data1, aes(x=x_values, y_values)) + geom_point() + 
+  geom_errorbar(aes(ymin=y_values - y_errors, 
+                    ymax=y_values + y_errors, 
+                    width=0.005)) + # width changes the width of the horizontal bar at the top of the error bar
+  geom_smooth(aes(x=x_values, y=y_values, 
+                  color="standard LS fit"), 
+              method="lm", formula=y~x, se=FALSE) + 
+  geom_smooth(aes(x=x_values, y=y_values, 
+                  weight=1/y_errors, 
+                  color="weighted LS fit"), 
+              method="lm", formula=y~x, se=FALSE) + 
+  scale_colour_manual(values = c("green","blue"),
+                      labels = c("standard LS fit", "weighted LS fit"),
+                      name = "")
+  
+
+#ggplot(data1, aes(x=x_values, y_values)) + geom_point() + 
+#  geom_errorbar(aes(ymin=y_values - y_errors, 
+#                    ymax=y_values + y_errors, 
+#                    width=0.005)) + # width changes the width of the horizontal bar at the top of the error bar
+#  geom_abline(aes(slope = model5$coefficients[2], intercept=model5$coefficients[1]), color="red") + 
+#  geom_abline(aes(slope = model6$coefficients[2], intercept=model6$coefficients[1]), color="blue")
+
+
 #plot an error bar graph
 # in package Hmisc
-errbar(data1$x_values, data1$y_values, data1$y_values+data1$y_errors, 
-       data1$y_values-data1$y_errors, cap = 0.015, ylab = "y", xlab = "x")
+#library(Hmisc)
+#errbar(data1$x_values, data1$y_values, data1$y_values+data1$y_errors, 
+#       data1$y_values-data1$y_errors, cap = 0.015, ylab = "y", xlab = "x")
 # add the lines from both fits
-abline(model5, col = "green") 
-abline(model6, col = "blue")
+#abline(model5, col = "green") 
+#abline(model6, col = "blue")
 # add a legend
-legend(0.05, 0.45, c("data", "standard LS fit", "weighted LS fit"), 
-       col = c("black", "green", "blue"), lty= c(NA,1,1), pch = c(16, NA, NA))
+#legend(0.05, 0.45, c("data", "standard LS fit", "weighted LS fit"), 
+#       col = c("black", "green", "blue"), lty= c(NA,1,1), pch = c(16, NA, NA))
 ```
 
 # Regression diagnostic
@@ -111,19 +164,20 @@ legend(0.05, 0.45, c("data", "standard LS fit", "weighted LS fit"),
 
 ### Reminder from the lecture
 
+* $E(e_i|X_i) = 0$ (residuals should have mean 0 for all $X_i$ )
+* $e_i$ is normally distributed (residuals are normally distributed with mean = 0 and variance $Var(e_i) = s_2$, for all $e_i$
 
-1. E(ei|Xi) = 0 (residuals should have mean 0 for all Xi )
-2. ei  is normally distributed (residuals are normally distributed with mean = 0 and variance Var(ei ) = s2, for all ei  
-
-
-### In R (explanation of syntax)
+### Syntax
 
 Plot residuals against fitted values
 
 say you have values x and y, and you want to make a linear fit as a function of y 
-> z = lm(y~x)
+```{r, eval=FALSE}
+z = lm(y~x)
+```
 then 
 
+```{r, eval=FALSE}
 #get the fitted values
 fit <- fitted(z)
 #get the residuals
@@ -133,10 +187,10 @@ plot(fit, res)
 
 #qqnorm plot of residuals 
 qqnorm(res)
+```
 
 
-
-### Do it yourself
+### Exercise
 
 Make the plots of fitted values vs residuals for data1
 and a qnorm plot of the residuals
@@ -161,20 +215,20 @@ plot(fitted6, res6)
 ```
 
 
-## Cooks distance
+## Cook's distance
 
-### reminder of the lecture
+### Reminder of the lecture
 
 The cook’s distance  of point Xi is a measure of the difference in regression parameters when the point is included or omitted. If omitting a point changes the regression parameters strongly, this point has a large Cook’s distance.
 
-To see quantitatively if the Cooks distance of a data point is too large and it has an undue influence on the fit you need to compare it with a theoretical cut-off
+To see quantitatively if the Cook's distance of a data point is too large and it has an undue influence on the fit you need to compare it with a theoretical cut-off
 This cutoff value can be calculated with the F-statistic as:
 fF(0.5, p, n-p) with p … fitted parameters, n … number of data points
 
-### Syntax:
+### Syntax
 
-```{r}
-#Cooks distance
+```{r, eval=FALSE}
+#Cook's distance
 
 z = lm(y~x)
 cook <- cooks.distance(z)
@@ -187,7 +241,9 @@ abline(cut5,0)
 ```
 
 
-### Do it yourself: For the un-weighted and weighted fit, compare the cooks distance 
+### Exercise
+
+For the un-weighted and weighted fit, compare the cooks distance 
 
 ```{r}
 #Cooks distance
@@ -205,35 +261,34 @@ cut6 <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
 abline(cut6,0)
 ```
 
-## automatic diagnostic plots
+## Automatic diagnostic plots
 
-```{r}
+```{r, eval=FALSE}
 # you can also automatically make diagnostic plots by:
 plot(z)
 ```
 
 
 ### Try it yourself for the two fits of data 1
-```{r}
+```{r, eval=FALSE}
 plot(model5)
 plot(model6)
 ```
 
 
-# reduced major axis regression
+# Reduced major axis regression
 
 ## Reminder of the lecture 
 
 Reduced major axis regression minimizes the area of the triangles formed by the observations and the line:
 
-	 = sx / sy   
+$\beta_1 = s_x / s_y$
 
-  is calculated like in the normal regression
+$\beta_0$ is calculated like in the normal regression
 
+## Syntax
 
-## Syntax:
-
-```{r}
+```{r, eval=FALSE}
 # for this you need to install and select the 
 # package lmodel2
 
@@ -253,15 +308,16 @@ summary(model8)
 
 ## Try it yourself: make a Reduced major axis regression for x and y in data 1 and add the line to the plot 
 
+```{r, eval=FALSE}
 a <- model8$regression.results[4,2]
 b <- model8$regression.results[4,3]
 abline(a,b, col = "pink")
 summary(model8)
+```
 
-# multiple regression
+# Multiple regression
 
-## reminder of the lecture 9
-
+## Reminder of the lecture 9
 
 Yi =  b0 + b1*X1i + b2*X2i +  b3*X3i + … +  ei 
 
@@ -273,14 +329,15 @@ An anova test can be done to see if the removing one variable significantly chan
  
 ## Syntax 
 
-### linear model as a function of several parameters
+### Linear model as a function of several parameters
  say you have several variables (y, x1, x2, x3, …) in the data frame dat 
 
 z = lm(y~ x1 + x2 + x3 + …, data = dat) 
 
-4.2.2 a pairs plot
+### A pairs plot
 
 if your variables are in a data frame called dat 
+
 > pairs(dat) 
 
 ### Anova test
@@ -293,7 +350,7 @@ z2 = lm(y~ x1 + x2, data = dat)
 anova(z1,z2)
 
 
-## Do it yourself 
+## Exercise
 
 
 To do chris: make a step by step description of what they should do … 
@@ -302,8 +359,10 @@ This is what they should get out:
 
 the example from the lecture 8
 
-```{r}
-Get R data set stackloss 
+**TODO** some of the plots below are easier with the `plot` function since they override the standard `plot` method with a custom method that is based on the type of data being analyzed.  I don't think this occurs with ggplot
+
+```{r, eval=FALSE}
+# Get R data set stackloss 
 #i.e get the pacakge datasets
 #Brownlee, K. A. (1960, 2nd ed. 1965) Statistical Theory and 
 #Methodology in Science and Engineering. New York: Wiley. pp. 491???500.
@@ -312,15 +371,18 @@ Get R data set stackloss
 summary(stackloss)
 #plot all the variables against each other
 pairs(stackloss)
+# ggplot replacement
+ggpairs(stackloss)
 
 #Fit a linear model using all variables
-mul_fit1 <- lm(stack.loss ~ Acid.Conc. + Air.Flow + Water.Temp
-               , data = stackloss)
+mul_fit1 <- lm(stack.loss ~ Acid.Conc. + Air.Flow + Water.Temp, data = stackloss)
 #look at the ouput
 summary(mul_fit1)
 
 #plot the standard diagnostic plots
 plot(mul_fit1)
+# ggplot replacement
+
 
 # make our normal Cook's distance plot
 plot(fitted(mul_fit1), cooks.distance(mul_fit1), ylim = c(0,1))
@@ -339,7 +401,6 @@ anova(mul_fit1,less_fit)
 least_fit<- lm(stack.loss~Air.Flow, data = stackloss)
 summary(least_fit)
 anova(less_fit, least_fit)
-
 
 #fits of individual varaibles
 fit_air <- lm(stack.loss~Air.Flow, data = stackloss)
