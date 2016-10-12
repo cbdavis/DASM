@@ -8,19 +8,18 @@ output:
     toc: yes
 ---
 
-Install the `GGally` library.  We will need this later for pairs plotting.
+For this practical, we will need the `GGally` and the `lmodel2` libraries.  Make sure that they are both installed:
 ```{r, eval=FALSE}
 install.packages("GGally")
 install.packages("lmodel2")
 ```
 
-Load required libraries
+Now load required libraries:
 ```{r}
 library(GGally)
 library(ggplot2)
 library(lmodel2)
 ```
-
 
 # Basic linear fitting with and without weights 
 
@@ -33,11 +32,11 @@ by finding the minimum of the RSS
 $RSS(\beta_0, \beta_1) = \sum_{i=1}^{n} (y_{i} - \beta_0 - \beta_1 x_i)^2$
 
 with is found at
--
+
 * $\hat{\beta}_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i-\bar{x})^2}$
 * $\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$
 
-This equation requires that the variance in y is the same for all xi 
+This equation requires that the variance in y is the same for all $x_i$
 
 If this is not the case, then we apply weighted regression, by minimizing:
 
@@ -58,45 +57,136 @@ For the general linear regression, use `lm()`
 
 syntax (explain, e.g., what is meant by formula etc…)
 
+**TODO** we just need `formula`, `weights`, and `data`, right?
+
 ```{r, eval=FALSE}
 z = lm(formula, data, subset, weights, na.action,
    method = "qr", model = TRUE, x = FALSE, y = FALSE, qr = TRUE,
    singular.ok = TRUE, contrasts = NULL, offset, ...)
 ```
 
-not used in this course
-
+* `formula` - a symbolic description of the model to be fitted
+    * A typical model has the form `response ~ terms` where response is the (numeric) response vector and terms is a series of terms which specifies a linear predictor for response.
+    * A terms specification of the form `first + second` indicates all the terms in first together with all the terms in second with duplicates removed.
+* `data` - the data frame used as input.  The names you specify in `formula` will correspond to the column names in this data frame.
+   
+## Example
 Make a nice example:
 e.g., data x, y, with y error bars s 
 
-```{r, eval=FALSE}
-z = lm(x~y, weights = 1/s^2)
+### Anscombe's Quartet]
+
+For this practical, we'll use a data frame containing [Anscombe's Quartet](https://en.wikipedia.org/wiki/Anscombe%27s_quartet) as an example.  The data consists of four hypothetical collections of data that each have x and y values.  For example, the first data set uses the columns `x1` and `y1`, the second uses `x2` and `y2`, etc.  You can type `?anscombe` into the console to find out more about the data set.
+
+We'll first look at some basic statistical properties.  In the examples below, we use `c()` to group together the results into a vector so that they're easier to see.  
+
+As you can see, the mean of x values are the same:
+```{r}
+c(mean(anscombe$x1), mean(anscombe$x2), mean(anscombe$x3), mean(anscombe$x4))
 ```
 
-c) look at the basic regression output 
-```{r, eval=FALSE}
+as is the variance of x values:
+```{r}
+c(var(anscombe$x1), var(anscombe$x2), var(anscombe$x3), var(anscombe$x4))
+```
+
+The mean of y values is the same to several decimal places:
+```{r}
+c(mean(anscombe$y1), mean(anscombe$y2), mean(anscombe$y3), mean(anscombe$y4))
+```
+
+The variance of y values is also very similar:
+```{r}
+c(var(anscombe$y1), var(anscombe$y2), var(anscombe$y3), var(anscombe$y4))
+```
+
+However, when we plot the different data sets, we see that they all look quite different:
+```{r, echo=FALSE}
+anscombe_2cols = data.frame(x = c(anscombe$x1, anscombe$x2, anscombe$x3, anscombe$x4),
+                            y = c(anscombe$y1, anscombe$y2, anscombe$y3, anscombe$y4),
+                            series = c(rep("Data 1", 11), rep("Data 2", 11), rep("Data 3", 11), rep("Data 4", 11)))
+
+ggplot(anscombe_2cols, aes(x=x,y=y)) + geom_point() + facet_wrap(~series)
+```
+
+For the example below, we'll use the x and y values from the first data set in Anscombe's Quartet.
+
+```{r}
+anscombe1 = data.frame(x = anscombe$x1, 
+                       y = anscombe$y1)
+```
+
+### Perform a linear regression
+Now we perform a linear regression on the data:
+```{r}
+z = lm(y~x, data=anscombe1)
+```
+
+* `data=anscombe1` means that we want to use the `anscombe1` data frame that we just created
+* `y~x` says that we're trying to predict a response (the value `y`) given the value of a term (`x`).  Here `x` and `y` correspond to the actual column names of the data frame.  If we were to us a different data frame (like `mtcars`) we would update the formula (for example to predict miles per gallon given horse power, we would use `mpg~hp`).
+
+### Basic regression output 
+Using `summary` we can get an overview of the results of the regression
+```{r}
 summary(z)
 ```
 
-d) explain how to plot an error bar plot in ggplot 
+### Error bar plots in ggplot
 
-**TODO** see example below
+**TODO** check that this explanation isn't confusing.  We just need something to create error bars
 
-e) add the regression line to the error bar plot 
-(note to chris with normal plotting you could just do abline(reg), I’m not totally sure, if this also works in ggplot)
+For some data sets, you will also have information available on the error for particular values.  Anscombe's quartet doesn't contain this information, but for the sake of demonstrating the programming syntax to do this, we add a `y_error` column using random values.  
 
-**TODO** Anscombe's quartet `?anscombe` - could make demonstrations with this dataset, show cook's distance, etc.  Use Anscombe's quartet to show the things above.  Use this as a recurring example - here, with the residuals, then with Cook's distance.
+```{r}
+anscombe1$y_error = runif(nrow(anscombe1))
+```
 
-abline plots the regression line on the plot 
-usage = abline(a,b), with a = intercept, b = slope
+Now we perform a scatter plot using `geom_point`, but now we also add `geom_errorbar` to add error bars on top of those points.  The code `ymin = y - y_error` and `ymax = y + y_error` shows how we use the values from the `y` and `y_error` columns to calculate the top and bottom of the error bars.  
+
+```{r}
+ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + 
+ geom_errorbar(aes(ymin = y - y_error,
+                   ymax = y + y_error,
+                   width=0.3)) # width changes the width of the horizontal bar at the top of the error bar
+```
+
+In this example, the error bars are "mirrored" around the value of `y`.  Since we specify the value of `ymin` independently of `ymax`, then it's possible that you could use a different formula and/or column so that the observed value of `y` does not lie directly in the middle of the error bars but is skewed to one side.
+
+### Add a regression line to the error bar plot 
+
+We will reuse the same code from above, but will now add in a regression line.  To do this, we need to use the coefficients that were found from the linear regression.
+```{r}
+z$coefficients
+```
+
+As you can see, the first value is the intercept.  The second value is labelled `x` although this refers to the slope of the regression line.  We will use these values directly in the `geom_abline` command:
+
+```{r}
+ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + 
+  geom_errorbar(aes(ymin=y - y_error,
+                    ymax=y + y_error,
+                    width=0.3)) + 
+  geom_abline(intercept = z$coefficients[1], slope = z$coefficients[2])
+```
+
+One thing which we'll come back to later is that the linear regressions for the four data sets in Anscombe's Quartet are nearly identifical:
+```{r}
+ggplot(anscombe_2cols, aes(x=x,y=y)) + 
+  geom_point() + 
+  geom_smooth(aes(x=x, y=y), 
+               method="lm", formula=y~x, 
+              se=FALSE, fullrange=TRUE) + 
+  facet_wrap(~series)
+```
 
 ## Exercise
+
+
+https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical6_Data.txt
 
 read in data 1, make an error bar plot, do a fit with and without weights, add the regression line to the pot  and look at the regression output 
 
 **TODO** show first method using geom_abline, don't use geom_smooth, can maybe mention it.
-
-**TODO** explain what coefficients mean - have (Intercept) and then x - one is the slope - this will show up again with the multiple regression
 
 
 ```{r}
