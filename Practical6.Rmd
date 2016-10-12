@@ -14,16 +14,12 @@ install.packages("GGally")
 install.packages("lmodel2")
 ```
 
-```{r, echo=FALSE}
-library(dplyr)
-library(tidyr)
-```
-
 Now load required libraries:
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(GGally)
 library(ggplot2)
 library(lmodel2)
+library(dplyr)
 ```
 
 # Basic linear fitting with and without weights 
@@ -58,28 +54,23 @@ b1 = cov(x,y)/var(x)
 b0 = mean(y) – b1*mean(x)
 ```
 
-For the general linear regression, use `lm()`
-
-syntax (explain, e.g., what is meant by formula etc…)
-
-**TODO** we just need `formula`, `weights`, and `data`, right?
+For the general linear regression, we use the `lm()` command.  The syntax you will need to use looks like:
 
 ```{r, eval=FALSE}
-z = lm(formula, data, subset, weights, na.action,
-   method = "qr", model = TRUE, x = FALSE, y = FALSE, qr = TRUE,
-   singular.ok = TRUE, contrasts = NULL, offset, ...)
+z = lm(formula, data, weights)
 ```
+
+A summary of what you see when typing `?lm` into the console is:
 
 * `formula` - a symbolic description of the model to be fitted
     * A typical model has the form `response ~ terms` where response is the (numeric) response vector and terms is a series of terms which specifies a linear predictor for response.
     * A terms specification of the form `first + second` indicates all the terms in first together with all the terms in second with duplicates removed.
 * `data` - the data frame used as input.  The names you specify in `formula` will correspond to the column names in this data frame.
+* `weights` - an optional vector of weights to be used in the fitting process.
    
 ## Example
-Make a nice example:
-e.g., data x, y, with y error bars s 
 
-### Anscombe's Quartet]
+### Anscombe's Quartet
 
 For this practical, we'll use a data frame containing [Anscombe's Quartet](https://en.wikipedia.org/wiki/Anscombe%27s_quartet) as an example.  The data consists of four hypothetical collections of data that each have x and y values.  For example, the first data set uses the columns `x1` and `y1`, the second uses `x2` and `y2`, etc.  You can type `?anscombe` into the console to find out more about the data set.
 
@@ -304,6 +295,8 @@ anscombe1$res = res
 ```
 
 We can see that the fitted values follow the regression line:
+
+**TODO** explain how names of colors turn into factors, etc
 ```{r}
 ggplot(anscombe1) + 
   geom_point(aes(x=x, y=y, color="original value")) + 
@@ -343,11 +336,11 @@ qqline(res)
 
 Make the plots of fitted values vs residuals for the data from Practical6_Data.txt 
 
-**TODO** should we do this for both weighted and unweighted regressions?
+**TODO** this should be for both weighted and unweighted regressions?
 
 Linear regression without weights
 
-```{r}
+```{r, echo=FALSE}
 data1 <- read.csv("./data/Practical6_Data.txt")
 
 model5 <-lm(y_values~x_values, data1)
@@ -449,7 +442,8 @@ ggplot(anscombe_2cols, aes(x=x, y=cooks_distance)) +
 
 For the un-weighted and weighted fit, compare the cooks distance 
 
-```{r}
+unweighted
+```{r, echo=FALSE}
 #Cooks distance
 cook5 <- cooks.distance(model5)
 plot(fitted(model5), cook5, ylim = c(0,1))
@@ -457,7 +451,8 @@ cut5 <- qf(0.5, 2, length(data1$x_values)-2)
 abline(cut5,0)
 ```
 
-```{r}
+weighted
+```{r, echo=FALSE}
 #Cooks distance
 cook6 <- cooks.distance(model6)
 plot(data1$x_value, cook6, ylim= c(0,1))
@@ -519,7 +514,7 @@ Arguments:
 
 
 ```{r}
-model <-lmodel2(y_values~x_values, data = data1, range.y = "interval", 
+model <-lmodel2(y~x, data = anscombe1, range.y = "interval", 
                  range.x = "interval", nperm = 100)
 
 #Choose the right regression coefficients from the output matrix
@@ -540,18 +535,26 @@ b <- model$regression.results[4,3]
 # make a summary of the regression model
 summary(model)
 
-# abline(a,b, col = "pink")
-ggplot(data1, aes(x=x_values, y=y_values)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
+ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
 ```
 
 
-## Try it yourself: make a Reduced major axis regression for x and y in data 1 and add the line to the plot 
+## Exercise
 
-```{r, eval=FALSE}
-a <- model8$regression.results[4,2]
-b <- model8$regression.results[4,3]
-abline(a,b, col = "pink")
-summary(model8)
+Make a Reduced major axis regression for x and y in data 1 and add the line to the plot 
+
+**TODO** use anscombe1 data for the example, and then let them use the Practical6_data.txt file here for the exercise
+
+```{r, echo=FALSE}
+model <-lmodel2(y_values~x_values, data = data1, range.y = "interval", 
+                 range.x = "interval", nperm = 100)
+
+intercept = model$regression.results %>% filter(Method == "RMA") %>% select(Intercept) %>% unlist()
+slope = model$regression.results %>% filter(Method == "RMA") %>% select(Slope) %>% unlist()
+
+ggplot(data1, aes(x=x_values, y=y_values)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
+
+summary(model)
 ```
 
 # Multiple regression
@@ -578,21 +581,42 @@ z = lm(y~ x1 + x2 + x3 + …, data = dat)
 
 ### A pairs plot
 
-if your variables are in a data frame called dat 
+A pairs plot is useful for doing an initial exploration of how different variables (i.e. columns in a data frame) may be related to each other.  A pairs plot is presented as a matrix containing scatter plots of all the combinations of variables with each other.
+
+To be able to do this, make sure to install and load the `GGally` library as described above.
 
 ```{r, eval=FALSE}
-ggpairs(dat)
+install.packages("GGally")
+library(GGally)
 ```
+
+As an example, we'll use a pairs plot on the `mtcars` dataset.  For this, we only use the `mpg`, `disp`, `hp` and `qsec` columns.  Looking at the first few rows in these columns, we see:
+
+```{r}
+head(mtcars[,c("mpg", "disp", "hp", "qsec")])
+```
+
+The pairs plot for these four columns looks like this:
+```{r}
+ggpairs(mtcars[,c("mpg", "disp", "hp", "qsec")])
+```
+
+Reading across the rows and columns we can see which variables are being plotted together.  In the first column and second row, we have the `disp` vs. the `mpg`, directly below that is the `hp` vs. the `mpg` and so on.  On the top right we can see the correlations calculated between the variables.  On the diagonal we see a density plot of the variables.  For example, most of the values for `hp` are around 100, although the distribution is skewed to one side.  
 
 ### Anova test
 
-if 
-z1 = lm(y~ x1 + x2 + x3, data = dat) 
-and 
-z2 = lm(y~ x1 + x2, data = dat) 
+We can perform an Anova test using the following set up (assuming a data frame named `dat` with columns named `y`, `x1`, `x2`, and `x3`)
 
-anova(z1,z2)
+* `z1 = lm(y~ x1 + x2 + x3, data = dat)`
+* `z2 = lm(y~ x1 + x2, data = dat)`
+* `anova(z1,z2)`
 
+Using the `mtcars` example, we can do:
+```{r}
+z1 = lm(mpg~disp + hp + qsec, data=mtcars)
+z2 = lm(mpg~disp + hp, data=mtcars)
+results = anova(z1, z2)
+```
 
 ## Exercise
 
@@ -611,7 +635,9 @@ i.e get the pacakge datasets
 Brownlee, K. A. (1960, 2nd ed. 1965) Statistical Theory and
 Methodology in Science and Engineering. New York: Wiley. pp. 491???500.
 
-###look at a summary of the data set
+`?stackloss`
+
+### look at a summary of the data set
 ```{r, echo=FALSE}
 summary(stackloss)
 ```
