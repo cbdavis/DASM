@@ -41,7 +41,7 @@ If this is not the case, then we apply weighted regression, by minimizing:
 
 $RSS(\beta_0, \beta_1) = \sum_{i=1}^{n} w_i (y_{i} - \beta_0 - \beta_1 x_i)^2$
 
-with $w_i = 1 / \sigma_i$
+with $w_i = 1 / \sigma_i^2$
 
 ## Syntax
 
