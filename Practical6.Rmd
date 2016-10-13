@@ -507,6 +507,7 @@ Arguments:
 
 Here we again use the `anscombe1` data frame:
 ```{r}
+library(lmodel2) # make sure that this library is loaded in order to use the function below
 model <-lmodel2(y~x, data = anscombe1, range.y = "interval", 
                  range.x = "interval", nperm = 100)
 
