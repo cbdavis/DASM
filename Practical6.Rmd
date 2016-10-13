@@ -172,7 +172,7 @@ ggplot(anscombe1, aes(x=x, y=y)) + geom_point() +
   geom_smooth(aes(x=x, y=y), method="lm", formula=y~x, se=FALSE)
 ```
 
-One thing which we'll come back to later is that the linear regressions for the four data sets in Anscombe's Quartet are nearly identifical, even though visually they look quite different:
+One thing which we'll come back to later is that the linear regressions for the four data sets in Anscombe's Quartet are nearly identical, even though visually they look quite different:
 ```{r, echo=FALSE}
 ggplot(anscombe_2cols, aes(x=x,y=y)) + 
   geom_point() + 
@@ -259,7 +259,7 @@ ggplot(data1, aes(x=x_values, y_values)) + geom_point() +
 
 ### Syntax
 
-For plotting residuals against fitted values, we'll again use the anscombe1 data frame that we created above, using the same code for the linear regression:
+For plotting residuals against fitted values, we'll again use the `anscombe1` data frame that we created above, using the same code for the linear regression:
 
 ```{r}
 z = lm(y~x, anscombe1)
@@ -277,7 +277,7 @@ res <- residuals(z)
 print(res)
 ```
 
-Add in columns to the anscombe1 data frame for the fit and res values
+Add in columns to the `anscombe1` data frame for the fit and res values
 ```{r}
 anscombe1$fit = fit
 anscombe1$res = res
@@ -390,7 +390,7 @@ To see quantitatively if the Cook's distance of a data point is too large and it
 
 ### Syntax
 
-Below we use the anscombe1 data frame again.
+Below we use the `anscombe1` data frame again.
 
 ```{r}
 #Cook's distance
@@ -427,7 +427,7 @@ ggplot(anscombe_2cols, aes(x=x, y=cooks_distance)) +
 
 ### Exercise
 
-For the un-weighted and weighted fit, compare the cooks distance 
+For the unweighted and weighted fit, compare the cooks distance 
 
 Unweighted fit:
 
@@ -499,9 +499,9 @@ model <-lmodel2(y~x, data = dataframe, range.y = "interval",
 
 Arguments:
 
-* `formula`	- A formula specifying the bivariate model, as in lm and aov.
+* `formula`	- A formula specifying the bivariate model, as in lm.
 * `data` - A data frame containing the two variables specified in the formula.
-* `range.y`, `range.x` - Parametres for ranged major axis regression (RMA). If range.y = NULL and range.x = NULL, RMA will not be computed. If only one of them is NULL, the program will stop. If range.y = "relative": variable y has a true zero (relative-scale variable). If range.y = "interval": variable y possibly includes negative values (interval-scale variable). If range.x = "relative": variable x has a true zero (relative-scale variable). If range.x = "interval": variable x possibly includes negative values (interval-scale variable)
+* `range.y`, `range.x` - Parameters for ranged major axis regression (RMA). If range.y = NULL and range.x = NULL, RMA will not be computed. If only one of them is NULL, the program will stop. If range.y = "relative": variable y has a true zero (relative-scale variable). If range.y = "interval": variable y possibly includes negative values (interval-scale variable). If range.x = "relative": variable x has a true zero (relative-scale variable). If range.x = "interval": variable x possibly includes negative values (interval-scale variable)
 * `nperm` - Number of permutations for the tests. If nperm = 0, tests will not be computed.
 
 Here we again use the `anscombe1` data frame:
