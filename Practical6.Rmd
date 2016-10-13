@@ -403,7 +403,7 @@ data = data.frame(fit = fitted(z),
                   cooks_distance = cook)
 
 #cut-off value
-cut <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
+cut <- qf(0.5, 2, length(data$fit)-2, lower.tail = FALSE)
 
 ggplot(data, aes(x=fit, y=cooks_distance)) + geom_point() + geom_hline(yintercept=cut)
 ```
