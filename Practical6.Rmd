@@ -462,9 +462,10 @@ We can create a series of diagnostic plots for the linear regression results by 
 * Scale-Location (not covered in this practical)
 * Residuals vs. Leverage (related to Cook's distance)
 
-Here we create the diagnostic plots for the unweighted fit:
+Here we create the diagnostic plots for the linear regression of the `anscombe1` data frame:
 ```{r}
-plot(model5)
+z = lm(y~x, data=anscombe1)
+plot(z)
 ```
 
 ### Exercise
