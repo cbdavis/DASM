@@ -6,3 +6,4 @@
 * [Practical 3](http://cbdavis.github.io/DASM/Practical3.html) - Hypothesis testing using t-tests
 * [Practical 4](http://cbdavis.github.io/DASM/Practical4.html) - Test for equality in variance, Chi-square test, One-way ANOVA test
 * [Practical 5](http://cbdavis.github.io/DASM/Practical5.html) - Monte Carlo, missing values in data, dates & times, dplyr
+* [Practical 6](http://cbdavis.github.io/DASM/Practical6.html)
