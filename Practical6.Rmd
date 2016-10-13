@@ -432,9 +432,10 @@ For the unweighted and weighted fit, compare the cooks distance
 Unweighted fit:
 
 ```{r, echo=FALSE}
-cut5 <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
 dat = data.frame(fit = fitted(model5), 
                  cooks_distance = cooks.distance(model5))
+
+cut5 <- qf(0.5, 2, length(dat$fit)-2, lower.tail = FALSE)
 
 ggplot(dat, aes(x=fit, y=cooks_distance)) + 
   geom_point() + geom_hline(yintercept = cut5)
@@ -444,10 +445,9 @@ Weighted fit:
 
 ```{r, echo=FALSE}
 #Cooks distance
-cut6 <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
 dat = data.frame(fit = fitted(model6), 
                  cooks_distance = cooks.distance(model6))
-
+cut6 <- qf(0.5, 2, length(dat$fit)-2, lower.tail = FALSE)
 ggplot(dat, aes(x=fit, y=cooks_distance)) + 
   geom_point() + geom_hline(yintercept = cut6)
 
