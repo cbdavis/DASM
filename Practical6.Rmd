@@ -72,16 +72,16 @@ A summary of what you see when typing `?lm` into the console is:
 
 ### Anscombe's Quartet
 
-For this practical, we'll use a data frame containing [Anscombe's Quartet](https://en.wikipedia.org/wiki/Anscombe%27s_quartet) as an example.  The data consists of four hypothetical collections of data that each have x and y values.  For example, the first data set uses the columns `x1` and `y1`, the second uses `x2` and `y2`, etc.  You can type `?anscombe` into the console to find out more about the data set.
+Throughout this practical, we'll use a data frame containing [Anscombe's Quartet](https://en.wikipedia.org/wiki/Anscombe%27s_quartet) as an example.  The data consists of four hypothetical collections of data that each have x and y values.  The data frame `anscombe` has eight columns which represent all four of these data sets.  For example, the first data set uses the columns `x1` and `y1`, the second uses `x2` and `y2`, etc.  You can type `?anscombe` into the console to find out more about this.
 
-We'll first look at some basic statistical properties.  In the examples below, we use `c()` to group together the results into a vector so that they're easier to see.  
+We'll first look at some basic statistical properties.  In the examples below, we use `c()` to group together the results into a vector so that they're easier to see all in a row instead of being printed out on separate lines.  
 
-As you can see, the mean of x values are the same:
+As you can see, the mean of x values for all the data sets are the same:
 ```{r}
 c(mean(anscombe$x1), mean(anscombe$x2), mean(anscombe$x3), mean(anscombe$x4))
 ```
 
-as is the variance of x values:
+As is the variance of x values:
 ```{r}
 c(var(anscombe$x1), var(anscombe$x2), var(anscombe$x3), var(anscombe$x4))
 ```
@@ -129,9 +129,7 @@ summary(z)
 
 ### Error bar plots in ggplot
 
-**TODO** check that this explanation isn't confusing.  We just need something to create error bars
-
-For some data sets, you will also have information available on the error for particular values.  Anscombe's quartet doesn't contain this information, but for the sake of demonstrating the programming syntax to do this, we add a `y_error` column using random values.  
+For some data sets, you will also have information available on the error for particular values.  Anscombe's quartet doesn't contain this information, but for the sake of demonstrating the R syntax to create a plot with error bars, we add a `y_error` column using random values.
 
 ```{r}
 anscombe1$y_error = runif(nrow(anscombe1))
@@ -162,10 +160,11 @@ ggplot(anscombe1, aes(x=x, y=y)) + geom_point() +
   geom_errorbar(aes(ymin=y - y_error,
                     ymax=y + y_error,
                     width=0.3)) + 
-  geom_abline(intercept = z$coefficients[1], slope = z$coefficients[2])
+  geom_abline(intercept = z$coefficients[1], 
+              slope = z$coefficients[2])
 ```
 
-Alternatively, we can also use `geom_smooth` to perform a linear regression, although for the examples in this practical, we'll use `geom_abline`.
+Alternatively, we can also use `geom_smooth` to perform a linear regression, although for the examples in this practical, we'll use `geom_abline`.  Using `geom_smooth` is a good idea when you have to create a plot with multiple linear regressions that are done on subsets of the data.
 
 ```{r}
 ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + 
@@ -175,7 +174,7 @@ ggplot(anscombe1, aes(x=x, y=y)) + geom_point() +
   geom_smooth(aes(x=x, y=y), method="lm", formula=y~x, se=FALSE)
 ```
 
-One thing which we'll come back to later is that the linear regressions for the four data sets in Anscombe's Quartet are nearly identifical:
+One thing which we'll come back to later is that the linear regressions for the four data sets in Anscombe's Quartet are nearly identifical, even though visually they look quite different:
 ```{r, echo=FALSE}
 ggplot(anscombe_2cols, aes(x=x,y=y)) + 
   geom_point() + 
@@ -188,9 +187,6 @@ ggplot(anscombe_2cols, aes(x=x,y=y)) +
 ## Exercise
 
 For this exercise, download the data [Practical6_Data.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical6_Data.txt) and load it into R.
-
-read in data 1, make an error bar plot, do a fit with and without weights, add the regression line to the plot and look at the regression output 
-
 
 ### Make an error bar plot
 
@@ -229,9 +225,7 @@ ggplot(data1, aes(x=x_values, y_values)) + geom_point() +
 
 ### Perform a linear regression with weights specified
 
-**TODO** how much to tell the students here?
-
-For the linear regression, we will specify the weights as `1/(data1$y_errors^2)`
+For the linear regression, we need to specify the weights as `1/(data1$y_errors^2)`
 
 The summary of the linear regression results should show:
 ```{r, echo=FALSE}
@@ -258,31 +252,28 @@ ggplot(data1, aes(x=x_values, y_values)) + geom_point() +
 
 # Regression diagnostic
 
-## Residuals (ei)
+## Residuals ($\epsilon_i$)
 
 ### Reminder from the lecture
 
-* $E(e_i|X_i) = 0$ (residuals should have mean 0 for all $X_i$ )
-* $e_i$ is normally distributed (residuals are normally distributed with mean = 0 and variance $Var(e_i) = s_2$, for all $e_i$
+* $E(\epsilon_i|X_i) = 0$ (residuals should have mean 0 for all $X_i$ )
+* $\epsilon_i$ is normally distributed (residuals are normally distributed with mean = 0 and variance $Var(\epsilon_i) = s_2$, for all $\epsilon_i$
 
 ### Syntax
 
-Plot residuals against fitted values
-
-Again we'll use the anscombe1 data frame that we created above, using the same code for the linear regression:
+For plotting residuals against fitted values, we'll again use the anscombe1 data frame that we created above, using the same code for the linear regression:
 
 ```{r}
 z = lm(y~x, anscombe1)
 ```
-then 
 
-get the fitted values
+Now we get the fitted values corresponding to each value of x:
 ```{r}
 fit <- fitted(z)
 print(fit)
 ```
 
-get the residuals
+We then get the residuals:
 ```{r}
 res <- residuals(z)
 print(res)
@@ -296,22 +287,21 @@ anscombe1$res = res
 
 We can see that the fitted values follow the regression line:
 
-**TODO** explain how names of colors turn into factors, etc
 ```{r}
 ggplot(anscombe1) + 
-  geom_point(aes(x=x, y=y, color="original value")) + 
-  geom_point(aes(x=x, y=fit, color="fitted value")) + 
+  geom_point(aes(x=x, y=y, color="original value"), size=3) + 
+  geom_point(aes(x=x, y=fit, color="fitted value"), size=3) + 
   geom_abline(intercept = z$coefficients[1], slope=z$coefficients[2])
 ```
+
+In the code above, we have the statements `color="original value"` and `color="fitted value"`.  When ggplot sees statements like these withing `aes(...)` it will automatically assign a color to each of these text values.  What is happening is the same as what you would get when using something like `aes(..., color=some_column_name)`.  In this case, every distinct value of `some_column_name` will be assigned a unique color.
 
 ```{r}
 ggplot(anscombe1) + 
   geom_point(aes(x=x, y=res, color="original value"))
 ```
 
-Putting this all together we can see how subtracting the residual from the original `y` values gives us the fitted values in `fit`
-
-`geom_segment` allows us to draw line segments from the points defined at `x`,`y` to the point at `xend`,`yend`
+Putting this all together we can see how subtracting the residual from the original `y` values gives us the fitted values in `fit`.  Note that `geom_segment` allows us to draw line segments from the points defined at `x`,`y` to the point at `xend`,`yend`
 
 ```{r}
 ggplot(anscombe1) + 
@@ -321,12 +311,12 @@ ggplot(anscombe1) +
   geom_abline(intercept = z$coefficients[1], slope=z$coefficients[2])
 ```
 
-Plot residual against fitted values
+Plot residual against fitted values:
 ```{r}
 ggplot(anscombe1, aes(x=fit, y=res)) + geom_point() + ggtitle("residual vs. fitted values")
 ```
 
-Perform a qqnorm plot of residuals to see if they are normally distributed
+Perform a qqnorm plot of residuals to see if they are normally distributed:
 ```{r}
 qqnorm(res)
 qqline(res)
@@ -334,11 +324,9 @@ qqline(res)
 
 ### Exercise
 
-Make the plots of fitted values vs residuals for the data from Practical6_Data.txt 
+Make the plots of fitted values vs residuals for the data from `Practical6_Data.txt `
 
-**TODO** this should be for both weighted and unweighted regressions?
-
-Linear regression without weights
+Perform a linear regression without weights:
 
 ```{r, echo=FALSE}
 data1 <- read.csv("./data/Practical6_Data.txt")
@@ -354,21 +342,17 @@ data1$res5 = res5
 data1$fitted5 = fitted5
 
 # plot residual against fitted values
-plot(fitted5, res5)
-
 ggplot(data1, aes(x=fitted5, y=res5)) + geom_point()
 ```
 
-Make a qnorm plot of the residuals
-
-```{r}
+Make a qnorm plot of the residuals:
+```{r, echo=FALSE}
 qqnorm(res5)
 qqline(res5)
 ```
 
-
 Linear regression with weights (performed same as earlier in the practical)
-```{r}
+```{r, echo=FALSE}
 model6 <-lm(y_values~x_values, data = data1, 
             weights = 1/(data1$y_errors^2))
 
@@ -384,8 +368,8 @@ data1$fitted6 = fitted6
 ggplot(data1, aes(x=fitted6, y=res6)) + geom_point()
 ```
 
-Make a qnorm plot of the residuals
-```{r}
+Make a qnorm plot of the residuals (using the weighted model):
+```{r, echo=FALSE}
 qqnorm(res6)
 qqline(res6)
 ```
@@ -404,26 +388,31 @@ fF(0.5, p, n-p) with p … fitted parameters, n … number of data points
 
 ### Syntax
 
-Here we use the anscombe1 data frame again:
+Below we use the anscombe1 data frame again.
 
-**TODO** show the different values for anscombe's quartet here
+Remember from the lecture that the cutoff value can be found using `qf(0.5, p, n-p, lower.tail = FALSE)` where:
+* `p` - fitted parameters (=2 with simple linear reg)
+* `n` - number of data points 
 
 ```{r}
 #Cook's distance
 
 z = lm(y~x, data=anscombe1)
 cook <- cooks.distance(z)
-plot(fitted(z), cook, ylim = c(0,1))
+
+# put the fitted values and Cook's distance into a data frame
+data = data.frame(fit = fitted(z),
+                  cooks_distance = cook)
 
 #cut-off value
+cut <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
 
-cut <- qf(0.5, 2, length(data1$x_values)-2)
-abline(cut,0)
+ggplot(data, aes(x=fit, y=cooks_distance)) + geom_point() + geom_hline(yintercept=cut)
 ```
 
-**TODO** one of the points here for cook's distance is NaN - what is the cause?  This is for the 4th data set in Anscombe's quartet
+If we look at all four data sets in Anscombe's Quartet, there are quite different outcomes when plotting the Cook's distance for each.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 cook1 = cooks.distance(lm(y~x, anscombe_2cols %>% filter(series == "Data 1")))
 cook2 = cooks.distance(lm(y~x, anscombe_2cols %>% filter(series == "Data 2")))
 cook3 = cooks.distance(lm(y~x, anscombe_2cols %>% filter(series == "Data 3")))
@@ -442,62 +431,65 @@ ggplot(anscombe_2cols, aes(x=x, y=cooks_distance)) +
 
 For the un-weighted and weighted fit, compare the cooks distance 
 
-unweighted
+Unweighted fit:
 ```{r, echo=FALSE}
-#Cooks distance
-cook5 <- cooks.distance(model5)
-plot(fitted(model5), cook5, ylim = c(0,1))
-cut5 <- qf(0.5, 2, length(data1$x_values)-2)
-abline(cut5,0)
+cut5 <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
+dat = data.frame(fit = fitted(model5), 
+                 cooks_distance = cooks.distance(model5))
+
+ggplot(dat, aes(x=fit, y=cooks_distance)) + 
+  geom_point() + geom_hline(yintercept = cut5)
 ```
 
-weighted
+Weighted fit:
 ```{r, echo=FALSE}
 #Cooks distance
-cook6 <- cooks.distance(model6)
-plot(data1$x_value, cook6, ylim= c(0,1))
 cut6 <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
-abline(cut6,0)
+dat = data.frame(fit = fitted(model6), 
+                 cooks_distance = cooks.distance(model6))
+
+ggplot(dat, aes(x=fit, y=cooks_distance)) + 
+  geom_point() + geom_hline(yintercept = cut6)
+
 ```
 
 ## Automatic diagnostic plots
 
+We can create a series of diagnostic plots for the linear regression results by simply using `plot(z)` (where `z` is the output of a linear regression) instead of `ggplot`.  What's happening here is that R detects that `z` is the result of a linear regression, and whenever it sees this, it will create a series of four plots: 
+
+* Residuals vs. Fitted
+* Normal Q-Q
+* Scale-Location (not covered in this practical)
+* Residuals vs. Leverage (related to Cook's distance)
+
 ```{r, eval=FALSE}
-# you can also automatically make diagnostic plots by:
 plot(z)
 ```
 
+### Exercise
 
-### Try it yourself for the two fits of data 1
+Create diagnostic plots for both the unweighted and weighted regressions that you just did.
 
-**TODO** notes - last plot is a diff way of looking at Cook's distance
-We don't cover the Scale location
-
-When to use plot, when to use ggplot
-
-Don't pay much attention to last plot - need to check the interpretation.  With the weighted lm, the cooks' distance plot shows points with higher cook's distance than observed above.  
-
-might matter whether calculate weighted versus standard residuals.
-
+#### Diagnostic plots for unweighted fit
 ```{r}
 plot(model5)
+```
+
+#### Diagnostic plots for weighted fit
+```{r}
 plot(model6)
 ```
 
-
 # Reduced major axis regression
 
-## Reminder of the lecture 
+## Reminder from the lecture 
 
 Reduced major axis regression minimizes the area of the triangles formed by the observations and the line:
 
-$\beta_1 = s_x / s_y$
-
-$\beta_0$ is calculated like in the normal regression
+* $\beta_1 = s_x / s_y$
+* $\beta_0$ is calculated like in the normal regression
 
 ## Syntax
-
-**TODO** for this example, use the data1 data set from above for model8
 
 ```{r, eval=FALSE}
 model <-lmodel2(y~x, data = dataframe, range.y = "interval", 
@@ -511,39 +503,45 @@ Arguments:
 * `range.y`, `range.x` - Parametres for ranged major axis regression (RMA). If range.y = NULL and range.x = NULL, RMA will not be computed. If only one of them is NULL, the program will stop. If range.y = "relative": variable y has a true zero (relative-scale variable). If range.y = "interval": variable y possibly includes negative values (interval-scale variable). If range.x = "relative": variable x has a true zero (relative-scale variable). If range.x = "interval": variable x possibly includes negative values (interval-scale variable)
 * `nperm` - Number of permutations for the tests. If nperm = 0, tests will not be computed.
 
-
-
+Here we again use the `anscombe1` data frame:
 ```{r}
 model <-lmodel2(y~x, data = anscombe1, range.y = "interval", 
                  range.x = "interval", nperm = 100)
 
-#Choose the right regression coefficients from the output matrix
-#model$regression.results (Remember RMA is the fourth model to fitted)
+```
 
+From the regression results, we want to retrieve the `Intercept` and `Slope` values for the RMA method.  Below we can see the results that we have to search through.
+```{r}
 model$regression.results
 ```
 
-**TODO** dplyr method of retrieving intercept & slope vs. index based 
+There are two ways in which you can extract these values.  First, since `model$regression.results` is a data frame (which you can check by typing `class(model$regression.results)`), you can use indices to directly extract data from a cell at a specific row and column number:
+
+```{r}
+intercept <- model$regression.results[4,2]
+slope <- model$regression.results[4,3]
+```
+
+Another way is to use `dplyr` as discussed in the previous practical.  Here we `filter` the data frame `model$regression.results` for all rows where `Method == "RMA"`, and then we `select` the value in the `Intercept` column.  This will give us a data frame with only one row and one column.  Since we want the number in the data frame, and not the data frame itself, we need to add the extra step of `%>% unlist()`.  
 
 ```{r}
 intercept = model$regression.results %>% filter(Method == "RMA") %>% select(Intercept) %>% unlist()
 slope = model$regression.results %>% filter(Method == "RMA") %>% select(Slope) %>% unlist()
+```
 
-a <- model$regression.results[4,2]
-b <- model$regression.results[4,3]
-
-# make a summary of the regression model
+Make a summary of the regression model:
+```{r}
 summary(model)
+```
 
+Plot the results of the regression model:
+```{r}
 ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
 ```
 
-
 ## Exercise
 
-Make a Reduced major axis regression for x and y in data 1 and add the line to the plot 
-
-**TODO** use anscombe1 data for the example, and then let them use the Practical6_data.txt file here for the exercise
+Make a reduced major axis regression for x and y in the `Practical6_data.txt` and add the regression line to the plot 
 
 ```{r, echo=FALSE}
 model <-lmodel2(y_values~x_values, data = data1, range.y = "interval", 
@@ -561,12 +559,12 @@ summary(model)
 
 ## Reminder of the lecture 9
 
-Yi =  b0 + b1*X1i + b2*X2i +  b3*X3i + … +  ei 
+$Y_i =  \beta_0 + \beta_1*X_{1i} + \beta_2*X_{2i} +  \beta_3*X_{3i} + … +  \epsilon_i$
 
 Interpretation of the parameters:
 
-* If bj  > 0, then j stands for the average increase of the response when predictor xj increases with one unit, holding all other variables constant.
-* If bj  < 0, then j stands for the average decrease of the response when predictor xj increases with one unit, holding all other variables constant.
+* If $\beta_j  > 0$, then $j$ stands for the average increase of the response when predictor $x_j$ increases with one unit, holding all other variables constant.
+* If $\beta_j  < 0$, then $j$ stands for the average decrease of the response when predictor $x_j$ increases with one unit, holding all other variables constant.
 
 An anova test can be done to see if the removing one variable significantly changes the fit. If p-value of the anova test <0.05, you should keep the variable (as a rule of thumb)
  
@@ -603,6 +601,25 @@ ggpairs(mtcars[,c("mpg", "disp", "hp", "qsec")])
 
 Reading across the rows and columns we can see which variables are being plotted together.  In the first column and second row, we have the `disp` vs. the `mpg`, directly below that is the `hp` vs. the `mpg` and so on.  On the top right we can see the correlations calculated between the variables.  On the diagonal we see a density plot of the variables.  For example, most of the values for `hp` are around 100, although the distribution is skewed to one side.  
 
+Now we perform a linear regression where we try to predict `mpg` given the values for `disp`, `hp` and `qsec`
+
+```{r}
+z = lm(mpg~disp + hp + qsec, data=mtcars)
+summary(z)
+```
+
+We can also extract the $R^2$ value from the summary:
+```{r}
+summary_for_z <- summary(z)
+print(summary_for_z$r.squared)
+```
+
+Create a series of diagnostic plots:
+
+```{r}
+plot(z)
+```
+
 ### Anova test
 
 We can perform an Anova test using the following set up (assuming a data frame named `dat` with columns named `y`, `x1`, `x2`, and `x3`)
@@ -614,104 +631,114 @@ We can perform an Anova test using the following set up (assuming a data frame n
 Using the `mtcars` example, we can do:
 ```{r}
 z1 = lm(mpg~disp + hp + qsec, data=mtcars)
-z2 = lm(mpg~disp + hp, data=mtcars)
+z2 = lm(mpg~disp + hp, data=mtcars)  # leave out `qsec`
 results = anova(z1, z2)
 ```
 
 ## Exercise
 
-**TODO** make sure the students know step by step what do do
+For this we'll use the `stackloss` data set with was mentioned in Lecture 8.  This data frame is already pre-loaded with R, and you can get more details about it by typing `?stackloss` in the console.
 
-To do chris: make a step by step description of what they should do … 
-
-This is what they should get out: 
-
-the example from the lecture 8
-
-**TODO** some of the plots below are easier with the `plot` function since they override the standard `plot` method with a custom method that is based on the type of data being analyzed.  I don't think this occurs with ggplot
-
-### Get R data set stackloss
-i.e get the pacakge datasets
-Brownlee, K. A. (1960, 2nd ed. 1965) Statistical Theory and
-Methodology in Science and Engineering. New York: Wiley. pp. 491???500.
-
-`?stackloss`
-
-### look at a summary of the data set
+### Look at a summary of the data set
 ```{r, echo=FALSE}
 summary(stackloss)
 ```
 
-### make a pairs plot
-**TODO** make sure to cover ggpairs somewhere above
+### Make a pairs plot
+
 ```{r, echo=FALSE}
 ggpairs(stackloss)
 ```
 
-###Fit a linear model using all variables
+### Fit a linear model using all variables and summarize the output of the model
+For this we are trying to predict `stack.loss` given all the other variables
+
 ```{r, echo=FALSE}
 mul_fit1 <- lm(stack.loss ~ Acid.Conc. + Air.Flow + Water.Temp, data = stackloss)
-```
 
-###look at the ouput
-```{r, echo=FALSE}
 summary(mul_fit1)
 ```
 
-###plot the standard diagnostic plots
+### Plot the standard diagnostic plots
+
 ```{r, echo=FALSE}
 plot(mul_fit1)
 ```
 
-### make our normal Cook's distance plot by hand and add the cutoff line
-**TODO** convert below to ggplot
+### Make a Cook's distance plot by hand with a cutoff line
+
 ```{r, echo=FALSE}
-plot(fitted(mul_fit1), cooks.distance(mul_fit1), ylim = c(0,1))
-cut <- qf(0.5,4,17)
-abline(a= cut, b = 0)
+dat = data.frame(fit = fitted(mul_fit1),
+                 cooks_distance = cooks.distance(mul_fit1))
+
+p = 4
+n = nrow(stackloss)
+cut <- qf(0.5, p, n - p, lower.tail=FALSE)
+
+ggplot(dat, aes(x=fit, y=cooks_distance)) + geom_point() + geom_hline(yintercept=cut)
 ``` 
 
-###Leave out the least important parameter Acid concentration
+### Leave out the least important parameter Acid concentration
 ```{r, echo=FALSE}
 less_fit<- lm(stack.loss~Air.Flow+Water.Temp, data = stackloss)
 summary(less_fit)
 ```
 
-### see if that made a difference for the overall model
+### See if that made a difference for the overall model
 ```{r, echo=FALSE}
 anova(mul_fit1,less_fit)
 ```
 
-###Now leave out water temp
+### Now leave out water temp
 ```{r, echo=FALSE}
 least_fit<- lm(stack.loss~Air.Flow, data = stackloss)
 summary(least_fit)
+```
+
+Perform the anova test:
+```{r, echo=FALSE}
 anova(less_fit, least_fit)
 ```
 
-###fits of individual varaibles
+### Fits of individual varaibles
 
-**TODO** put in ggplot examples here
+For this create a set of linear regressions for combinations of the individual variables
 
+#### Regression for `stack.loss~Air.Flow`
+
+Value for $R^{2}$:
 ```{r, echo=FALSE}
 fit_air <- lm(stack.loss~Air.Flow, data = stackloss)
 sum_air <- summary(fit_air)
 R2_air <-sum_air$r.squared
-plot(stack.loss~Air.Flow, data = stackloss)
-abline(fit_air)
+print(R2_air)
 
+ggplot(stackloss, aes(x=Air.Flow, y=stack.loss)) + geom_point() + 
+  geom_abline(intercept = fit_air$coefficients[1], slope=fit_air$coefficients[2])
+```
+
+#### Regression for `stack.loss~Water.Temp`
+Value for $R^{2}$:
+```{r}
 fit_temp <- lm(stack.loss~Water.Temp, data = stackloss)
 sum_temp <- summary(fit_temp)
 R2_temp <-sum_temp$r.squared
-plot(stack.loss~Water.Temp, data = stackloss)
-abline(fit_temp)
+print(R2_temp)
 
+ggplot(stackloss, aes(x=Water.Temp, y=stack.loss)) + geom_point() + 
+  geom_abline(intercept = fit_temp$coefficients[1], slope=fit_temp$coefficients[2])
+
+```
+
+#### Regression for `Air.Flow~Water.Temp`
+Value for $R^{2}$:
+```{r}
 fit_ind <- lm(Air.Flow~Water.Temp, data = stackloss)
 sum_ind <- summary(fit_ind)
 R2_ind <-sum_ind$r.squared
-plot(Air.Flow~Water.Temp, data = stackloss)
-abline(fit_ind)
+print(R2_ind)
+
+ggplot(stackloss, aes(x=Water.Temp, y=Air.Flow)) + geom_point() + 
+  geom_abline(intercept = fit_ind$coefficients[1], slope=fit_ind$coefficients[2])
+
 ```
-
-
-Could leave out different variables and see if it makes a difference
