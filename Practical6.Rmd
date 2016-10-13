@@ -26,13 +26,11 @@ library(dplyr)
 
 ## Reminder of the lecture
 We have data (x, y), where x is a deterministic variable and y is a random variable that is dependent on x. 
-We fit a linear regression line to the data with slope $\beta_1$ and intercept $\beta_0$
-
-by finding the minimum of the RSS
+We fit a linear regression line to the data with slope $\beta_1$ and intercept $\beta_0$ by finding the minimum of the RSS:
 
 $RSS(\beta_0, \beta_1) = \sum_{i=1}^{n} (y_{i} - \beta_0 - \beta_1 x_i)^2$
 
-with is found at
+which is calculated using:
 
 * $\hat{\beta}_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i-\bar{x})^2}$
 * $\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$
@@ -296,9 +294,10 @@ ggplot(anscombe1) +
 
 In the code above, we have the statements `color="original value"` and `color="fitted value"`.  When ggplot sees statements like these withing `aes(...)` it will automatically assign a color to each of these text values.  What is happening is the same as what you would get when using something like `aes(..., color=some_column_name)`.  In this case, every distinct value of `some_column_name` will be assigned a unique color.
 
+Show the residuals that were calculated:
 ```{r}
 ggplot(anscombe1) + 
-  geom_point(aes(x=x, y=res, color="original value"))
+  geom_point(aes(x=x, y=res))
 ```
 
 Putting this all together we can see how subtracting the residual from the original `y` values gives us the fitted values in `fit`.  Note that `geom_segment` allows us to draw line segments from the points defined at `x`,`y` to the point at `xend`,`yend`
@@ -346,12 +345,14 @@ ggplot(data1, aes(x=fitted5, y=res5)) + geom_point()
 ```
 
 Make a qnorm plot of the residuals:
+
 ```{r, echo=FALSE}
 qqnorm(res5)
 qqline(res5)
 ```
 
-Linear regression with weights (performed same as earlier in the practical)
+Linear regression with weights (performed same as earlier in the practical):
+
 ```{r, echo=FALSE}
 model6 <-lm(y_values~x_values, data = data1, 
             weights = 1/(data1$y_errors^2))
@@ -381,18 +382,15 @@ qqline(res6)
 
 The cook’s distance of point $X_i$ is a measure of the difference in regression parameters when the point is included or omitted. If omitting a point changes the regression parameters strongly, this point has a large Cook’s distance.
 
-To see quantitatively if the Cook's distance of a data point is too large and it has an undue influence on the fit you need to compare it with a theoretical cut-off
+To see quantitatively if the Cook's distance of a data point is too large and it has an undue influence on the fit you need to compare it with a theoretical cut-off.  This cutoff value can be calculated with the F-statistic using `qf(0.5, p, n-p, lower.tail = FALSE)` where:
 
-This cutoff value can be calculated with the F-statistic as:
-fF(0.5, p, n-p) with p … fitted parameters, n … number of data points
+* `p` - fitted parameters (=2 with simple linear regression)
+* `n` - number of data points 
+
 
 ### Syntax
 
 Below we use the anscombe1 data frame again.
-
-Remember from the lecture that the cutoff value can be found using `qf(0.5, p, n-p, lower.tail = FALSE)` where:
-* `p` - fitted parameters (=2 with simple linear reg)
-* `n` - number of data points 
 
 ```{r}
 #Cook's distance
@@ -432,6 +430,7 @@ ggplot(anscombe_2cols, aes(x=x, y=cooks_distance)) +
 For the un-weighted and weighted fit, compare the cooks distance 
 
 Unweighted fit:
+
 ```{r, echo=FALSE}
 cut5 <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
 dat = data.frame(fit = fitted(model5), 
@@ -442,6 +441,7 @@ ggplot(dat, aes(x=fit, y=cooks_distance)) +
 ```
 
 Weighted fit:
+
 ```{r, echo=FALSE}
 #Cooks distance
 cut6 <- qf(0.5, 2, length(data1$x_values)-2, lower.tail = FALSE)
@@ -462,8 +462,9 @@ We can create a series of diagnostic plots for the linear regression results by 
 * Scale-Location (not covered in this practical)
 * Residuals vs. Leverage (related to Cook's distance)
 
-```{r, eval=FALSE}
-plot(z)
+Here we create the diagnostic plots for the unweighted fit:
+```{r}
+plot(model5)
 ```
 
 ### Exercise
@@ -471,12 +472,12 @@ plot(z)
 Create diagnostic plots for both the unweighted and weighted regressions that you just did.
 
 #### Diagnostic plots for unweighted fit
-```{r}
+```{r, echo=FALSE}
 plot(model5)
 ```
 
 #### Diagnostic plots for weighted fit
-```{r}
+```{r, echo=FALSE}
 plot(model6)
 ```
 
@@ -633,6 +634,7 @@ Using the `mtcars` example, we can do:
 z1 = lm(mpg~disp + hp + qsec, data=mtcars)
 z2 = lm(mpg~disp + hp, data=mtcars)  # leave out `qsec`
 results = anova(z1, z2)
+print(results)
 ```
 
 ## Exercise
@@ -719,7 +721,7 @@ ggplot(stackloss, aes(x=Air.Flow, y=stack.loss)) + geom_point() +
 
 #### Regression for `stack.loss~Water.Temp`
 Value for $R^{2}$:
-```{r}
+```{r, echo=FALSE}
 fit_temp <- lm(stack.loss~Water.Temp, data = stackloss)
 sum_temp <- summary(fit_temp)
 R2_temp <-sum_temp$r.squared
@@ -732,7 +734,7 @@ ggplot(stackloss, aes(x=Water.Temp, y=stack.loss)) + geom_point() +
 
 #### Regression for `Air.Flow~Water.Temp`
 Value for $R^{2}$:
-```{r}
+```{r, echo=FALSE}
 fit_ind <- lm(Air.Flow~Water.Temp, data = stackloss)
 sum_ind <- summary(fit_ind)
 R2_ind <-sum_ind$r.squared
