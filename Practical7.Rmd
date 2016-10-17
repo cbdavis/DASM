@@ -8,7 +8,7 @@ output:
     toc: yes
 ---
 
-**TODO** need to think of student exercises - use a different dataset for the examples?  Could use US power data - issue is that it already contains the time stamp - would have to use as a more complext example.  Maybe use CO2 from Hawaii?  Temperature data from KNMI (Eelde)?
+**TODO** need consistent format - in some cases use dataframe with time series column.  In others, just use a vector.  This can cause some confusion with the students as some of the functions won't raise an error, but will evaluation all columns in the data frame.
 
 # Load and Install Required Libraries
 
@@ -43,6 +43,29 @@ t_seq = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by = "1 mo
 plot(t_seq, Tvalues$x, type = "l")
 ```
 
+## Exercise
+
+**TODO** is this the right place?  We don't use `ts` here yet
+
+Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) and load it into R.
+
+This contains daily data on the internet traffic from 20. November 2004 to 27. January 2005
+
+Hint: Reading in the text file produces a data frame. For the following analyses it is better to use the data as a simple vector: series <- data$x
+
+Make a vector t of the times corresponding to each data point and plot the time series vs. t. Can you see a seasonality in the data? which period is it?
+
+```{r, echo=FALSE}
+series2 = read.csv("./data/Practical7_time_series.txt")
+series2$t = seq(from = as.Date("2004-11-19"), to = as.Date("2005-01-26"), by = "1 day")
+
+ggplot(series2, aes(x=t, y=x)) + geom_line()
+```
+
+**TODO** take out text below?
+There is a weekly seasonality
+
+## Using `ts()`
 We can also use the `ts` function to create time series objects.  The relevant syntax is shown below and you can learn more by typing `?ts` into the console.
 
 ```{r, eval=FALSE}
@@ -86,8 +109,8 @@ Arguments:
 
 
 ```{r}
-ma5 = ma(Tvalues, order = 5)
-ma13 = ma(Tvalues, order = 13)
+ma5 = ma(Tvalues$x, order = 5)
+ma13 = ma(Tvalues$x, order = 13)
 
 Tvalues_with_ma = Tvalues %>% 
   mutate(ma5 = ma(x, order = 5), 
@@ -106,6 +129,32 @@ ggplot(Tvalues_with_ma, aes(x=t)) +
 
 ```
 
+## Exercise
+
+Calculate a moving average with order m = 3, 7, and 15 (see lecture) and add it to the plot. Explain the order m means. 
+
+```{r}
+series2_with_ma = series2 %>% 
+  mutate(ma3 = ma(x, order = 3), 
+         ma7 = ma(x, order = 7), 
+         ma15 = ma(x, order = 15))
+
+ggplot(series2_with_ma, aes(x=t)) + 
+  geom_line(aes(y=x, color="original data"), size=2) + 
+  geom_line(aes(y=ma3, color="ma3")) +
+  geom_line(aes(y=ma7, color="ma7")) + 
+  geom_line(aes(y=ma15, color="ma15"))
+  
+```
+
+**TODO** take out text below?
+
+m = 3  … red; 3 data points are averaged (1 to the left and right of the data point)
+m = 7  … red; 7 data points are averaged (3 to the left and right of the data point)
+(this smoothes out the weekly cycle)
+m = 15  … red; 15 data points are averaged (7 to the left and right of the data point)
+
+
 # Lagging time values
 
 **TODO** - do this with dplyr?  should be possible
@@ -121,7 +170,7 @@ print(a)
 lag(a, 3)
 ```
 
-As you can see we push all the values over three places and fill in the left side with `NA`.  The values 8, 9 and 10 are discarded.
+As you can see we push all the values over three places and fill in the left side with `NA`.  The values 8, 9 and 10 are discarded since they are pushed out.
 
 Now we create a new data frame with the results of the operation:
 ```{r}
@@ -156,7 +205,18 @@ ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 12)),
   geom_point()
 ```
  
-Auto- and Cross- Covariance and -Correlation Function Estimation
+## Exercise
+
+Show the actual correlation (scatter) plot that is used to calculate the ACF at lag 10. 
+
+```{r}
+ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)), 
+       aes(x = x, y = lag_x)) + 
+  geom_point()
+```
+
+
+# Auto- and Cross- Covariance and -Correlation Function Estimation
 
 **TODO** explain acf syntax
 
@@ -176,6 +236,18 @@ Arguments:
 acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
 acf_10 = acf_T$acf[10]
 ```
+
+## Exercise
+
+Calculate the autocorrelation function (ACF) of the time series and plot it up to lag 30. 
+
+What variability is mainly reflected in the ACF?
+
+```{r, echo=FALSE}
+acf.ser2<- acf(series2, type = "correlation", lag.max = 30)
+```
+
+The main signal you see in the ACF is the large-scale variation
 
 # Decomposition
 
@@ -212,6 +284,19 @@ range(output$random, na.rm=TRUE)
 range(output$seasonal, na.rm=TRUE)
 ```
 
+### Exercise
+Decompose the time series using classical decomposition. 
+
+Hint: you need to construct an appropriate time series object first. What frequency do you choose for the time series object? Show the plot and give an interpretation of all elements of the plot. What is the unit of the x-axis?
+
+```{r}
+series2.1 <- ts(series2$x, frequency = 7)
+dec2 <-decompose(series2.1, type = "additive")
+plot(dec2)
+```
+
+
+
 ## Seasonal Decomposition of Time Series by Loess
 
 **TODO** explain syntax
@@ -237,3 +322,52 @@ plot(output1)
 t_rem <- output1$time.series[,"remainder"]
 acf_rem <-acf(as.vector(t_rem), type = "correlation", lag.max = 64)
 ```
+
+### Exercise
+
+**TODO** figure out if the exercises fit here.  Check that it's been covered how to do them.
+
+Decompose the time series using stl decomposition. 
+
+Play with the parameters `s.window` and `t.window` until you are satisfied. What do `s.window` and `t.window` represent? Explain the main difference to the classical decomposition. 
+
+```{r}
+dec2.1 <- stl(series2.1, s.window = 9, t.window = 13)
+plot(dec2.1)
+```
+
+
+
+Calculate and plot the de-trended time series. 
+
+Reminder for the decomposition produced by a <- stl(…).
+
+```{r}
+series2.1.des <-series2$x - dec2.1$time.series[,"trend"]
+plot(series2.1.des)
+```
+
+Plot and interpret the ACF of the de-trended time series.
+
+```{r}
+series2.1.des <-series2$x - dec2.1$time.series[,"trend"]
+plot(series2.1.des)
+acf(series2.1.des,type = "correlation", lag.max = 30)
+```
+
+With the help of the ACF investigate if the remainder still contains information, or if it is random noise. 
+
+```{r}
+acf(na.omit(dec2.1$time.series[,"remainder"]), type = "correlation", lag.max = 30)
+```
+
+there is n indication of a weak correlation at lag 1 and a weak anticorrelation at lag 2 and 3. This might indicate a causal relationship i.e., that a day with much internet traffic is followed by another day with much internet traffic. But since the correlation is quite weak is might also be due to imperfect decomposition or due to outliers (i.e. the first week with much higher than average weekly cycle. 
+
+This will look slightly different for everyone, depending on how you decomposed the time series
+
+```{r}
+plot(dec2.1$time.series[,"remainder"][1:(length(series2)-1)], 
+     dec2.1$time.series[,"remainder"][2:length(series2)],
+     xlab = "series2(t)", ylab = "series2(t+1)")
+```
+
