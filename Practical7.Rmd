@@ -1,0 +1,68 @@
+---
+title: "Practical 7"
+author: "Chris Davis"
+date: "October 17, 2016"
+output: html_document
+---
+
+We need to install the `forecast` package:
+```{r, eval=FALSE}
+install.packages("forecast")
+```
+
+Load the requried libraries for this practical:
+```{r}
+library(ggplot2)
+library(forecast)
+```
+
+```{r}
+Tvalues = read.csv("./data/Pr_20May1.csv")$x
+t_seq = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by = "1 month")
+
+plot(t_seq, Tvalues, type = "l")
+
+t_ser <- ts(Tvalues, start = c(1946, 1), freq = 12)
+plot(t_ser)
+
+t_ser1 <- ts(Tvalues, freq = 12)
+plot(t_ser1)
+
+ma5 = ma(Tvalues, order = 5)
+ma13 = ma(Tvalues, order = 13)
+
+plot(t_seq[1:60], Tvalues[1:60], type = "l")
+lines(t_seq[1:60], ma5[1:60], col = "red")
+lines(t_seq[1:60], ma13[1:60], col = "green")
+
+#lag3 scatter plot
+# data shifted a quarter year
+plot(head(Tvalues, n=-3), tail(Tvalues, n = -3))
+# data shifted 6 months
+plot(head(Tvalues, n=-6), tail(Tvalues, n = -6))
+# data shifted 11 month
+plot(head(Tvalues, n=-10), tail(Tvalues, n = -10))
+# data shifted 12 month
+plot(head(Tvalues, n=-12), tail(Tvalues, n = -12))
+
+#ACF function
+acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
+acf_10 = acf_T$acf[10]
+
+#decomposition
+#-----------------------
+#classical
+output = decompose(t_ser1)
+plot(output)
+
+t_des <- t_ser1 - output$seasonal
+plot(t_des)
+acf_des <- acf(as.vector(t_des), type = "correlation", lag.max = 64)
+
+#stl()
+output1 = stl(t_ser1, s.window = 15, t.window = 12*15+1)
+plot(output1)
+t_rem <- output1$time.series[,"remainder"]
+acf_rem <-acf(as.vector(t_rem), type = "correlation", lag.max = 64)
+
+```
