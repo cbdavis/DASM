@@ -8,11 +8,13 @@ output:
     toc: yes
 ---
 
+**TODO** put all the contents of the practical ppt in the doc here for stl decomposition only.  Can leave out the other stuff
+
 **TODO** need consistent format - in some cases use dataframe with time series column.  In others, just use a vector.  This can cause some confusion with the students as some of the functions won't raise an error, but will evaluation all columns in the data frame.
 
 # Load and Install Required Libraries
 
-We need to install the `forecast` package:
+We need to install the `forecast` package for the `ma` (moving average) function which we'll use later in this practical.
 ```{r, eval=FALSE}
 install.packages("forecast")
 ```
@@ -31,6 +33,8 @@ library(forecast)
 
 As we showed in the previous practical, we can create a sequence of dates (using `seq`), starting at one date with a defined time interval for each step.
 
+**TODO** use the Pr_20May1.csv data set
+
 ```{r}
 Tvalues = read.csv("./data/Pr_20May1.csv")
 #Tvalues = Tvalues$x 
@@ -44,8 +48,6 @@ plot(t_seq, Tvalues$x, type = "l")
 ```
 
 ## Exercise
-
-**TODO** is this the right place?  We don't use `ts` here yet
 
 Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) and load it into R.
 
@@ -85,7 +87,11 @@ To perform the same operation as above, we can also:
 ```{r}
 t_ser <- ts(Tvalues$x, start = c(1946, 1), freq = 12)
 plot(t_ser)
+```
 
+Can also define without a start date.  Using `freq=12` means that you have 12 observations per cycle, so the period of the seasonal variation is 12.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation. 
+
+```{r}
 t_ser1 <- ts(Tvalues$x, freq = 12)
 plot(t_ser1)
 ```
@@ -93,6 +99,12 @@ plot(t_ser1)
 # Moving-average smoothing
 
 We will now use the `ma` function for moving-average smoothing.
+
+Make sure to load the `forecast` library:
+
+```{r}
+library(forecast)
+```
 
 The syntax is:
 
@@ -106,12 +118,16 @@ Arguments:
 * `order` - Order of moving average smoother
 * `centre` - If TRUE, then the moving average is centred for even orders.
 
-
+initial example
 
 ```{r}
 ma5 = ma(Tvalues$x, order = 5)
 ma13 = ma(Tvalues$x, order = 13)
+```
 
+
+let's put everything in a data frame
+```{r}
 Tvalues_with_ma = Tvalues %>% 
   mutate(ma5 = ma(x, order = 5), 
          ma13 = ma(x, order = 13))
@@ -129,11 +145,23 @@ ggplot(Tvalues_with_ma, aes(x=t)) +
 
 ```
 
+**TODO** change explanation to refer to the example above (currently refers to example below)
+
+What you 
+m = 3  … red; 3 data points are averaged (1 to the left and right of the data point)
+m = 7  … red; 7 data points are averaged (3 to the left and right of the data point)
+(this smoothes out the weekly cycle)
+m = 15  … red; 15 data points are averaged (7 to the left and right of the data point)
+
+
+
 ## Exercise
 
 Calculate a moving average with order m = 3, 7, and 15 (see lecture) and add it to the plot. Explain the order m means. 
 
-```{r}
+Use series2 = read.csv("./data/Practical7_time_series.txt")
+
+```{r, echo=FALSE}
 series2_with_ma = series2 %>% 
   mutate(ma3 = ma(x, order = 3), 
          ma7 = ma(x, order = 7), 
@@ -146,13 +174,6 @@ ggplot(series2_with_ma, aes(x=t)) +
   geom_line(aes(y=ma15, color="ma15"))
   
 ```
-
-**TODO** take out text below?
-
-m = 3  … red; 3 data points are averaged (1 to the left and right of the data point)
-m = 7  … red; 7 data points are averaged (3 to the left and right of the data point)
-(this smoothes out the weekly cycle)
-m = 15  … red; 15 data points are averaged (7 to the left and right of the data point)
 
 
 # Lagging time values
@@ -209,7 +230,7 @@ ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 12)),
 
 Show the actual correlation (scatter) plot that is used to calculate the ACF at lag 10. 
 
-```{r}
+```{r, echo=FALSE}
 ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)), 
        aes(x = x, y = lag_x)) + 
   geom_point()
@@ -217,6 +238,8 @@ ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)),
 
 
 # Auto- and Cross- Covariance and -Correlation Function Estimation
+
+## Reminder of the lecture
 
 **TODO** explain acf syntax
 
@@ -230,9 +253,16 @@ Arguments:
 
 * `x, y` - a univariate or multivariate (not ccf) numeric time series object or a numeric vector or matrix, or an "acf" object.
 * `lag.max` - maximum lag at which to calculate the acf. Default is `10*log10(N/m)` where `N` is the number of observations and m the number of series. Will be automatically limited to one less than the number of observations in the series.
-* `type` - character string giving the type of acf to be computed. Allowed values are "correlation" (the default), "covariance" or "partial". Will be partially matched.
+* `type` - character string giving the type of acf to be computed. Allowed values are `"correlation"` (the default), `"covariance"` or `"partial"`. Will be partially matched.
 
+For this practical, we will only use `type="correlation"`.
+
+
+Use the Pr_20May1.csv
+
+**TODO** make sure that reload the data each time, or something easier
 ```{r}
+Tvalues = read.csv("./data/Pr_20May1.csv")
 acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
 acf_10 = acf_T$acf[10]
 ```
@@ -243,7 +273,10 @@ Calculate the autocorrelation function (ACF) of the time series and plot it up t
 
 What variability is mainly reflected in the ACF?
 
+use this Practical7_time_series.txt
+
 ```{r, echo=FALSE}
+series2 = read.csv("./data/Practical7_time_series.txt")
 acf.ser2<- acf(series2, type = "correlation", lag.max = 30)
 ```
 
@@ -251,31 +284,58 @@ The main signal you see in the ACF is the large-scale variation
 
 # Decomposition
 
+## Reminder from the lecture
+
+Syntax
+
+```{r, eval=FALSE}
+decompose(x, type = c("additive", "multiplicative"), filter = NULL)
+```
+
+* `x` - A time series.
+* `type` - The type of seasonal component. Can be abbreviated.
+* `filter` - A vector of filter coefficients in reverse time order (as for AR or MA coefficients), used for filtering out the seasonal component. If NULL, a moving average with symmetric window is performed.
+
+By default, an additive model is performed if no value is specified for `type`.
+
+**TODO** make sure it's clear where the data comes from
+
 ## Classical
 ```{r}
 output = decompose(t_ser1)
 plot(output)
+```
 
+Deseasonalize the data.  This shows the noise (`random`) + the `trend`
+```{r}
 t_des <- t_ser1 - output$seasonal
 plot(t_des)
 acf_des <- acf(as.vector(t_des), type = "correlation", lag.max = 64)
 ```
+What we see above is a small coherence in the data, i.e. there is still a signal, but not very much.
+
 
 What happens if we analyze a time series composed of random values:
 ```{r}
 t_ser_random <- ts(runif(20*12), freq = 12)
-output = decompose(t_ser1)
+output = decompose(t_ser_random)
 plot(output)
 ```
 
 The `decompose` method does show a seasonal compoment, but it's important to note the scale - the range of random values is much greater than the range of seasonal values
 
+**TODO** use what's below with the temperature data above, show how this helps to evaluate the outcome.  Also can we set the y axes to the same scale? (use a separate plot for this, relative is useful)
+
 ```{r}
 df1 = data.frame(random = output$random, 
-                 seasonal = output$seasonal)
+                 seasonal = output$seasonal, 
+                 trend = output$trend, 
+                 observed = as.numeric(t_ser_random))
 
 ggplot() + geom_density(data=df1, aes(x=random, fill="random"), alpha=0.5) + 
-  geom_density(data=df1, aes(x=seasonal, fill="seasonal"), alpha=0.5) + xlab("value")
+  geom_density(data=df1, aes(x=seasonal, fill="seasonal"), alpha=0.5) + 
+  geom_density(data=df1, aes(x=trend, fill="trend"), alpha=0.5) + 
+  geom_density(data=df1, aes(x=observed, fill="observed"), alpha=0.5) + xlab("value")
 ```
 
 Look at the range (min and max values) for the random component and also the seasonal trend:
@@ -289,15 +349,18 @@ Decompose the time series using classical decomposition.
 
 Hint: you need to construct an appropriate time series object first. What frequency do you choose for the time series object? Show the plot and give an interpretation of all elements of the plot. What is the unit of the x-axis?
 
-```{r}
+**TODO** mention which data set
+
+```{r, echo=FALSE}
 series2.1 <- ts(series2$x, frequency = 7)
 dec2 <-decompose(series2.1, type = "additive")
 plot(dec2)
 ```
 
 
-
 ## Seasonal Decomposition of Time Series by Loess
+
+
 
 **TODO** explain syntax
 
@@ -315,59 +378,64 @@ Arguments:
 * `t.window` - the span (in lags) of the loess window for trend extraction, which should be odd. If NULL, the default, nextodd(ceiling((1.5*period) / (1-(1.5/s.window)))), is taken.
 
 **TODO** this is `stats::stl`, typing `?stl` will bring up the help mentioning that stl is also covered in the forecase package
+**TODO** put all the contents of the practical ppt in the doc here for stl decomposition only.  Can leave out the other stuff
+
+**TODO** mention the data set, could reload
 
 ```{r}
 output1 = stl(t_ser1, s.window = 15, t.window = 12*15+1)
 plot(output1)
+```
+
+Take the remainder and see the auto-correlation.  Could see some coherence, such as if one day was hot, the next day was likely to be hot as well.
+
+If one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   
+
+heat waves span the borders of the months
+
+also head-start example with the sea - if warm May, then will have warm June, since additional heat is coming in (June should be warmer than May).  Have a higher starting point with the temperature.
+
+```{r}
 t_rem <- output1$time.series[,"remainder"]
 acf_rem <-acf(as.vector(t_rem), type = "correlation", lag.max = 64)
 ```
+
+On the right of the plot you will see several gray bars.  These give an indication of the scale of the different plots.  For example, the width of the bar on the `trend`  plot corresponds to the same range as the smaller gray bar on the `data` plot.  In other words, the trend is much smaller than the seasonal values.
 
 ### Exercise
 
 **TODO** figure out if the exercises fit here.  Check that it's been covered how to do them.
 
-Decompose the time series using stl decomposition. 
+Decompose the time series using `stl` decomposition. 
 
-Play with the parameters `s.window` and `t.window` until you are satisfied. What do `s.window` and `t.window` represent? Explain the main difference to the classical decomposition. 
+Play with the parameters `s.window` and `t.window` and observe how this influence the trend, the remainder, and the seasonal pattern.
 
-```{r}
+**TODO** mention the data set
+
+```{r, echo=FALSE}
 dec2.1 <- stl(series2.1, s.window = 9, t.window = 13)
 plot(dec2.1)
 ```
-
-
 
 Calculate and plot the de-trended time series. 
 
 Reminder for the decomposition produced by a <- stl(…).
 
-```{r}
+```{r, echo=FALSE}
 series2.1.des <-series2$x - dec2.1$time.series[,"trend"]
 plot(series2.1.des)
 ```
 
 Plot and interpret the ACF of the de-trended time series.
 
-```{r}
-series2.1.des <-series2$x - dec2.1$time.series[,"trend"]
-plot(series2.1.des)
+```{r, echo=FALSE}
 acf(series2.1.des,type = "correlation", lag.max = 30)
 ```
 
 With the help of the ACF investigate if the remainder still contains information, or if it is random noise. 
 
-```{r}
+```{r, echo=FALSE}
 acf(na.omit(dec2.1$time.series[,"remainder"]), type = "correlation", lag.max = 30)
 ```
 
-there is n indication of a weak correlation at lag 1 and a weak anticorrelation at lag 2 and 3. This might indicate a causal relationship i.e., that a day with much internet traffic is followed by another day with much internet traffic. But since the correlation is quite weak is might also be due to imperfect decomposition or due to outliers (i.e. the first week with much higher than average weekly cycle. 
-
-This will look slightly different for everyone, depending on how you decomposed the time series
-
-```{r}
-plot(dec2.1$time.series[,"remainder"][1:(length(series2)-1)], 
-     dec2.1$time.series[,"remainder"][2:length(series2)],
-     xlab = "series2(t)", ylab = "series2(t+1)")
-```
-
+there is an indication of a weak correlation at lag 1 and a weak anticorrelation at lag 2 and 3. This might indicate a causal relationship i.e., that a day with much internet traffic is followed by another day with much internet traffic. But since the correlation is quite weak is might also be due to imperfect decomposition or due to outliers (i.e. the first week with much higher than average weekly cycle. 
