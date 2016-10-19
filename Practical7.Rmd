@@ -8,10 +8,6 @@ output:
     toc: yes
 ---
 
-**TODO** put all the contents of the practical ppt in the doc here for stl decomposition only.  Can leave out the other stuff
-
-**TODO** need consistent format - in some cases use dataframe with time series column.  In others, just use a vector.  This can cause some confusion with the students as some of the functions won't raise an error, but will evaluation all columns in the data frame.
-
 # Load and Install Required Libraries
 
 We need to install the `forecast` package for the `ma` (moving average) function which we'll use later in this practical.
@@ -19,56 +15,51 @@ We need to install the `forecast` package for the `ma` (moving average) function
 install.packages("forecast")
 ```
 
-Load the requried libraries for this practical:
+Now load the requried libraries for this practical:
 ```{r, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
 library(forecast)
 ```
 
-
 # Creating Time Series Objects
 
-**TODO** explain the `$x` part
+For this example, download the [Pr_20May1.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Pr_20May1.csv) data set and load it into R.  Once you read it in, you'll have a data frame with a single column `x` which is specified in the csv file itself.
+```{r, echo=FALSE}
+Tvalues = read.csv("./data/Pr_20May1.csv")
+```
+```{r, eval=FALSE}
+Tvalues = read.csv("Pr_20May1.csv")
+```
 
-As we showed in the previous practical, we can create a sequence of dates (using `seq`), starting at one date with a defined time interval for each step.
-
-**TODO** use the Pr_20May1.csv data set
+As we showed in the previous practical, we can create a sequence of dates (using `seq`), starting at one date with a defined time interval for each step.  
 
 ```{r}
-Tvalues = read.csv("./data/Pr_20May1.csv")
-#Tvalues = Tvalues$x 
-
 Tvalues$t = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by = "1 month")
-
-# TODO remove this?
-t_seq = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by = "1 month")
-
-plot(t_seq, Tvalues$x, type = "l")
+```
+Now we plot the data:
+```{r}
+ggplot(Tvalues, aes(x=t, y=x)) + geom_line()
 ```
 
 ## Exercise
 
-Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) and load it into R.
+Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) and load it into R.  This contains daily data on the internet traffic from November 20, 2004 until January 27, 2005.  
 
-This contains daily data on the internet traffic from 20. November 2004 to 27. January 2005
-
-Hint: Reading in the text file produces a data frame. For the following analyses it is better to use the data as a simple vector: series <- data$x
-
-Make a vector t of the times corresponding to each data point and plot the time series vs. t. Can you see a seasonality in the data? which period is it?
+* Add to the data a vector of the times corresponding to each data point
+* Create a line plot of the amount of traffic per day
+* From visually inspecting the plot, estimate the period of the seasonal trend.
 
 ```{r, echo=FALSE}
 series2 = read.csv("./data/Practical7_time_series.txt")
 series2$t = seq(from = as.Date("2004-11-19"), to = as.Date("2005-01-26"), by = "1 day")
-
 ggplot(series2, aes(x=t, y=x)) + geom_line()
 ```
 
-**TODO** take out text below?
-There is a weekly seasonality
-
 ## Using `ts()`
+
 We can also use the `ts` function to create time series objects.  The relevant syntax is shown below and you can learn more by typing `?ts` into the console.
+
 
 ```{r, eval=FALSE}
 ts(data = NA, start = 1, end = numeric(), frequency = 1,
@@ -80,16 +71,19 @@ Arguments:
 * `data` - a vector or matrix of the observed time-series values. 
 * `start` - the time of the first observation. Either a single number or a vector of two integers, which specify a natural time unit and a (1-based) number of samples into the time unit. See the examples for the use of the second form.
 * `end` - the time of the last observation, specified in the same way as start.
-* `frequency` - the number of observations per unit of time.
+* `frequency` - the number of observations per unit of time.  Some commen examples of values are:
+    * 12 - monthly data with a yearly cycle
+    * 7 - daily data with a weekly cycle
+    * 24 - hourly measurements within a day
 * `deltat` - the fraction of the sampling period between successive observations; e.g., 1/12 for monthly data. Only one of frequency or deltat should be provided.
 
-To perform the same operation as above, we can also:
+To perform the same operation as shown in the previous example above, we can also do:
 ```{r}
 t_ser <- ts(Tvalues$x, start = c(1946, 1), freq = 12)
 plot(t_ser)
 ```
 
-Can also define without a start date.  Using `freq=12` means that you have 12 observations per cycle, so the period of the seasonal variation is 12.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation. 
+You can also define a time series without a start date.  Using `freqquency = 12` means that you have 12 observations per cycle, so the period of the seasonal variation is 12.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation. 
 
 ```{r}
 t_ser1 <- ts(Tvalues$x, freq = 12)
@@ -98,13 +92,13 @@ plot(t_ser1)
 
 # Moving-average smoothing
 
-We will now use the `ma` function for moving-average smoothing.
-
-Make sure to load the `forecast` library:
+We will now use the `ma` function for moving-average smoothing.  To do this, make sure to load the `forecast` library:
 
 ```{r}
 library(forecast)
 ```
+
+## Reminder
 
 The syntax is:
 
@@ -118,24 +112,36 @@ Arguments:
 * `order` - Order of moving average smoother
 * `centre` - If TRUE, then the moving average is centred for even orders.
 
-initial example
+## Example
+
+Here we create two moving averages on the `Pr_20May1.csv` data we loaded in above.
 
 ```{r}
 ma5 = ma(Tvalues$x, order = 5)
 ma13 = ma(Tvalues$x, order = 13)
 ```
 
-
-let's put everything in a data frame
+To make it easier to plot both of these, we can create a new data frame, where we add new columns to `Tvalues` that contain these two moving averages.  For this, we use the `dplyr` package along with the `mutate` function to add two new columns: `ma5` and `ma13`.
 ```{r}
 Tvalues_with_ma = Tvalues %>% 
   mutate(ma5 = ma(x, order = 5), 
          ma13 = ma(x, order = 13))
+```
 
-#plot(t_seq[1:60], Tvalues[1:60], type = "l")
-#lines(t_seq[1:60], ma5[1:60], col = "red")
-#lines(t_seq[1:60], ma13[1:60], col = "green")
+Here we use `head` with `n=10` to look at the first ten rows of the resulting data frame:
+```{r}
+head(Tvalues_with_ma, n=10)
+```
 
+We can now see the effects of the different values of `order` in the `ma` function.  Specifically:
+* `order = 5` means that 5 data points are averaged (2 to the left and right of the data point)
+* `order = 13` means that 13 data points are averaged (6 to the left and right of the data point)
+
+The first few values of `ma5` and `ma13` are `NA` due to this averaging on the left and right of the data point.  For example, the first data point, does not have another data point to the left, so the average is defined as `NA`.
+
+Now we can plot everything and see how the moving averages compare to the original data.  Note that in the `geom_line` statements, we only specify the value for `y` since the data frame and `x` have already been specified with `ggplot(Tvalues_with_ma, aes(x=t))`
+
+```{r, warning=FALSE}
 ggplot(Tvalues_with_ma, aes(x=t)) + 
   geom_line(aes(y=x, color="original data"), size=2) + 
   geom_line(aes(y=ma5, color="ma5")) + 
@@ -145,23 +151,16 @@ ggplot(Tvalues_with_ma, aes(x=t)) +
 
 ```
 
-**TODO** change explanation to refer to the example above (currently refers to example below)
-
-What you 
-m = 3  … red; 3 data points are averaged (1 to the left and right of the data point)
-m = 7  … red; 7 data points are averaged (3 to the left and right of the data point)
-(this smoothes out the weekly cycle)
-m = 15  … red; 15 data points are averaged (7 to the left and right of the data point)
-
-
-
 ## Exercise
 
-Calculate a moving average with order m = 3, 7, and 15 (see lecture) and add it to the plot. Explain the order m means. 
+Calculate a moving average with order = 3, 7, and 15 and add it to the plot. 
 
-Use series2 = read.csv("./data/Practical7_time_series.txt")
+Again use the data from [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) with the time values added in as shown above.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
+series2 = read.csv("./data/Practical7_time_series.txt")
+series2$t = seq(from = as.Date("2004-11-19"), to = as.Date("2005-01-26"), by = "1 day")
+
 series2_with_ma = series2 %>% 
   mutate(ma3 = ma(x, order = 3), 
          ma7 = ma(x, order = 7), 
@@ -172,18 +171,15 @@ ggplot(series2_with_ma, aes(x=t)) +
   geom_line(aes(y=ma3, color="ma3")) +
   geom_line(aes(y=ma7, color="ma7")) + 
   geom_line(aes(y=ma15, color="ma15"))
-  
 ```
 
+The warning messages that you see are related to `NA` values generated based on the different orders of moving averages.
 
 # Lagging time values
 
-**TODO** - do this with dplyr?  should be possible
-see dplyr::lag
+## Example
 
-An easy way to do this is with the `lag` command and `dplyr`
-
-Here we shift the values for `x` in `Tvalues` by three months.  We use the `mutate` function to create a new column named `lag_x` in the data frame.  The `lag` function simply takes as imput a vector and shifts its values by the number specified.  Take for example a vector containing the numbers 1, 2, ..., 10:
+An easy way to do this is with the `lag` command and `dplyr`.  Here we shift the values for `x` in `Tvalues` by three months.  We use the `mutate` function to create a new column named `lag_x` in the data frame.  The `lag` function simply takes as imput a vector and shifts its values by the number specified.  Take for example a vector containing the numbers 1, 2, ..., 10:
 
 ```{r}
 a = c(1:10)
@@ -205,7 +201,7 @@ head(Tvalues_lag3)
 
 Below we plot the results for several different lag amount.  Instead of creating a new data frame each time, we just pass the results directly to ggplot using `data = Tvalues %>% mutate(lag_x = lag(x, 3))`
 
-```{r}
+```{r, warning=FALSE}
 ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 3)), 
        aes(x=x, y=lag_x)) + 
   geom_point()
@@ -228,9 +224,13 @@ ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 12)),
  
 ## Exercise
 
+**TODO** ACF isn't covered yet, right?
+
 Show the actual correlation (scatter) plot that is used to calculate the ACF at lag 10. 
 
-```{r, echo=FALSE}
+Again use the data from [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) with the time values added in as shown above.  Using a lag of 10, show the actual correlation (scatter) plot.
+
+```{r, echo=FALSE, warning=FALSE}
 ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)), 
        aes(x = x, y = lag_x)) + 
   geom_point()
@@ -241,39 +241,42 @@ ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)),
 
 ## Reminder of the lecture
 
-**TODO** explain acf syntax
+The basic syntax of the `acf` function is:
 
 ```{r, eval=FALSE}
 acf(x, lag.max = NULL,
-    type = c("correlation", "covariance", "partial"),
-    plot = TRUE, na.action = na.fail, demean = TRUE, ...)
+    type = c("correlation", "covariance", "partial"), 
+    plot = TRUE)
 ```
 
 Arguments:
 
-* `x, y` - a univariate or multivariate (not ccf) numeric time series object or a numeric vector or matrix, or an "acf" object.
+* `x` - a univariate or multivariate numeric time series object or a numeric vector or matrix.
 * `lag.max` - maximum lag at which to calculate the acf. Default is `10*log10(N/m)` where `N` is the number of observations and m the number of series. Will be automatically limited to one less than the number of observations in the series.
 * `type` - character string giving the type of acf to be computed. Allowed values are `"correlation"` (the default), `"covariance"` or `"partial"`. Will be partially matched.
+* `plot` - logical. If TRUE (the default) the acf is plotted.
 
 For this practical, we will only use `type="correlation"`.
 
+## Example
+Using the `Pr_20May1.csv` data, we estimate the autocorrelation with a maximum lag of 64.
 
-Use the Pr_20May1.csv
+**TODO** What do we see with `acf_T$acf[10]` ?  What's the interpretation?
 
-**TODO** make sure that reload the data each time, or something easier
-```{r}
+```{r, echo=FALSE}
 Tvalues = read.csv("./data/Pr_20May1.csv")
+```
+```{r, eval=FALSE}
+Tvalues = read.csv("Pr_20May1.csv")
+```
+```{r}
 acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
 acf_10 = acf_T$acf[10]
 ```
 
 ## Exercise
 
-Calculate the autocorrelation function (ACF) of the time series and plot it up to lag 30. 
-
-What variability is mainly reflected in the ACF?
-
-use this Practical7_time_series.txt
+Calculate the autocorrelation function (ACF) of the time series data `Practical7_time_series.txt` and plot it with a maximum lag of 30.  
 
 ```{r, echo=FALSE}
 series2 = read.csv("./data/Practical7_time_series.txt")
@@ -286,7 +289,7 @@ The main signal you see in the ACF is the large-scale variation
 
 ## Reminder from the lecture
 
-Syntax
+The basic syntax is:
 
 ```{r, eval=FALSE}
 decompose(x, type = c("additive", "multiplicative"), filter = NULL)
@@ -300,13 +303,19 @@ By default, an additive model is performed if no value is specified for `type`.
 
 **TODO** make sure it's clear where the data comes from
 
+Here we use the `Pr_20May1.csv` data which we've loaded into `Tvalues` above.
+
 ## Classical
+
+### Example
+
 ```{r}
+t_ser1 <- ts(Tvalues$x, freq = 12)
 output = decompose(t_ser1)
 plot(output)
 ```
 
-Deseasonalize the data.  This shows the noise (`random`) + the `trend`
+Now deseasonalize the data.  This shows the noise (`random`) + the `trend`
 ```{r}
 t_des <- t_ser1 - output$seasonal
 plot(t_des)
@@ -314,6 +323,27 @@ acf_des <- acf(as.vector(t_des), type = "correlation", lag.max = 64)
 ```
 What we see above is a small coherence in the data, i.e. there is still a signal, but not very much.
 
+To examine the relation between the `observed`, `random`, `seasonal` and `trend` data, we create a new data frame and plot histograms of each component.
+```{r, warning=FALSE}
+df1 = rbind(cbind("random", output$random),
+            cbind("seasonal", output$seasonal), 
+            cbind("trend", output$trend), 
+            cbind("observed", as.numeric(t_ser1)))
+# Convert to a data frame.  Currently it's a matrix
+df1 = as.data.frame(df1)
+# add in column names
+colnames(df1) = c("decomposition_type", "value")
+
+# Note that df1$value is a factor.  We want to have this represented as a number
+class(df1$value)
+
+# The trick in R with converting factors to numbers is that 
+# you first have to convert the values to a character, and then to a number
+df1$value = as.numeric(as.character(df1$value))
+
+# now plot a histogram per different decomposition type
+ggplot(df1, aes(value)) + geom_histogram() + facet_wrap(~decomposition_type)
+```
 
 What happens if we analyze a time series composed of random values:
 ```{r}
@@ -327,44 +357,37 @@ The `decompose` method does show a seasonal compoment, but it's important to not
 **TODO** use what's below with the temperature data above, show how this helps to evaluate the outcome.  Also can we set the y axes to the same scale? (use a separate plot for this, relative is useful)
 
 ```{r}
-df1 = data.frame(random = output$random, 
-                 seasonal = output$seasonal, 
-                 trend = output$trend, 
-                 observed = as.numeric(t_ser_random))
+# Same code as above, except now using t_ser_random for "observed"
+df1 = rbind(cbind("random", output$random),
+            cbind("seasonal", output$seasonal), 
+            cbind("trend", output$trend), 
+            cbind("observed", as.numeric(t_ser_random)))
 
-ggplot() + geom_density(data=df1, aes(x=random, fill="random"), alpha=0.5) + 
-  geom_density(data=df1, aes(x=seasonal, fill="seasonal"), alpha=0.5) + 
-  geom_density(data=df1, aes(x=trend, fill="trend"), alpha=0.5) + 
-  geom_density(data=df1, aes(x=observed, fill="observed"), alpha=0.5) + xlab("value")
-```
-
-Look at the range (min and max values) for the random component and also the seasonal trend:
-```{r}  
-range(output$random, na.rm=TRUE)
-range(output$seasonal, na.rm=TRUE)
+df1 = as.data.frame(df1)
+colnames(df1) = c("decomposition_type", "value")
+class(df1$value)
+df1$value = as.numeric(as.character(df1$value))
+ggplot(df1, aes(value)) + geom_histogram() + facet_wrap(~decomposition_type)
 ```
 
 ### Exercise
-Decompose the time series using classical decomposition. 
 
-Hint: you need to construct an appropriate time series object first. What frequency do you choose for the time series object? Show the plot and give an interpretation of all elements of the plot. What is the unit of the x-axis?
+Decompose the time series from `Practical7_time_series.txt` using classical decomposition. 
 
-**TODO** mention which data set
+Hint: you need to construct an appropriate time series object first using `ts()`.  From the discussion about this data set above, you should be able to pick the correct frequency for the time series object.
 
 ```{r, echo=FALSE}
+series2 = read.csv("./data/Practical7_time_series.txt")
 series2.1 <- ts(series2$x, frequency = 7)
-dec2 <-decompose(series2.1, type = "additive")
+dec2 = decompose(series2.1, type = "additive")
 plot(dec2)
 ```
 
+## Seasonal Decomposition of Time Series by Loess (`stl`)
 
-## Seasonal Decomposition of Time Series by Loess
+### Reminder
 
-
-
-**TODO** explain syntax
-
-`stl`
+The basic syntax for the `stl` function is:
 
 ```{r, eval=FALSE}
 stl(x, s.window, 
@@ -377,23 +400,30 @@ Arguments:
 * `s.window` - either the character string "periodic" or the span (in lags) of the loess window for seasonal extraction, which should be odd and at least 7, according to Cleveland et al. This has no default.
 * `t.window` - the span (in lags) of the loess window for trend extraction, which should be odd. If NULL, the default, nextodd(ceiling((1.5*period) / (1-(1.5/s.window)))), is taken.
 
-**TODO** this is `stats::stl`, typing `?stl` will bring up the help mentioning that stl is also covered in the forecase package
-**TODO** put all the contents of the practical ppt in the doc here for stl decomposition only.  Can leave out the other stuff
+How it works: 
 
-**TODO** mention the data set, could reload
+In the `sts` function there is an inner loop that separates the seasonal and trend component.  This works in principle similar to classical decomposition, except that it uses more sophisticated smoothing methods.  
+
+Therefore you can set a smoothing window (`l.window`) for the seasonal component.  This is by default equal to the next odd integer which is greater than or equal to the cycle length.  For the purposes of this practical, it is better to leave it like this.
+
+You can set a window (`s.window`) over how many cycles the seasonal cycle can vary. In the classical decomposition all the seasonal cycles are simply averaged. This is done here by a more complicated weighted-average/fitting method.  This number should be odd and >=7. 
+
+You can set a window (`t.window`) that determines how smooth the trend should be. (If the trend is smoother then you get more variability in the remainder).  It is recommended to set `t.window` >= 1.5*m/(1 – 1/`s.window`), where `m` is the value set for the `frequency =` parameter of your time series.
+
+You can play around with these parameters, to get the trend estimate you like.
+
+### Example
+
+We again use the `Tvalues` data which is from `Pr_20May1.csv`.  
 
 ```{r}
+t_ser1 <- ts(Tvalues$x, freq = 12)
 output1 = stl(t_ser1, s.window = 15, t.window = 12*15+1)
 plot(output1)
 ```
 
-Take the remainder and see the auto-correlation.  Could see some coherence, such as if one day was hot, the next day was likely to be hot as well.
+We now take the remainder and see the auto-correlation.  With this we can see some coherence, such as if one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   Part of the reason for this is that a heat wave that lasts a week or two could span the borders of two months, thus raising the average temperature for both.  It could also be that an unusually warm May will also cause a warmer June, especially in coastal areas.  This would be due to the ocean having a higher starting temperature in June when we would expect increased solar radiation due to the changing angle of the earth.
 
-If one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   
-
-heat waves span the borders of the months
-
-also head-start example with the sea - if warm May, then will have warm June, since additional heat is coming in (June should be warmer than May).  Have a higher starting point with the temperature.
 
 ```{r}
 t_rem <- output1$time.series[,"remainder"]
@@ -404,35 +434,36 @@ On the right of the plot you will see several gray bars.  These give an indicati
 
 ### Exercise
 
-**TODO** figure out if the exercises fit here.  Check that it's been covered how to do them.
+**TODO** check that the example shows how to do all the things in the exercise.
 
-Decompose the time series using `stl` decomposition. 
+Decompose the time series from `Practical7_time_series.txt` using `stl` decomposition.  Again use `ts` and and an appropriate value for `frequency` as you did in the previous exercise above.
 
 Play with the parameters `s.window` and `t.window` and observe how this influence the trend, the remainder, and the seasonal pattern.
-
-**TODO** mention the data set
 
 ```{r, echo=FALSE}
 dec2.1 <- stl(series2.1, s.window = 9, t.window = 13)
 plot(dec2.1)
 ```
 
+**TODO** `dec2.1$time.series[,"trend"]` may not be clear - students may not know to look for this
 Calculate and plot the de-trended time series. 
-
-Reminder for the decomposition produced by a <- stl(…).
 
 ```{r, echo=FALSE}
 series2.1.des <-series2$x - dec2.1$time.series[,"trend"]
 plot(series2.1.des)
 ```
 
-Plot and interpret the ACF of the de-trended time series.
+Plot and interpret the ACF of the de-trended time series:
+
+**TODO** justification for `lag.max = 30`?  since we're interested in monthly patterns?
 
 ```{r, echo=FALSE}
 acf(series2.1.des,type = "correlation", lag.max = 30)
 ```
 
 With the help of the ACF investigate if the remainder still contains information, or if it is random noise. 
+
+**TODO** need to somewhere show `na.omit` 
 
 ```{r, echo=FALSE}
 acf(na.omit(dec2.1$time.series[,"remainder"]), type = "correlation", lag.max = 30)
