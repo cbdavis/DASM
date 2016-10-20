@@ -7,4 +7,4 @@
 * [Practical 4](http://cbdavis.github.io/DASM/Practical4.html) - Test for equality in variance, Chi-square test, One-way ANOVA test
 * [Practical 5](http://cbdavis.github.io/DASM/Practical5.html) - Monte Carlo, missing values in data, dates & times, dplyr
 * [Practical 6](http://cbdavis.github.io/DASM/Practical6.html) - Linear regression
-* [Practical 6](http://cbdavis.github.io/DASM/Practical7.html) - Moving average, auto- and cross- covariance and -correlation function estimation, time series decomposition
+* [Practical 7](http://cbdavis.github.io/DASM/Practical7.html) - Moving average, auto- and cross- covariance and -correlation function estimation, time series decomposition
