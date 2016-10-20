@@ -48,7 +48,7 @@ Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com
 
 * Add to the data a vector of the times corresponding to each data point
 * Create a line plot of the amount of traffic per day
-* From visually inspecting the plot, estimate the period of the seasonal trend.
+* From visually inspecting the plot, estimate the period of the seasonal trend.  In other words, how often do you think the fluctuations occur?
 
 ```{r, echo=FALSE}
 series2 = read.csv("./data/Practical7_time_series.txt")
@@ -104,7 +104,7 @@ The formula for creating a moving average is:
 
 $T_{t} = \frac{1}{m} \sum_{j=-k}^{k} x(t + j)$ with $m = 2k + 1$
 
-The main idea is that you take a set of $m$ data points with $k$ number of points to the left and $k$ to the right of $x(t)$ and average them with x(t)
+The main idea is that you take a set of $m$ data points with $k$ number of points to the left and $k$ to the right of $x(t)$ and average them with $x(t)$
 
 The syntax is for the moving average function in R is:
 
@@ -120,7 +120,7 @@ Arguments:
 
 ## Example
 
-Here we create two moving averages on the `Pr_20May1.csv` data we loaded in above.
+Here we create a single moving average on the `Pr_20May1.csv` data we loaded in above.
 
 ```{r}
 ma5 = ma(Tvalues$x, order = 5)
@@ -194,7 +194,7 @@ The warning messages that you see are related to `NA` values generated based on 
 
 ## Example
 
-An easy way to do this is with the `lag` command and `dplyr`.  Here we shift the values for `x` in `Tvalues` by three months.  We use the `mutate` function to create a new column named `lag_x` in the data frame.  The `lag` function simply takes as input a vector and shifts its values by the number specified.  Take for example a vector containing the numbers 1, 2, ..., 10:
+An easy way to do this is with the `lag` command and `dplyr`.  The `lag` function simply takes as input a vector and shifts its values by the number specified.  Take for example a vector containing the numbers 1, 2, ..., 10:
 
 ```{r}
 a = c(1:10)
@@ -204,7 +204,7 @@ lag(a, 3)
 
 As you can see we push all the values over three places and fill in the left side with `NA`.  The values 8, 9 and 10 are discarded since they are pushed out.
 
-Now we create a new data frame with the results of the operation:
+Here we shift the values for `x` in `Tvalues` by three months.  We use the `mutate` function to create a new column named `lag_x` in the data frame.  
 ```{r}
 Tvalues_lag3 = Tvalues %>% mutate(lag_x = lag(x, 3))
 ```
@@ -214,9 +214,12 @@ Looking at the first few rows of the data frame, we can see how `NA` values are 
 head(Tvalues_lag3)
 ```
 
-Below we plot the results for several different lag amount.  Instead of creating a new data frame each time, we just pass the results directly to ggplot using `data = Tvalues %>% mutate(lag_x = lag(x, 3))`
+Below we try to visually investigate if there might be a correlation between the original data and different lag amounts.  In other words, if they are correlated, we would expect to see the points arranged in nearly a straight line.
+
+Instead of creating a new data frame for each different lag value, we just pass the results directly to ggplot using `data = Tvalues %>% mutate(lag_x = lag(x, 3))`
 
 ```{r, warning=FALSE}
+# data shifted 3 months
 ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 3)), 
        aes(x=x, y=lag_x)) + 
   geom_point()
@@ -291,6 +294,7 @@ acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
 If you want to look at a specific value at a certain lag (say lag=10), you can use:
 ```{r}
 acf_10 = acf_T$acf[10]
+print(acf_10)
 ```
 
 ## Exercise
@@ -393,7 +397,6 @@ df1 = rbind(cbind("random", output$random),
 
 df1 = as.data.frame(df1)
 colnames(df1) = c("decomposition_type", "value")
-class(df1$value)
 df1$value = as.numeric(as.character(df1$value))
 ggplot(df1, aes(value)) + geom_histogram() + facet_wrap(~decomposition_type)
 ```
@@ -458,9 +461,7 @@ output1 = stl(t_ser1, s.window = 15, t.window = 12*15+1)
 plot(output1)
 ```
 
-On the right of the plot you will see several gray bars.  These give an indication of the scale of the different plots.  For example, the width of the bar on the `trend`  plot corresponds to t1he same range as the smaller gray bar on the `data` plot.  In other words, the trend is much smaller than the `data` values.  We can also see that the `trend` is also much smaller than the noise (i.e. the `remainder`.)
-
-We now take the remainder and see the auto-correlation.  With this we can see some coherence, such as if one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   Part of the reason for this is that a heat wave that lasts a week or two could span the borders of two months, thus raising the average temperature for both.  It could also be that an unusually warm May will also cause a warmer June, especially in coastal areas.  This would be due to the ocean having a higher starting temperature in June when we would expect increased solar radiation due to the changing angle of the earth.
+On the right of the plot you will see several gray bars.  These give an indication of the scale of the different plots.  For example, the width of the bar on the `trend`  plot corresponds to the same range as the smaller gray bar on the `data` plot.  In other words, the trend is much smaller than the `data` values.  We can also see that the `trend` is also much smaller than the noise (i.e. the `remainder`.)
 
 To extract the different parts of the decomposed time series, we will need to use a different syntax than we did with the `decompose` function.  First we look at the first few rows of the `time.series` matrix associated with `output1`:
 ```{r}
@@ -468,16 +469,21 @@ head(output1$time.series)
 ```
 
 In order to access these, we need to use the following syntax:
+
 * `output1$time.series[,"seasonal"]`
 * `output1$time.series[,"trend"]`
 * `output1$time.series[,"remainder"]`
 
 Note that the original data is not included in `output1`.  In this example, we would have to access it using `Tvalues$x` which contains the vector of values.  Alternatively, we could use `t_ser1` if we want the values which are associated with specific times.  In other words, `Tvalues$x` is a time series of temperatures (with no explicit information about when the temperatures were observed), while `t_ser1` is a time series of temperatures with months associated with each observation.
 
+We now take the remainder and see the auto-correlation:  
+
 ```{r}
 t_rem <- output1$time.series[,"remainder"]
 acf_rem <-acf(as.numeric(t_rem), type = "correlation", lag.max = 64)
 ```
+
+With this we can see some coherence, such as if one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   Part of the reason for this is that a heat wave that lasts a week or two could span the borders of two months, thus raising the average temperature for both.  It could also be that an unusually warm May will also cause a warmer June, especially in coastal areas.  This would be due to the ocean having a higher starting temperature in June when we would expect increased solar radiation due to the changing angle of the earth.
 
 ### Exercise
 
