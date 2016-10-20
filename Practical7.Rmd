@@ -15,7 +15,7 @@ We need to install the `forecast` package for the `ma` (moving average) function
 install.packages("forecast")
 ```
 
-Now load the requried libraries for this practical:
+Now load the required libraries for this practical:
 ```{r, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
@@ -71,11 +71,11 @@ Arguments:
 * `data` - a vector or matrix of the observed time-series values. 
 * `start` - the time of the first observation. Either a single number or a vector of two integers, which specify a natural time unit and a (1-based) number of samples into the time unit. See the examples for the use of the second form.
 * `end` - the time of the last observation, specified in the same way as start.
-* `frequency` - the number of observations per unit of time.  Some commen examples of values are:
+* `frequency` - the number of observations per unit of time.  Some common examples of values are:
     * 12 - monthly data with a yearly cycle
     * 7 - daily data with a weekly cycle
     * 24 - hourly measurements within a day
-* `deltat` - the fraction of the sampling period between successive observations; e.g., 1/12 for monthly data. Only one of frequency or deltat should be provided.
+* `deltat` - the fraction of the sampling period between successive observations; e.g., 1/12 for monthly data. Only one of `frequency` or `deltat` should be provided.
 
 To perform the same operation as shown in the previous example above, we can also do:
 ```{r}
@@ -100,12 +100,13 @@ library(forecast)
 
 ## Reminder
 
-**TODO** dump in the formula
+The formula for creating a moving average is:
 
-Basically you take m data points:
-k to the left and k to the right of x(t) and average them with x(t)
+$T_{t} = \frac{1}{m} \sum_{j=-k}^{k} x(t + j)$ with $m = 2k + 1$
 
-The syntax is:
+The main idea is that you take a set of $m$ data points with $k$ number of points to the left and $k$ to the right of $x(t)$ and average them with x(t)
+
+The syntax is for the moving average function in R is:
 
 ```{r, eval=FALSE}
 ma(x, order, centre=TRUE)
@@ -115,7 +116,7 @@ Arguments:
 
 * `x` - Univariate time series
 * `order` - Order of moving average smoother
-* `centre` - If TRUE, then the moving average is centred for even orders.
+* `centre` - If TRUE, then the moving average is centered for even orders.
 
 ## Example
 
@@ -123,10 +124,18 @@ Here we create two moving averages on the `Pr_20May1.csv` data we loaded in abov
 
 ```{r}
 ma5 = ma(Tvalues$x, order = 5)
-ma13 = ma(Tvalues$x, order = 13)
 ```
 
-To make it easier to plot both of these, we can create a new data frame, where we add new columns to `Tvalues` that contain these two moving averages.  For this, we use the `dplyr` package along with the `mutate` function to add two new columns: `ma5` and `ma13`.
+To demonstrate what is being calculated, the third element of the moving average is the average of elements 1:5 in the original data (k=2, so we include data 2 places to the left and right).  The seventh element of the moving average is the average of elements 5:9 in the original data.  
+```{r}
+ma5[3]
+mean(Tvalues$x[1:5])
+
+ma5[7]
+mean(Tvalues$x[5:9])
+```
+
+Here we can create a new data frame, where we add new columns to `Tvalues` that contain two moving averages.  For this, we use the `dplyr` package along with the `mutate` function to add two new columns: `ma5` and `ma13`.
 ```{r}
 Tvalues_with_ma = Tvalues %>% 
   mutate(ma5 = ma(x, order = 5), 
@@ -185,7 +194,7 @@ The warning messages that you see are related to `NA` values generated based on 
 
 ## Example
 
-An easy way to do this is with the `lag` command and `dplyr`.  Here we shift the values for `x` in `Tvalues` by three months.  We use the `mutate` function to create a new column named `lag_x` in the data frame.  The `lag` function simply takes as imput a vector and shifts its values by the number specified.  Take for example a vector containing the numbers 1, 2, ..., 10:
+An easy way to do this is with the `lag` command and `dplyr`.  Here we shift the values for `x` in `Tvalues` by three months.  We use the `mutate` function to create a new column named `lag_x` in the data frame.  The `lag` function simply takes as input a vector and shifts its values by the number specified.  Take for example a vector containing the numbers 1, 2, ..., 10:
 
 ```{r}
 a = c(1:10)
@@ -243,21 +252,16 @@ ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)),
 
 ## Reminder of the lecture
 
-**TODO** look at latest practical 7 slides, slide 12,13
+For a time series, a lag 1 correlation is a the correlation of the time series $x(t)$ with the time series shifted by one time unit $x(t + \Delta t)$
 
-Time series:
-
-lag 1 correlation is a the correlation of the time series x(t) 
-
-with the time series shifted by one time unit x(t + Dt)
-
+For the autocorrelation function we plot the auto-correlation coefficient $r(k*\Delta t)$ against the lag $k$
 
 The basic syntax of the `acf` function is:
 
 ```{r, eval=FALSE}
 acf(x, lag.max = NULL,
     type = c("correlation", "covariance", "partial"), 
-    plot = TRUE)
+    plot = TRUE, na.action = na.fail)
 ```
 
 Arguments:
@@ -265,24 +269,24 @@ Arguments:
 * `x` - a univariate or multivariate numeric time series object or a numeric vector or matrix.
 * `lag.max` - maximum lag at which to calculate the acf. Default is `10*log10(N/m)` where `N` is the number of observations and m the number of series. Will be automatically limited to one less than the number of observations in the series.
 * `type` - character string giving the type of acf to be computed. Allowed values are `"correlation"` (the default), `"covariance"` or `"partial"`. Will be partially matched.
+    * For this practical, we will only use `type="correlation"`.
 * `plot` - logical. If TRUE (the default) the acf is plotted.
+* `na.action` - function to be called to handle missing values. `na.pass` can be used.
+    * One thing to be aware of is that the acf function will give an error of `Error in na.fail.default(as.ts(x)) : missing values in object` if one of the values in the data is `NA`.  To get around this, you can add `na.action=na.pass` 
 
-For this practical, we will only use `type="correlation"`.
 
 ## Example
 Using the `Pr_20May1.csv` data, we estimate the autocorrelation with a maximum lag of 64.
 
-**TODO** What do we see with `acf_T$acf[10]` ?  What's the interpretation?
-
-```{r, echo=FALSE}
-Tvalues = read.csv("./data/Pr_20May1.csv")
-```
 ```{r, eval=FALSE}
 Tvalues = read.csv("Pr_20May1.csv")
-```
-```{r}
 acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
 ```
+```{r, echo=FALSE}
+Tvalues = read.csv("./data/Pr_20May1.csv")
+acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
+```
+
 
 If you want to look at a specific value at a certain lag (say lag=10), you can use:
 ```{r}
@@ -312,11 +316,7 @@ decompose(x, type = c("additive", "multiplicative"), filter = NULL)
 
 By default, an additive model is performed if no value is specified for `type`.
 
-**TODO** make sure it's clear where the data comes from
-
 Here we use the `Pr_20May1.csv` data which we've loaded into `Tvalues` above.
-
-**TODO** check against slide 18 in practical lecture
 
 ## Classical
 
@@ -329,10 +329,17 @@ output = decompose(t_ser1)
 plot(output)
 ```
 
+The underlying data is available as a set of four vectors:
+
+* `output$x` - the observed data
+* `output$seasonal` - the seasonal variation
+* `output$trend` - the overall trend
+* `output$random` - the random noise
+
 Now deseasonalize the data.  This shows the noise (`random`) + the `trend`
 ```{r}
 # subtract the original time series from the seasonal component
-t_des <- t_ser1 - output$seasonal
+t_des <- output$x - output$seasonal
 # plot the deseasonalized data
 plot(t_des)
 # Find the ACF of the deseasonalized time series data
@@ -340,6 +347,7 @@ acf_des <- acf(as.numeric(t_des), type = "correlation", lag.max = 64)
 ```
 
 Note that if you don't use `as.numeric` as shown above, the values on the x axis will be based on the cycle number, which for this data set represents the year.  In the plot above, the numbers correspond to the months.
+
 ```{r}
 acf_des <- acf(t_des, type = "correlation", lag.max = 64)
 ```
@@ -347,7 +355,7 @@ acf_des <- acf(t_des, type = "correlation", lag.max = 64)
 What we see above is a small coherence in the data, i.e. there is still a signal, but not very much.
 
 To examine the relation between the `observed`, `random`, `seasonal` and `trend` data, below you can see the histograms of each component.
-```{r, warning=FALSE, echo=FALSE}
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
 df1 = rbind(cbind("random", output$random),
             cbind("seasonal", output$seasonal), 
             cbind("trend", output$trend), 
@@ -365,19 +373,18 @@ df1$value = as.numeric(as.character(df1$value))
 ggplot(df1, aes(value)) + geom_histogram() + facet_wrap(~decomposition_type)
 ```
 
-What we see is that the range of the observed values is much greater than that of the random and the trend values.  
-
-What happens if we analyze a time series composed of random values?
+What we see is that the range of the observed values is much greater than that of the random and the trend values.  This gives us some confidence in the output of the analysis.  Now what would happen if we analyzed a time series composed of completely random values?
 ```{r}
+# 20 "years" of random values uniformly distributed
 t_ser_random <- ts(runif(20*12), freq = 12)
 output = decompose(t_ser_random)
 plot(output)
 ```
 
-The `decompose` method does show a seasonal compoment, but it's important to note the scale - the range of random values is much greater than the range of seasonal values
+The `decompose` method does show a seasonal component, but it's important to note the scale - the range of random values is much greater than the range of seasonal values
 
 Now looking at the histograms of the components for the decomposition on random values:
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, , message=FALSE}
 # Same code as above, except now using t_ser_random for "observed"
 df1 = rbind(cbind("random", output$random),
             cbind("seasonal", output$seasonal), 
@@ -414,7 +421,9 @@ The basic syntax for the `stl` function is:
 
 ```{r, eval=FALSE}
 stl(x, s.window, 
-    t.window = NULL)
+    t.window = NULL,
+    l.window, 
+    robust = FALSE)
 ```
 
 Arguments:
@@ -422,6 +431,8 @@ Arguments:
 * `x` - univariate time series to be decomposed. This should be an object of class "ts" with a frequency greater than one.
 * `s.window` - either the character string "periodic" or the span (in lags) of the loess window for seasonal extraction, which should be odd and at least 7, according to Cleveland et al. This has no default.
 * `t.window` - the span (in lags) of the loess window for trend extraction, which should be odd. If NULL, the default, nextodd(ceiling((1.5*period) / (1-(1.5/s.window)))), is taken.
+* `l.window` - the span (in lags) of the loess window of the low-pass filter used for each subseries. Defaults to the smallest odd integer greater than or equal to frequency(x) which is recommended since it prevents competition between the trend and seasonal components. If not an odd integer its given value is increased to the next odd one.
+* `robust` - logical indicating if robust fitting be used in the loess procedure.
 
 How it works: 
 
@@ -434,8 +445,6 @@ You can set a window (`s.window`) over how many cycles the seasonal cycle can va
 You can set a window (`t.window`) that determines how smooth the trend should be. (If the trend is smoother then you get more variability in the remainder).  It is recommended to set `t.window` >= 1.5*m/(1 – 1/`s.window`), where `m` is the value set for the `frequency =` parameter of your time series.
 
 You can play around with these parameters, to get the trend estimate you like.
-
-**TODO** clean up this
 
 There is an optional outer loop, that provides robustness. This is recommended if you have many outliers or not-well behaved time series.  You set this to `TRUE` or `FALSE` using the `robust` parameter in the `stl` function.
 
@@ -451,34 +460,38 @@ plot(output1)
 
 On the right of the plot you will see several gray bars.  These give an indication of the scale of the different plots.  For example, the width of the bar on the `trend`  plot corresponds to t1he same range as the smaller gray bar on the `data` plot.  In other words, the trend is much smaller than the `data` values.  We can also see that the `trend` is also much smaller than the noise (i.e. the `remainder`.)
 
-
 We now take the remainder and see the auto-correlation.  With this we can see some coherence, such as if one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   Part of the reason for this is that a heat wave that lasts a week or two could span the borders of two months, thus raising the average temperature for both.  It could also be that an unusually warm May will also cause a warmer June, especially in coastal areas.  This would be due to the ocean having a higher starting temperature in June when we would expect increased solar radiation due to the changing angle of the earth.
 
+To extract the different parts of the decomposed time series, we will need to use a different syntax than we did with the `decompose` function.  First we look at the first few rows of the `time.series` matrix associated with `output1`:
+```{r}
+head(output1$time.series)
+```
 
-**TODO** explain `na.omit` 
+In order to access these, we need to use the following syntax:
+* `output1$time.series[,"seasonal"]`
+* `output1$time.series[,"trend"]`
+* `output1$time.series[,"remainder"]`
 
-Some functions will generate an error if they have an NA in them.
+Note that the original data is not included in `output1`.  In this example, we would have to access it using `Tvalues$x` which contains the vector of values.  Alternatively, we could use `t_ser1` if we want the values which are associated with specific times.  In other words, `Tvalues$x` is a time series of temperatures (with no explicit information about when the temperatures were observed), while `t_ser1` is a time series of temperatures with months associated with each observation.
 
 ```{r}
 t_rem <- output1$time.series[,"remainder"]
 acf_rem <-acf(as.numeric(t_rem), type = "correlation", lag.max = 64)
 ```
 
-
 ### Exercise
-
-**TODO** check that the example shows how to do all the things in the exercise.
 
 Decompose the time series from `Practical7_time_series.txt` using `stl` decomposition.  Again use `ts` and and an appropriate value for `frequency` as you did in the previous exercise above.
 
 Play with the parameters `s.window` and `t.window` and observe how this influence the trend, the remainder, and the seasonal pattern.
+
+Note that the results you get may vary a bit from what you see below based on the values you choose for `s.window` and `t.window`.
 
 ```{r, echo=FALSE}
 dec2.1 <- stl(series2.1, s.window = 9, t.window = 13)
 plot(dec2.1)
 ```
 
-**TODO** `dec2.1$time.series[,"trend"]` may not be clear - students may not know to look for this
 Calculate and plot the de-trended time series. 
 
 ```{r, echo=FALSE}
@@ -488,8 +501,6 @@ plot(series2.1.des)
 
 Plot and interpret the ACF of the de-trended time series:
 
-**TODO** justification for `lag.max = 30`?  since we're interested in monthly patterns?
-
 ```{r, echo=FALSE}
 acf(series2.1.des,type = "correlation", lag.max = 30)
 ```
@@ -497,8 +508,7 @@ acf(series2.1.des,type = "correlation", lag.max = 30)
 With the help of the ACF investigate if the remainder still contains information, or if it is random noise. 
 
 ```{r, echo=FALSE}
-acf(na.omit(dec2.1$time.series[,"remainder"]), type = "correlation", lag.max = 30)
-acf(c(NA, dec2.1$time.series[,"remainder"]), type = "correlation", lag.max = 30)
+acf(dec2.1$time.series[,"remainder"], type = "correlation", lag.max = 30)
 ```
 
 There is an indication of a weak correlation at lag 1 and a weak anticorrelation at lag 2 and 3. This might indicate a causal relationship i.e., that a day with much internet traffic is followed by another day with much internet traffic. But since the correlation is quite weak is might also be due to imperfect decomposition or due to outliers (i.e. the first week with much higher than average weekly cycle. 
