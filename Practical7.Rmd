@@ -100,6 +100,11 @@ library(forecast)
 
 ## Reminder
 
+**TODO** dump in the formula
+
+Basically you take m data points:
+k to the left and k to the right of x(t) and average them with x(t)
+
 The syntax is:
 
 ```{r, eval=FALSE}
@@ -134,6 +139,7 @@ head(Tvalues_with_ma, n=10)
 ```
 
 We can now see the effects of the different values of `order` in the `ma` function.  Specifically:
+
 * `order = 5` means that 5 data points are averaged (2 to the left and right of the data point)
 * `order = 13` means that 13 data points are averaged (6 to the left and right of the data point)
 
@@ -224,10 +230,6 @@ ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 12)),
  
 ## Exercise
 
-**TODO** ACF isn't covered yet, right?
-
-Show the actual correlation (scatter) plot that is used to calculate the ACF at lag 10. 
-
 Again use the data from [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) with the time values added in as shown above.  Using a lag of 10, show the actual correlation (scatter) plot.
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -240,6 +242,15 @@ ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)),
 # Auto- and Cross- Covariance and -Correlation Function Estimation
 
 ## Reminder of the lecture
+
+**TODO** look at latest practical 7 slides, slide 12,13
+
+Time series:
+
+lag 1 correlation is a the correlation of the time series x(t) 
+
+with the time series shifted by one time unit x(t + Dt)
+
 
 The basic syntax of the `acf` function is:
 
@@ -271,6 +282,10 @@ Tvalues = read.csv("Pr_20May1.csv")
 ```
 ```{r}
 acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
+```
+
+If you want to look at a specific value at a certain lag (say lag=10), you can use:
+```{r}
 acf_10 = acf_T$acf[10]
 ```
 
@@ -283,11 +298,7 @@ series2 = read.csv("./data/Practical7_time_series.txt")
 acf.ser2<- acf(series2, type = "correlation", lag.max = 30)
 ```
 
-The main signal you see in the ACF is the large-scale variation
-
 # Decomposition
-
-## Reminder from the lecture
 
 The basic syntax is:
 
@@ -305,11 +316,14 @@ By default, an additive model is performed if no value is specified for `type`.
 
 Here we use the `Pr_20May1.csv` data which we've loaded into `Tvalues` above.
 
+**TODO** check against slide 18 in practical lecture
+
 ## Classical
 
 ### Example
 
 ```{r}
+# create a time series object with frequency of 12, since we're dealing with monthly data
 t_ser1 <- ts(Tvalues$x, freq = 12)
 output = decompose(t_ser1)
 plot(output)
@@ -317,14 +331,23 @@ plot(output)
 
 Now deseasonalize the data.  This shows the noise (`random`) + the `trend`
 ```{r}
+# subtract the original time series from the seasonal component
 t_des <- t_ser1 - output$seasonal
+# plot the deseasonalized data
 plot(t_des)
-acf_des <- acf(as.vector(t_des), type = "correlation", lag.max = 64)
+# Find the ACF of the deseasonalized time series data
+acf_des <- acf(as.numeric(t_des), type = "correlation", lag.max = 64)
 ```
+
+Note that if you don't use `as.numeric` as shown above, the values on the x axis will be based on the cycle number, which for this data set represents the year.  In the plot above, the numbers correspond to the months.
+```{r}
+acf_des <- acf(t_des, type = "correlation", lag.max = 64)
+```
+
 What we see above is a small coherence in the data, i.e. there is still a signal, but not very much.
 
-To examine the relation between the `observed`, `random`, `seasonal` and `trend` data, we create a new data frame and plot histograms of each component.
-```{r, warning=FALSE}
+To examine the relation between the `observed`, `random`, `seasonal` and `trend` data, below you can see the histograms of each component.
+```{r, warning=FALSE, echo=FALSE}
 df1 = rbind(cbind("random", output$random),
             cbind("seasonal", output$seasonal), 
             cbind("trend", output$trend), 
@@ -334,9 +357,6 @@ df1 = as.data.frame(df1)
 # add in column names
 colnames(df1) = c("decomposition_type", "value")
 
-# Note that df1$value is a factor.  We want to have this represented as a number
-class(df1$value)
-
 # The trick in R with converting factors to numbers is that 
 # you first have to convert the values to a character, and then to a number
 df1$value = as.numeric(as.character(df1$value))
@@ -345,7 +365,9 @@ df1$value = as.numeric(as.character(df1$value))
 ggplot(df1, aes(value)) + geom_histogram() + facet_wrap(~decomposition_type)
 ```
 
-What happens if we analyze a time series composed of random values:
+What we see is that the range of the observed values is much greater than that of the random and the trend values.  
+
+What happens if we analyze a time series composed of random values?
 ```{r}
 t_ser_random <- ts(runif(20*12), freq = 12)
 output = decompose(t_ser_random)
@@ -354,9 +376,8 @@ plot(output)
 
 The `decompose` method does show a seasonal compoment, but it's important to note the scale - the range of random values is much greater than the range of seasonal values
 
-**TODO** use what's below with the temperature data above, show how this helps to evaluate the outcome.  Also can we set the y axes to the same scale? (use a separate plot for this, relative is useful)
-
-```{r}
+Now looking at the histograms of the components for the decomposition on random values:
+```{r, echo=FALSE}
 # Same code as above, except now using t_ser_random for "observed"
 df1 = rbind(cbind("random", output$random),
             cbind("seasonal", output$seasonal), 
@@ -369,6 +390,8 @@ class(df1$value)
 df1$value = as.numeric(as.character(df1$value))
 ggplot(df1, aes(value)) + geom_histogram() + facet_wrap(~decomposition_type)
 ```
+
+What we see now is that the range of the random values is nearly as large as that of the observed values (since they're all random anyway).  As a result, we can't have much confidence in the overall trend, and the seasonal trend.  In other words, if the random component is very large, then we should doubt the analysis.
 
 ### Exercise
 
@@ -412,6 +435,10 @@ You can set a window (`t.window`) that determines how smooth the trend should be
 
 You can play around with these parameters, to get the trend estimate you like.
 
+**TODO** clean up this
+
+There is an optional outer loop, that provides robustness. This is recommended if you have many outliers or not-well behaved time series.  You set this to `TRUE` or `FALSE` using the `robust` parameter in the `stl` function.
+
 ### Example
 
 We again use the `Tvalues` data which is from `Pr_20May1.csv`.  
@@ -422,15 +449,21 @@ output1 = stl(t_ser1, s.window = 15, t.window = 12*15+1)
 plot(output1)
 ```
 
+On the right of the plot you will see several gray bars.  These give an indication of the scale of the different plots.  For example, the width of the bar on the `trend`  plot corresponds to t1he same range as the smaller gray bar on the `data` plot.  In other words, the trend is much smaller than the `data` values.  We can also see that the `trend` is also much smaller than the noise (i.e. the `remainder`.)
+
+
 We now take the remainder and see the auto-correlation.  With this we can see some coherence, such as if one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   Part of the reason for this is that a heat wave that lasts a week or two could span the borders of two months, thus raising the average temperature for both.  It could also be that an unusually warm May will also cause a warmer June, especially in coastal areas.  This would be due to the ocean having a higher starting temperature in June when we would expect increased solar radiation due to the changing angle of the earth.
 
 
+**TODO** explain `na.omit` 
+
+Some functions will generate an error if they have an NA in them.
+
 ```{r}
 t_rem <- output1$time.series[,"remainder"]
-acf_rem <-acf(as.vector(t_rem), type = "correlation", lag.max = 64)
+acf_rem <-acf(as.numeric(t_rem), type = "correlation", lag.max = 64)
 ```
 
-On the right of the plot you will see several gray bars.  These give an indication of the scale of the different plots.  For example, the width of the bar on the `trend`  plot corresponds to the same range as the smaller gray bar on the `data` plot.  In other words, the trend is much smaller than the seasonal values.
 
 ### Exercise
 
@@ -463,10 +496,9 @@ acf(series2.1.des,type = "correlation", lag.max = 30)
 
 With the help of the ACF investigate if the remainder still contains information, or if it is random noise. 
 
-**TODO** need to somewhere show `na.omit` 
-
 ```{r, echo=FALSE}
 acf(na.omit(dec2.1$time.series[,"remainder"]), type = "correlation", lag.max = 30)
+acf(c(NA, dec2.1$time.series[,"remainder"]), type = "correlation", lag.max = 30)
 ```
 
-there is an indication of a weak correlation at lag 1 and a weak anticorrelation at lag 2 and 3. This might indicate a causal relationship i.e., that a day with much internet traffic is followed by another day with much internet traffic. But since the correlation is quite weak is might also be due to imperfect decomposition or due to outliers (i.e. the first week with much higher than average weekly cycle. 
+There is an indication of a weak correlation at lag 1 and a weak anticorrelation at lag 2 and 3. This might indicate a causal relationship i.e., that a day with much internet traffic is followed by another day with much internet traffic. But since the correlation is quite weak is might also be due to imperfect decomposition or due to outliers (i.e. the first week with much higher than average weekly cycle. 
