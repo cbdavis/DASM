@@ -1,2 +1,4 @@
 exclude:
   - "*.Rmd"
+
+theme: jekyll-theme-slate
