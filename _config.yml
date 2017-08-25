@@ -2,3 +2,4 @@ exclude:
   - "*.Rmd"
 
 theme: jekyll-theme-slate
+title: Data Analysis and Statistical Methods (DASM)
