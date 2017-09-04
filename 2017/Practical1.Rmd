@@ -154,6 +154,12 @@ options(stringsAsFactors = FALSE)
 
 We'll cover what this is in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.  In short, [R assumes that your data contains factors or categorical variables](http://www.stat.berkeley.edu/classes/s133/factors.html), which isn't necessarily the case.
 
+## Using R as a calculator
+
+```{r}
+3 + 2
+```
+
 ## Assinging values to variables.
 
 We can assign the value of `1` to the variable `a` by doing:
