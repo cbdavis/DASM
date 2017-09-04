@@ -71,28 +71,37 @@ On your own computer you will have to **install both R and RStudio**
 
 Once you open up RStudio, you'll see that it has four panels, which are:
 
-**Top Left** - Code - here you can open and work on different script files
+<table><tr><td>
+**Console** - *Bottom Left*
 
-**Top Right** - Environment/History
+* R commands can be run here
+* You can also find documentation for commands by typing in ?commandName to get help, i.e. if you type `?sum` you'll see the documentation for the `sum` function.
+
+**Environment/History** - *Top Right*
 
 * This shows all the variables and functions that are currently loaded in the workspace (the "**Environment**")
 * You can click on the variables to see their values, which can be useful to inspect how the code is operating.
 * The **History** shows all of the commands that you have run.
 
-**Bottom Left** - Console
+**R Script Files** - *Top Left*
 
-* R commands can be run here
-* You can also find documentation for commands by typing in ?commandName to get help, i.e. if you type `?sum` you'll see the documentation for the `sum` function.
+* While you can run R code directly in the console, you can also save the code in a script file that allows you to rerun the code at a later date.  
+* You can run lines of code by highlighting them, and then clicking on "Run" above.
+* You can run all the code at once by doing Code -> Run Region -> Run All
 
-**Bottom Right** - Files/Plots/Packages/Help
+**Files/Plots/Packages/Help** - *Bottom Right*
 
 * **Files** - This shows everything in your current working directory
 * **Plots** - Once you start plotting, multiple plots will be stored here.  There are arrows in this view that allow you to navigate  between multiple plots
 * **Packages** - Shows all the packages installed and currently loaded
 * **Help** - Shows documentation for various functions.  
 
-You can run lines of code by highlighting them, and then clicking on "Run" above.
-You can run all the code at once by doing Code -> Run Region -> Run All
+</td>
+<td valign="top">
+<img src="./images/RStudioLabelledOverview.png" style="border:2px solid black">
+</td>
+</tr></table>
+
 
 ### Install Required Packages
 
@@ -107,20 +116,20 @@ Once R and RStudio is installed, **open up RStudio and install the necessary pac
 
 * Then type in the name of the package `ggplot2`.  You should see it auto-complete as you type:
 
-<center><img src="./images/Installggplot2_type_name.png" style="border:2px solid black"></center>
+<center><img src="./images/Install_swirl_type_name.png" style="border:2px solid black"></center>
 
 * Click on `Install` and make sure that `Install dependencies` is checked:
 
-<center><img src="./images/Installggplot2_clickInstall.png" style="border:2px solid black"></center>
+<center><img src="./images/Install_swirl_click_install.png" style="border:2px solid black"></center>
 
 * You should then see statements like this in the console on the bottom left quadrant:
 
-<center><img src="./images/Installggplot2console.png" style="border:2px solid black"></center>
+<center><img src="./images/Install_swirl_console.png" style="border:2px solid black"></center>
 
 * As you can see in the console, you can also install packages just by typing:
 
 ```{r, eval=FALSE}
-install.packages("ggplot2")
+install.packages("swirl")
 ```
 
 # How to read this tutorial
@@ -262,126 +271,6 @@ mean(mtcars$mpg)
 sd(mtcars$mpg)
 ```
 
-# Creating Plots
-
-We first need to load the library that we'll be using for the rest of this tutorial:
-
-```{r, message=FALSE}
-library(ggplot2)
-```
-
-## ggplot2
-Many visualizations created with R are often created using the **[ggplot2 library](http://ggplot2.org/)**.  What's interesting about this library is that way in which it allows you to construct visualizations.  The gg in ggplot2 stands for the Grammar of Graphics. The idea is that when you create plots, you are basically writing sentences that are of the form:
-  
-  `Here's my data frame` + `Here are the x and y columns` + `Apply this kind of plot to that data` + `These are the axis labels` + `here are some more additional transformations`
-
-The syntax may look strange at first, although it’s a very modular approach, and you can create very complex visualizations just by adding new parts to these sentences.
-
-## Scatter plot
-To understand this, we can first do a simple scatter plot.  You'll notice with the syntax that we first start with the `mtcars` data frame, then we specify which columns are to be associated with the `x` and `y` values, and then we specify that we want to plot the data as points by adding `+ geom_point()`.
-
-```{r mtcarsGeomPoint, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
-```
-
-In the following examples, you may see the code examples split over multiple lines.  The two statements below are actually equivalent, but by spreading the commands over multiple lines it can sometimes help to make things more readable by separating the code into its different functional pieces.
-
-```{r, eval=FALSE}
-ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
-
-ggplot(mtcars, 
-       aes(x=hp, y=mpg)) + 
-  geom_point()
-```
-
-We can also use values from other columns to modify particular attributes of the points.  For example, we can set the color of the points to indicate the number of cylinders
-```{r mtCarsPointColor, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl)) + geom_point()
-```
-
-We can set the size of the points based on the weight of the car
-```{r mtCarsColorSizePoint, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl, size=wt)) + geom_point()
-```
-
-## Boxplot
-For this example, we need to specify `x=factor(cyl)` to make sure that there is a boxplot drawn for each unique value of `cyl`.
-
-```{r mtCarsBoxPlot, cache=TRUE}
-ggplot(mtcars, aes(x=factor(cyl), y=mpg)) + geom_boxplot()
-```
-
-## Histogram
-Histogram of the number of cars with a particular fuel economy value:
-
-```{r mtCarsHistorgram, cache=TRUE}
-ggplot(mtcars, aes(x=mpg)) + geom_histogram()
-```
-
-We can also change the bin width:
-```{r mtCarsHistorgram2, cache=TRUE}
-ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=5)
-```
-
-## Bar charts
-Count the number of cars with specific numbers of cylinders
-```{r mtCarsBarChart, cache=TRUE}
-ggplot(mtcars, 
-       aes(x=cyl)) + 
-  geom_bar()
-```
-
-## Pie chart
-
-Pie charts can be created as well, although they require a few more steps.  Part of the reason for this is that [many data visualization experts discourage their use](https://www.quora.com/How-and-why-are-pie-charts-considered-evil-by-data-visualization-experts) since other types of visualizations can communicate the information more effectively.
-
-The general strategy to create a pie chart using ggplot2 is to first create a bar chart and then to use polar coordinates to turn the bars into a circle.
-
-In other words, we start with this:
-```{r mtCarsNotYetPieChart, cache=TRUE}
-ggplot(mtcars, 
-       aes(x=factor(1), fill=factor(cyl))) + 
-  geom_bar(width=1)
-```
-
-To explain what's going on:
-
-* `x=factor(1)` - This places the bars at the same location, which allows them to be stacked
-* `fill=factor(cyl)` - The fill color for the bars is based on the value of `cyl`
-* `geom_bar(width=1)` - This is needed to that there isn't a hole in the plot when we use the code in the step below.
-* **Note:** the height of the bars is counting the number of cars (i.e. number of rows in the `mtcars` data frame) with a specific value for `cyl`.  In other words, the size of the pie slices is not based on actual numeric values in `mtcars`.
-
-We then turn this into a pie chart by adding `+ coord_polar(theta="y")`:
-```{r mtCarsPieChart1, cache=TRUE}
-
-# this does a count
-ggplot(mtcars, 
-       aes(x=factor(1), fill=factor(cyl))) + 
-  geom_bar(width=1) + coord_polar(theta="y")
-```
-
-If we want to create a pie chart where the size of the slices correspond to actual values in the data and not just to counts of things with the same values, we need to take a slightly different approach.
-
-Here we have a data frame listing types of animals and values associated with them:
-```{r animalsDataFrame, cache=TRUE}
-animals = data.frame(animal_type = c("chickens", "cows", "pigs"),
-                     farm_count = c(20, 10, 5))
-animals
-```
-
-We then add `y=farm_count` and `stat="identity"` to make sure that this is plotted correctly.  We also use `theme_void()` to remove the axis labels that we saw in the previous plot.
-
-Using `stat="identity"` means that the size of the pie slices are based on the values contained in the data, and not on the count of things with the same values.
-
-```{r mtCarsPieChart2, cache=TRUE}
-ggplot(animals, 
-       aes(x=factor(1), y=farm_count, fill=factor(animal_type))) + 
-  geom_bar(width=1, stat="identity") + 
-  coord_polar(theta="y") + 
-  theme_void()
-
-```
-
 # Reading CSV Files
 
 The following example is based on [CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we've transformed into a CSV file.
@@ -399,7 +288,7 @@ While you can technically read Excel files into R, reading CSV files is much muc
 
 Now we'll load in an example data file and create several plots with it.
 
-For this, you'll need the UNFCCC_CO2_Emissions.csv file.  To get it, **right click** on this link: [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/UNFCCC_CO2_Emissions.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
+For this, you'll need the UNFCCC_CO2_Emissions.csv file.  To get it, **right click** on this link: [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/UNFCCC_CO2_Emissions.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
 
 Internet Explorer might try to save this as "UNFCCC_CO2_Emissions.**txt**", make sure to save this as "UNFCCC_CO2_Emissions.**csv**" or adjust your code so that it knows to read the correct file.
 
@@ -417,41 +306,6 @@ df = read.csv(file="UNFCCC_CO2_Emissions.csv")
 df = read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
 ```
 
-Create line plots per country of the amount of CO2 emissions:
-```{r EmissionsPerCountryLinePlot, fig.width=12, fig.height=6, cache=TRUE}
-ggplot(df, aes(x=Year, y=CO2_Mt, colour=Country)) + geom_line()
-```
-
-Create a stacked area chart showing how each country's CO2 emissions contributes to the total:
-```{r EmissionsPerCountryArea, fig.width=12, fig.height=6, cache=TRUE}
-ggplot(df, 
-       aes(x=Year, y=CO2_Mt, fill=Country)) + 
-  geom_area()
-```
-
-Same plot, but using `geom_line(aes(ymax=CO2_Mt), position="stack", size=0.1)` to add black lines to help better distinguish the individual countries.
-
-```{r EmissionsPerCountryAreaWithSeparatingLine, fig.width=12, fig.height=6, cache=TRUE}
-ggplot(df, 
-       aes(x=Year, y=CO2_Mt, fill=Country)) + 
-  geom_area() + 
-  geom_line(aes(ymax=CO2_Mt), position="stack", size=0.1)
-```
-
-In the previous plots, it's a bit difficult to distinguish countries with similar colors.  We can also use `facet_wrap` to create plots for individual countries.
-
-* `~Country` - create individual plots per distinct values in the `Country` column.
-* `scales="free_y"` - each plot will have its y axis scaled individually.  This helps to view the trends from countries with less CO2 emissions.
-
-```{r EmissionsPerCountryFacetWrap, fig.width=12, fig.height=10, cache=TRUE}
-ggplot(df, aes(x=Year, y=CO2_Mt)) + geom_line() + facet_wrap(~Country, scales="free_y")
-```
-
-The plot above shows the variation, but you'll notice that the minimum value on the y scale is not set to zero.  This means that the variation observed may not actually be that big when considering the overall amount of emissions.  To fix this, we update our code to use `ymin=0` so that we can get a picture of the absolute magnitude of emissions.
-
-```{r EmissionsPerCountryFacetWrapYmin0, fig.width=12, fig.height=10, cache=TRUE}
-ggplot(df, aes(x=Year, y=CO2_Mt, ymin=0)) + geom_line() + facet_wrap(~Country, scales="free_y")
-```
 
 # Reference Materials
 For further information beyond what is covered in this practical, you can refer to the resources below.  If you are having trouble understanding the contents of the practical, these can be quite useful.
@@ -484,6 +338,8 @@ For further information beyond what is covered in this practical, you can refer 
 </tr>
 </table>
 </center>
+
+
 
 ## Additional Materials
 
