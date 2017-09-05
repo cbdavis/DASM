@@ -1,3 +1,5 @@
+This is the collection of R Tutorial Practicals for the [Data Analysis and Statistical Methods (DASM) WMEE14000](https://www.rug.nl/ocasys/rug/vak/show?code=WMEE14000) course at the University of Groningen 
+
 # 2017
 
 (forthcoming)
