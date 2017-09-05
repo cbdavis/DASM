@@ -17,7 +17,7 @@ library(knitr)
 
 ## What/Why?
 
-[R is a language and environment for statistical computing and graphics.](https://www.r-project.org/about.html).  In more practical terms:
+**[R is a language and environment for statistical computing and graphics](https://www.r-project.org/about.html)**.  In more practical terms:
 
 * It's a **digital swiss army knife**
     * It allows you to do very diverse things with data.
@@ -26,7 +26,7 @@ library(knitr)
     * For even the weirdest problems you run into, you can Google it and usually find a solution (probably on [stackoverflow](http://stackoverflow.com/questions/tagged/r)). 
 * You don't have write to code that others have already created (stand on the shoulders of giants)
     * There are over **[11,000 contributed packages covering a variety of topics](https://cran.r-project.org/web/views/)**. This means that for a lot of different applications and scientific domains, someone has already created something that you can re-use. This minimizes the amount of work you have to do, while allowing you to do much more sophisticated analysis.
-    * **Package management** - you don't have to copy/paste this code. It's managed so that you just have to call the name of the package. You can also have R update every single package that you have installed, in order to get the latest bug fixes, enhancements, etc. 
+    * **Package management** - you don't have to copy/paste this code. It's managed so that you just have to call the name of the software package. You can also have R update every single software package that you have installed, in order to get the latest bug fixes, enhancements, etc. 
 * It lets you create **repeatable workflows**
     * Have new data? Just run the code again to generate plots + images for reports
 * Use of **open source & open standards**
@@ -639,40 +639,15 @@ In the `Help` window you should see:
 </table>
 </center>
 
-
 ## Reference Materials
 For further information beyond what is covered in this practical, you can refer to the resources below.  If you are having trouble understanding the contents of the practical, these can be quite useful.
 
 ### Cheat sheets
 
-**These sheets are important and summarize much of what you will need to know about R for this course**
+**Much of what has been covered in this practical is available for easy reference in the [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf).**  It is highly recommended that you keep a copy of this handy when using R.
 
-* [R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf) - this covers many of the basics of using R that you will need to know.
-* [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) - this covers all the types of visualizations that can be done with `ggplot2`
-* [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.  We will cover `dplyr` in a later practical.
-
-<center>
-<table>
-<tr>
-<td style="text-align:center"><b>R cheat sheet</b></td>
-<td style="width:50px"></td>
-<td style="text-align:center"><b>ggplot2 cheat sheet</b></td>
-<td style="width:50px"></td>
-<td style="text-align:center"><b>dplyr cheat sheet</b></td>
-</tr>
-
-<tr>
-<td><a href="https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf">
-<img src="./images/rCheatSheetScreenShot.png" style="height:200px; width:auto"></a></td>
-<td style="width:50px"></td>
-<td><a href="https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf"><img src="./images/ggplotScreenShot.png" style="height:200px; width:auto"></a></td>
-<td style="width:50px"></td>
-<td><a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf"><img src="./images/dplyrScreenShot.png" style="height:200px; width:auto"></a></td>
-</tr>
-</table>
-</center>
-
-
+<a href="https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf">
+<img src="./images/rCheatSheetScreenShotFull.png" style="width:auto"></a>
 
 ### Additional Materials
 
@@ -697,41 +672,3 @@ Swirl is interesting since it guides you in learning R, within the R console.  Y
 | 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
 ```
 
-## Maybe leave out
-
-### Install Required Packages
-
-Once R and RStudio is installed, **open up RStudio and install the necessary packages for R**.  Note that with R, the word "package" and "library" are often used interchangeably.  Today we'll need to install the [ggplot2](http://docs.ggplot2.org/current/) library to do the plotting.
-
-
-#### Installation Steps
-
-* In the bottom right quadrant of RStudio, locate the `Packages` tab, and click on `Install`:
-
-<center><img src="./images/InstallRPackage.png" style="border:2px solid black"></center>
-
-* Then type in the name of the package `ggplot2`.  You should see it auto-complete as you type:
-
-<center><img src="./images/Install_swirl_type_name.png" style="border:2px solid black"></center>
-
-* Click on `Install` and make sure that `Install dependencies` is checked:
-
-<center><img src="./images/Install_swirl_click_install.png" style="border:2px solid black"></center>
-
-* You should then see statements like this in the console on the bottom left quadrant:
-
-<center><img src="./images/Install_swirl_console.png" style="border:2px solid black"></center>
-
-* As you can see in the console, you can also install packages just by typing:
-
-```{r, eval=FALSE}
-install.packages("swirl")
-```
-
-### Always always always first specify `options(stringsAsFactors = FALSE)`
-Make sure to always run this command when you start using R:
-```{r}
-options(stringsAsFactors = FALSE)
-```
-
-We'll cover what this is in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.  In short, [R assumes that your data contains factors or categorical variables](http://www.stat.berkeley.edu/classes/s133/factors.html), which isn't necessarily the case.

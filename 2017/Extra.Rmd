@@ -1,0 +1,17 @@
+---
+title: "Extra Material"
+author: "Chris Davis"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  html_document:
+  toc: false
+number_sections: false
+---
+
+### Always always always first specify `options(stringsAsFactors = FALSE)`
+Make sure to always run this command when you start using R:
+```{r}
+options(stringsAsFactors = FALSE)
+```
+
+We'll cover what this is in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.  In short, [R assumes that your data contains factors or categorical variables](http://www.stat.berkeley.edu/classes/s133/factors.html), which isn't necessarily the case.
