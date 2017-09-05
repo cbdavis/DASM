@@ -1,7 +1,7 @@
 ---
 title: "DASM Practical 1"
 author: "Chris Davis"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: 
     html_document:
         toc: false
@@ -274,24 +274,163 @@ Here the calculation being performed is `c(2/10, 5/6, 2/4)`.  Note that in both 
 
 ### Subsetting Vectors
 
-### Sequences
-
-Since this is a sequence from 3 to 7, we can also write it like:
-
+Sometimes we don't want to use the all the values in a vector, but only want certain values.  For the examples below we'll work with a vector of ten random values:
 ```{r}
-a  = c(3:7)
-a
+x = c(-1, 0, 0, -9, 1, 4, 8, -2, 3, 5)
 ```
 
+Get the third element of the vector:
+```{r}
+x[3]
+```
 
+Note that in R, indices start one, while in other languages they may start at zero.  In other words, in Python, `x[3]` would give you the fourth element in the vector.
+
+Return everything except for the seventh element:
+```{r}
+x[-7]
+```
+
+Get the fifth, sixth and seventh element:
+```{r}
+x[5:7]
+```
+
+Return all elements except for the fifth, sixth and seventh element:
+```{r}
+x[-(5:7)]
+```
+
+Return elements at locations 5 and 7:
+```{r}
+x[c(5,7)]
+```
+
+Note that while `x[c(5:7)]` will give you the same results as `x[5:7]` i.e. you don't need to include the `c()`,  you will get an error if instead of `x[c(5,7)]`, you try `x[5,7]`
+```{r, error=TRUE}
+x[5,7]
+```
+The reason is that this is the syntax that is used to access elements of a matrix, specifically the element at row 5 and column 7.  We will discuss this later on in the practical.
+
+Find all values equal to zero:
+```{r}
+x[x == 0]
+```
+Note that zero is listed twice as we have two zeros in the vector
+
+Find all values less than four:
+```{r}
+x[x < 4]
+```
+
+Find all values in `x` which are in the set of numbers one through four:
+```{r}
+x[x %in% 1:4]
+```
+The values are returned in the order in which they are found, which is why the `4` appears before the `3`
+
+## Sequences
+
+In R you will often be creating vectors that contain sequences of numbers.  If you would like to create a vector for the sequence of integers from `3` to `7`, you can do:
+
+```{r}
+c(3, 4, 5, 6, 7)
+```
+
+However, you don't have to specify the intermediate numbers since we're just taking consecutive integers.  Using the `:` operator, we can shorten our code that looks like `start_number:end_number`
+
+```{r}
+3:7
+```
+
+You will also sometimes see people use `c()` to do this.  This also gives the same result.
+```{r}
+c(3:7)
+```
+
+Sequences can count down too
+```{r}
+7:3
+```
+
+It's possible to use this technique with real numbers and not just integers.  
+```{r}
+3.1459:10
+```
+Note that the final value is `9.1459` and not `10`.  This is because the next number in the sequence would be `10.1459` and this is greater than `10`.  In general, the final value in a sequence will be a value less than or equal to the end value you specified.
+
+Yet another way to do this is via the `seq()` function
+```{r}
+seq(3, 7, by = 1)
+```
+
+What's special about this is the `by` argument which allows us to specify by which value we would like to increment the sequence
+```{r}
+seq(3, 7, by = 0.5)
+```
+
+Again, the final value will be less than or equal to the end value we request:
+```{r}
+seq(3, 7, by = 3.14159)
+```
+
+The `seq()` function can also calculate the increment needed in order to have a sequence of a specified length with certain start and end values.  In this case, we want a sequence with ten elements that starts with `3` and ends with `10`.
+```{r}
+seq(3, 7, length.out = 10)
+```
+
+### Repeating Sequences
+
+Instead of creating sequences that increment by a fixed value, you may also want to create sequences of repeating elements.  R allows you to do this with the `rep()` function.
+
+Just like with the `seq()` function, there are different arguments we can use to get different behaviour.  If we use the `times` argument, we can repeat a sequence multiple times like we would with `c(1:3, 1:3, 1:3, 1:3)`
+```{r}
+rep(1:3, times=4)
+```
+
+If we want to repeat each element in a vector multiple times in a row, then we can use the `each` argument.
+```{r}
+rep(1:3, each = 4)
+```
+
+You can even call `rep()` multiple times to generate very complex sequences
+```{r}
+rep(rep(1:3, times=2), each=2)
+```
 
 ## Matrices
 
-Initialize a matrix of zeros with three columns and two rows.  Then set the value at row 1 and column 2 to `3`
+Initialize a matrix of zeros with three columns and two rows.  
 ```{r}
 b = matrix(0, ncol=3, nrow=2)
+b
+```
+
+Then set the value at row 1 and column 2 to `3`
+```{r}
 b[1,2] = 3
 b
+```
+
+We can also convert a vector into a matrix
+```{r}
+matrix(1:6, ncol=3, nrow=2)
+```
+In the previous example, the vector had the same number of elements as the matrix.  We can also create a matrix where the vector is repeated.  Note how the values are repeated.
+
+```{r}
+matrix(1:3, ncol=3, nrow=2)
+```
+
+Note that you will get a warning of the length of the vector is not a sub-multiple or multiple of the number of rows in the matrix.  R will still recycle the elements though.
+```{r}
+matrix(1:5, ncol=3, nrow=2)
+```
+
+We can also control how R populates the matrix with vector values, by using the `byrow=TRUE` argument.  By default it will place vector values in a matrix by going down the columns from left to right.  
+
+```{r}
+matrix(1:6, ncol=3, nrow=2, byrow=TRUE)
 ```
 
 You can append a matrix to the end of another matrix using `rbind` which means that you will bind the rows together.
@@ -317,8 +456,54 @@ colSums(d)
 
 ### Subsetting Matrices
 
+
+```{r}
+a = matrix(1:12, nrow=3, ncol=4, byrow = TRUE)
+a
+```
+
+We can subset elements of a matrix by using square brackets, similar to how we accessed elements of a vector.  
+
+The main difference is that for matrices we need to specify first number corresponds to the row number, the second corresponds to the column number
+
+Select values from row 2:
+```{r}
+a[2,]
+```
+
+Select values from column 2:
+```{r}
+a[,2]
+```
+
+Select element at row 1, column 2:
+```{r}
+a[1,2]
+```
+
+It's still possible to access matrix elements by a single index, although this is a bit dangerous as it's not always intuitive where the value is coming from.
+```{r}
+a[10]
+```
+
+Just like with vectors, we can still access elements that meet some condition
+```{r}
+a[a > 5]
+```
+
 ## Data Frames
-Data frames are conceptually similar to matrices, although you can mix in different types of data per column.  In the example below, the first two columns are numbers, while the last column is text.
+
+One issue with matrices is that it can only hold one type of data.  The example below shows what happens when you try to combine matrices with numbers and text:
+```{r}
+a = matrix(1:12, nrow=4, ncol=3)
+a
+b = matrix(c("this", "is", "some", "text"), nrow=4, ncol=1)
+b
+cbind(a,b)
+```
+What's happened is that by default R converted all the elements to text since it can't combine numbers and text together.  
+
+A way around this is to use data frames.  A key difference from matrices is that data frames only require that you have a single data type *per column*.  In the example below, the first two columns are numbers, while the last column is text.  Note that when we specify `x =`, `y =` and `z = ` below, we actually creating a type of table where the columns will be labelled `x`, `y` and `z`.
 
 ```{r}
 a = data.frame(x = c(1:3),
@@ -348,11 +533,28 @@ One of the nice things about data frames is that you can use the names of the co
 a$z
 ```
 
+Multiple columns can be selected.  Note that we have to include a comma to indicate that we want all rows
+```{r}
+a[,c("x", "y")]
+```
+
+Same, but rows two and three for columns `x` and `y`:
+```{r}
+a[2:3,c("x", "y")]
+```
+
 You can also add a new column to an existing data frame:
 ```{r}
 a$t = c(10, 13, 17)
 a
 ```
+
+or remove an existing column:
+```{r}
+a$x <- NULL
+a
+```
+
 
 We'll look at the `mtcars` data set that is included with R.  If you type `?mtcars` in the console, you'll see more documentation.  Looking at the first few lines of the `mtcars` data frame, we see the following which shows data in several columns: `mpg`, `cyl`, `disp`, `hp`, `drat`, `wt`, `qsec`, `vs`, `am`, `gear` and `carb`
 ```{r}
@@ -366,6 +568,15 @@ For specific columns, we can use the `mean` and `sd` functions to find the avera
 mean(mtcars$mpg)
 sd(mtcars$mpg)
 ```
+
+### Other functions to maybe cover:
+
+* nrow
+* ncol
+* dim
+* summary
+* head
+* tail
 
 ## Reading CSV Files
 

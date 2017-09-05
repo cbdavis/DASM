@@ -11,6 +11,7 @@
 
 <meta name="author" content="Chris Davis" />
 
+<meta name="date" content="2017-09-05" />
 
 <title>DASM Practical 1</title>
 
@@ -118,7 +119,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">DASM Practical 1</h1>
 <h4 class="author"><em>Chris Davis</em></h4>
-<h4 class="date"><em>05 September, 2017</em></h4>
+<h4 class="date"><em>September 05, 2017</em></h4>
 
 </div>
 
@@ -387,24 +388,122 @@ a / b </code></pre>
 </div>
 <div id="subsetting-vectors" class="section level3">
 <h3>Subsetting Vectors</h3>
+<p>Sometimes we don’t want to use the all the values in a vector, but only want certain values. For the examples below we’ll work with a vector of ten random values:</p>
+<pre class="r"><code>x = c(-1, 0, 0, -9, 1, 4, 8, -2, 3, 5)</code></pre>
+<p>Get the third element of the vector:</p>
+<pre class="r"><code>x[3]</code></pre>
+<pre><code>## [1] 0</code></pre>
+<p>Note that in R, indices start one, while in other languages they may start at zero. In other words, in Python, <code>x[3]</code> would give you the fourth element in the vector.</p>
+<p>Return everything except for the seventh element:</p>
+<pre class="r"><code>x[-7]</code></pre>
+<pre><code>## [1] -1  0  0 -9  1  4 -2  3  5</code></pre>
+<p>Get the fifth, sixth and seventh element:</p>
+<pre class="r"><code>x[5:7]</code></pre>
+<pre><code>## [1] 1 4 8</code></pre>
+<p>Return all elements except for the fifth, sixth and seventh element:</p>
+<pre class="r"><code>x[-(5:7)]</code></pre>
+<pre><code>## [1] -1  0  0 -9 -2  3  5</code></pre>
+<p>Return elements at locations 5 and 7:</p>
+<pre class="r"><code>x[c(5,7)]</code></pre>
+<pre><code>## [1] 1 8</code></pre>
+<p>Note that while <code>x[c(5:7)]</code> will give you the same results as <code>x[5:7]</code> i.e. you don’t need to include the <code>c()</code>, you will get an error if instead of <code>x[c(5,7)]</code>, you try <code>x[5,7]</code></p>
+<pre class="r"><code>x[5,7]</code></pre>
+<pre><code>## Error in x[5, 7]: incorrect number of dimensions</code></pre>
+<p>The reason is that this is the syntax that is used to access elements of a matrix, specifically the element at row 5 and column 7. We will discuss this later on in the practical.</p>
+<p>Find all values equal to zero:</p>
+<pre class="r"><code>x[x == 0]</code></pre>
+<pre><code>## [1] 0 0</code></pre>
+<p>Note that zero is listed twice as we have two zeros in the vector</p>
+<p>Find all values less than four:</p>
+<pre class="r"><code>x[x &lt; 4]</code></pre>
+<pre><code>## [1] -1  0  0 -9  1 -2  3</code></pre>
+<p>Find all values in <code>x</code> which are in the set of numbers one through four:</p>
+<pre class="r"><code>x[x %in% 1:4]</code></pre>
+<pre><code>## [1] 1 4 3</code></pre>
+<p>The values are returned in the order in which they are found, which is why the <code>4</code> appears before the <code>3</code></p>
 </div>
-<div id="sequences" class="section level3">
-<h3>Sequences</h3>
-<p>Since this is a sequence from 3 to 7, we can also write it like:</p>
-<pre class="r"><code>a  = c(3:7)
-a</code></pre>
+</div>
+<div id="sequences" class="section level2">
+<h2>Sequences</h2>
+<p>In R you will often be creating vectors that contain sequences of numbers. If you would like to create a vector for the sequence of integers from <code>3</code> to <code>7</code>, you can do:</p>
+<pre class="r"><code>c(3, 4, 5, 6, 7)</code></pre>
 <pre><code>## [1] 3 4 5 6 7</code></pre>
+<p>However, you don’t have to specify the intermediate numbers since we’re just taking consecutive integers. Using the <code>:</code> operator, we can shorten our code that looks like <code>start_number:end_number</code></p>
+<pre class="r"><code>3:7</code></pre>
+<pre><code>## [1] 3 4 5 6 7</code></pre>
+<p>You will also sometimes see people use <code>c()</code> to do this. This also gives the same result.</p>
+<pre class="r"><code>c(3:7)</code></pre>
+<pre><code>## [1] 3 4 5 6 7</code></pre>
+<p>Sequences can count down too</p>
+<pre class="r"><code>7:3</code></pre>
+<pre><code>## [1] 7 6 5 4 3</code></pre>
+<p>It’s possible to use this technique with real numbers and not just integers.</p>
+<pre class="r"><code>3.1459:10</code></pre>
+<pre><code>## [1] 3.1459 4.1459 5.1459 6.1459 7.1459 8.1459 9.1459</code></pre>
+<p>Note that the final value is <code>9.1459</code> and not <code>10</code>. This is because the next number in the sequence would be <code>10.1459</code> and this is greater than <code>10</code>. In general, the final value in a sequence will be a value less than or equal to the end value you specified.</p>
+<p>Yet another way to do this is via the <code>seq()</code> function</p>
+<pre class="r"><code>seq(3, 7, by = 1)</code></pre>
+<pre><code>## [1] 3 4 5 6 7</code></pre>
+<p>What’s special about this is the <code>by</code> argument which allows us to specify by which value we would like to increment the sequence</p>
+<pre class="r"><code>seq(3, 7, by = 0.5)</code></pre>
+<pre><code>## [1] 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0</code></pre>
+<p>Again, the final value will be less than or equal to the end value we request:</p>
+<pre class="r"><code>seq(3, 7, by = 3.14159)</code></pre>
+<pre><code>## [1] 3.00000 6.14159</code></pre>
+<p>The <code>seq()</code> function can also calculate the increment needed in order to have a sequence of a specified length with certain start and end values. In this case, we want a sequence with ten elements that starts with <code>3</code> and ends with <code>10</code>.</p>
+<pre class="r"><code>seq(3, 7, length.out = 10)</code></pre>
+<pre><code>##  [1] 3.000000 3.444444 3.888889 4.333333 4.777778 5.222222 5.666667
+##  [8] 6.111111 6.555556 7.000000</code></pre>
+<div id="repeating-sequences" class="section level3">
+<h3>Repeating Sequences</h3>
+<p>Instead of creating sequences that increment by a fixed value, you may also want to create sequences of repeating elements. R allows you to do this with the <code>rep()</code> function.</p>
+<p>Just like with the <code>seq()</code> function, there are different arguments we can use to get different behaviour. If we use the <code>times</code> argument, we can repeat a sequence multiple times like we would with <code>c(1:3, 1:3, 1:3, 1:3)</code></p>
+<pre class="r"><code>rep(1:3, times=4)</code></pre>
+<pre><code>##  [1] 1 2 3 1 2 3 1 2 3 1 2 3</code></pre>
+<p>If we want to repeat each element in a vector multiple times in a row, then we can use the <code>each</code> argument.</p>
+<pre class="r"><code>rep(1:3, each = 4)</code></pre>
+<pre><code>##  [1] 1 1 1 1 2 2 2 2 3 3 3 3</code></pre>
+<p>You can even call <code>rep()</code> multiple times to generate very complex sequences</p>
+<pre class="r"><code>rep(rep(1:3, times=2), each=2)</code></pre>
+<pre><code>##  [1] 1 1 2 2 3 3 1 1 2 2 3 3</code></pre>
 </div>
 </div>
 <div id="matrices" class="section level2">
 <h2>Matrices</h2>
-<p>Initialize a matrix of zeros with three columns and two rows. Then set the value at row 1 and column 2 to <code>3</code></p>
+<p>Initialize a matrix of zeros with three columns and two rows.</p>
 <pre class="r"><code>b = matrix(0, ncol=3, nrow=2)
-b[1,2] = 3
+b</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    0    0    0
+## [2,]    0    0    0</code></pre>
+<p>Then set the value at row 1 and column 2 to <code>3</code></p>
+<pre class="r"><code>b[1,2] = 3
 b</code></pre>
 <pre><code>##      [,1] [,2] [,3]
 ## [1,]    0    3    0
 ## [2,]    0    0    0</code></pre>
+<p>We can also convert a vector into a matrix</p>
+<pre class="r"><code>matrix(1:6, ncol=3, nrow=2)</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    3    5
+## [2,]    2    4    6</code></pre>
+<p>In the previous example, the vector had the same number of elements as the matrix. We can also create a matrix where the vector is repeated. Note how the values are repeated.</p>
+<pre class="r"><code>matrix(1:3, ncol=3, nrow=2)</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    3    2
+## [2,]    2    1    3</code></pre>
+<p>Note that you will get a warning of the length of the vector is not a sub-multiple or multiple of the number of rows in the matrix. R will still recycle the elements though.</p>
+<pre class="r"><code>matrix(1:5, ncol=3, nrow=2)</code></pre>
+<pre><code>## Warning in matrix(1:5, ncol = 3, nrow = 2): data length [5] is not a sub-
+## multiple or multiple of the number of rows [2]</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    3    5
+## [2,]    2    4    1</code></pre>
+<p>We can also control how R populates the matrix with vector values, by using the <code>byrow=TRUE</code> argument. By default it will place vector values in a matrix by going down the columns from left to right.</p>
+<pre class="r"><code>matrix(1:6, ncol=3, nrow=2, byrow=TRUE)</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    2    3
+## [2,]    4    5    6</code></pre>
 <p>You can append a matrix to the end of another matrix using <code>rbind</code> which means that you will bind the rows together.</p>
 <pre class="r"><code>b = matrix(0, ncol=3, nrow=2)
 c = matrix(1, ncol=3, nrow=2)
@@ -431,11 +530,56 @@ d</code></pre>
 <pre><code>## [1] 2 2 2</code></pre>
 <div id="subsetting-matrices" class="section level3">
 <h3>Subsetting Matrices</h3>
+<pre class="r"><code>a = matrix(1:12, nrow=3, ncol=4, byrow = TRUE)
+a</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]    1    2    3    4
+## [2,]    5    6    7    8
+## [3,]    9   10   11   12</code></pre>
+<p>We can subset elements of a matrix by using square brackets, similar to how we accessed elements of a vector.</p>
+<p>The main difference is that for matrices we need to specify first number corresponds to the row number, the second corresponds to the column number</p>
+<p>Select values from row 2:</p>
+<pre class="r"><code>a[2,]</code></pre>
+<pre><code>## [1] 5 6 7 8</code></pre>
+<p>Select values from column 2:</p>
+<pre class="r"><code>a[,2]</code></pre>
+<pre><code>## [1]  2  6 10</code></pre>
+<p>Select element at row 1, column 2:</p>
+<pre class="r"><code>a[1,2]</code></pre>
+<pre><code>## [1] 2</code></pre>
+<p>It’s still possible to access matrix elements by a single index, although this is a bit dangerous as it’s not always intuitive where the value is coming from.</p>
+<pre class="r"><code>a[10]</code></pre>
+<pre><code>## [1] 4</code></pre>
+<p>Just like with vectors, we can still access elements that meet some condition</p>
+<pre class="r"><code>a[a &gt; 5]</code></pre>
+<pre><code>## [1]  9  6 10  7 11  8 12</code></pre>
 </div>
 </div>
 <div id="data-frames" class="section level2">
 <h2>Data Frames</h2>
-<p>Data frames are conceptually similar to matrices, although you can mix in different types of data per column. In the example below, the first two columns are numbers, while the last column is text.</p>
+<p>One issue with matrices is that it can only hold one type of data. The example below shows what happens when you try to combine matrices with numbers and text:</p>
+<pre class="r"><code>a = matrix(1:12, nrow=4, ncol=3)
+a</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    5    9
+## [2,]    2    6   10
+## [3,]    3    7   11
+## [4,]    4    8   12</code></pre>
+<pre class="r"><code>b = matrix(c(&quot;this&quot;, &quot;is&quot;, &quot;some&quot;, &quot;text&quot;), nrow=4, ncol=1)
+b</code></pre>
+<pre><code>##      [,1]  
+## [1,] &quot;this&quot;
+## [2,] &quot;is&quot;  
+## [3,] &quot;some&quot;
+## [4,] &quot;text&quot;</code></pre>
+<pre class="r"><code>cbind(a,b)</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]  
+## [1,] &quot;1&quot;  &quot;5&quot;  &quot;9&quot;  &quot;this&quot;
+## [2,] &quot;2&quot;  &quot;6&quot;  &quot;10&quot; &quot;is&quot;  
+## [3,] &quot;3&quot;  &quot;7&quot;  &quot;11&quot; &quot;some&quot;
+## [4,] &quot;4&quot;  &quot;8&quot;  &quot;12&quot; &quot;text&quot;</code></pre>
+<p>What’s happened is that by default R converted all the elements to text since it can’t combine numbers and text together.</p>
+<p>A way around this is to use data frames. A key difference from matrices is that data frames only require that you have a single data type <em>per column</em>. In the example below, the first two columns are numbers, while the last column is text. Note that when we specify <code>x =</code>, <code>y =</code> and <code>z =</code> below, we actually creating a type of table where the columns will be labelled <code>x</code>, <code>y</code> and <code>z</code>.</p>
 <pre class="r"><code>a = data.frame(x = c(1:3),
                y = c(4:6),
                z = c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;))
@@ -457,6 +601,17 @@ a</code></pre>
 <p>One of the nice things about data frames is that you can use the names of the columns (combined with the <code>$</code> sign) to directly access the values in that column. So if we want to see the values of only the <code>z</code> column, we can use <code>a$z</code></p>
 <pre class="r"><code>a$z</code></pre>
 <pre><code>## [1] &quot;a&quot; &quot;b&quot; &quot;c&quot;</code></pre>
+<p>Multiple columns can be selected. Note that we have to include a comma to indicate that we want all rows</p>
+<pre class="r"><code>a[,c(&quot;x&quot;, &quot;y&quot;)]</code></pre>
+<pre><code>##   x y
+## 1 1 4
+## 2 2 5
+## 3 3 6</code></pre>
+<p>Same, but rows two and three for columns <code>x</code> and <code>y</code>:</p>
+<pre class="r"><code>a[2:3,c(&quot;x&quot;, &quot;y&quot;)]</code></pre>
+<pre><code>##   x y
+## 2 2 5
+## 3 3 6</code></pre>
 <p>You can also add a new column to an existing data frame:</p>
 <pre class="r"><code>a$t = c(10, 13, 17)
 a</code></pre>
@@ -464,6 +619,13 @@ a</code></pre>
 ## 1 1 4 a 10
 ## 2 2 5 b 13
 ## 3 3 6 c 17</code></pre>
+<p>or remove an existing column:</p>
+<pre class="r"><code>a$x &lt;- NULL
+a</code></pre>
+<pre><code>##   y z  t
+## 1 4 a 10
+## 2 5 b 13
+## 3 6 c 17</code></pre>
 <p>We’ll look at the <code>mtcars</code> data set that is included with R. If you type <code>?mtcars</code> in the console, you’ll see more documentation. Looking at the first few lines of the <code>mtcars</code> data frame, we see the following which shows data in several columns: <code>mpg</code>, <code>cyl</code>, <code>disp</code>, <code>hp</code>, <code>drat</code>, <code>wt</code>, <code>qsec</code>, <code>vs</code>, <code>am</code>, <code>gear</code> and <code>carb</code></p>
 <pre class="r"><code>head(mtcars)</code></pre>
 <pre><code>##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
@@ -479,6 +641,17 @@ a</code></pre>
 <pre><code>## [1] 20.09062</code></pre>
 <pre class="r"><code>sd(mtcars$mpg)</code></pre>
 <pre><code>## [1] 6.026948</code></pre>
+<div id="other-functions-to-maybe-cover" class="section level3">
+<h3>Other functions to maybe cover:</h3>
+<ul>
+<li>nrow</li>
+<li>ncol</li>
+<li>dim</li>
+<li>summary</li>
+<li>head</li>
+<li>tail</li>
+</ul>
+</div>
 </div>
 <div id="reading-csv-files" class="section level2">
 <h2>Reading CSV Files</h2>
