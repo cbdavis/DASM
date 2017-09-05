@@ -193,6 +193,20 @@ a = "this is some text"
 a
 ```
 
+### Valid Variable Names
+
+In the examples above, we just a variable simply named `a`.  R actually allows you to create much more descriptive names for variables
+
+```{r}
+
+```
+
+valid variable names (no hyphen in variable names), can't start a variable name with a number
+
+a name must start with ‘.’ or a letter, and if it starts with ‘.’ the second character must not be a digit. Names are effectively unlimited in length. 
+
+all alphanumeric symbols are allowed plus ‘.’ and ‘_’
+
 ### Exercise
 
 Assign the result of five times three to a variable named `b` and print out the resulting value
@@ -613,6 +627,9 @@ df = read.csv(file="UNFCCC_CO2_Emissions.csv")
 df = read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
 ```
 
+show how to do basic calculations like means, sd, sum, diff, etc
+
+cover nrow, ncol, dim, class, summary
 
 ## Finding help
 

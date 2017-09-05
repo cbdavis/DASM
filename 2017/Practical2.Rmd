@@ -56,6 +56,46 @@ Many visualizations created with R are often created using the **[ggplot2 librar
 
 The syntax may look strange at first, although it’s a very modular approach, and you can create very complex visualizations just by adding new parts to these sentences.
 
+```{r}
+head(mtcars)
+```
+
+```{r}
+ggplot()
+```
+
+Need to specify which data frame we want to use
+```{r}
+ggplot(data=mtcars)
+```
+
+We now have to use `aes()` to map what are called the aesthetics.  What we are doing here is making sure that ggplot which columns are to be used for the `x` and `y` values in the plot.
+```{r}
+ggplot(data=mtcars, aes(x=mpg, y=cyl))
+```
+
+We only see a blank grid since we haven't told ggplot what we want to do with the data
+
+Show different places where the data frame can be specified - if mixing data frames, then need to leave ggplot() empty
+
+Don't need to specify `ggplot(data=mtcars, ...` can just leave that blank and use `ggplot(mtcars, ...`
+
+also if color, fill outside the aesthetics
+
+difference between color and fill
+
+ggplot - one variable vs. two variables
+
+show equivalence
+ggplot() + geom_point(data=
+ggplot(data=) + geom_point()
+
+if specify in ggplot(data= then don't have to specify it again
+
++ geom_point() + geom_line()
+
+have a section on common problems (for inspiration check section 3 in Data Science for R, ggplot) - issues like you can break lines, but end of line has to be a '+'.  Also issue with color="red" matters where you put it in the aes
+
 ### Scatter plot
 To understand this, we can first do a simple scatter plot.  You'll notice with the syntax that we first start with the `mtcars` data frame, then we specify which columns are to be associated with the `x` and `y` values, and then we specify that we want to plot the data as points by adding `+ geom_point()`.
 
