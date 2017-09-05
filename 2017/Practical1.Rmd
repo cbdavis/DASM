@@ -4,25 +4,28 @@ author: "Chris Davis"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
     html_document:
-        toc: true
-        number_sections: true
+        toc: false
+        number_sections: false
 ---
+
+# {.tabset .tabset-fade .tabset-pills}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 options(stringsAsFactors = FALSE)
 library(knitr)
 ```
 
-# What/Why?
+## What/Why?
 
 [R is a language and environment for statistical computing and graphics.](https://www.r-project.org/about.html).  In more practical terms:
 
 * It's a **digital swiss army knife**
+    * It allows you to do very diverse things with data.
 * It's **free** - just download and get started, no license, no trial period
 * There's a **huge community** behind it
     * For even the weirdest problems you run into, you can Google it and usually find a solution (probably on [stackoverflow](http://stackoverflow.com/questions/tagged/r)). 
 * You don't have write to code that others have already created (stand on the shoulders of giants)
-    * There are over **[9000 contributed packages covering a variety of topics](https://cran.r-project.org/web/views/)**. This means that for a lot of different applications and scientific domains, someone has already created something that you can re-use. This minimizes the amount of work you have to do, while allowing you to do much more sophisticated analysis.
+    * There are over **[11,000 contributed packages covering a variety of topics](https://cran.r-project.org/web/views/)**. This means that for a lot of different applications and scientific domains, someone has already created something that you can re-use. This minimizes the amount of work you have to do, while allowing you to do much more sophisticated analysis.
     * **Package management** - you don't have to copy/paste this code. It's managed so that you just have to call the name of the package. You can also have R update every single package that you have installed, in order to get the latest bug fixes, enhancements, etc. 
 * It lets you create **repeatable workflows**
     * Have new data? Just run the code again to generate plots + images for reports
@@ -37,8 +40,6 @@ You're already used to programming since **[spreadsheets are code](http://www.sl
 ```
 
 This is a formula from an actual spreadsheet in use by a company.  This code is a nightmare to maintain and it's very difficult to check if there are any errors in it.  Spreadsheets create a soup of data storage, processing and presentation (i.e. numbers, formulas and graphs).  This hinders transparency and as spreadsheets get more complex, it becomes very difficult to trace how the data analysis is actually done.  With R, it's possible to use code to read from data files and then **[automatically generate reports in the form of Word documents, pdfs, or html pages](http://rmarkdown.rstudio.com/)**. Separating your data, processing and presentation of results into separate components will help you to stay organized.
-
-# First Steps:
 
 ## Setting up R and RStudio
 
@@ -59,7 +60,24 @@ You need to have both R and RStudio set up.  You can use R without RStudio, but 
 </center>
 
 ### University Computer
-On the university computers you should be able to find RStudio in the Start Menu by looking for `Mathematics & Statistics` -> `R`.  If there are several versions, just pick the one with the highest version number.  **You should not have to install R or RStudio on the university computers.**
+
+* **You do not have to install R or RStudio on the university computers.**  
+* On the university computers you should be able to find RStudio in the Start Menu by looking for `Mathematics & Statistics` -> `R`.  
+    * If you cannot find it there, then just search for "R studio" (make sure to include a space between "R" and "studio").
+    * If there are several versions, just pick the one with the highest version number.  
+    * In the example below, you can see that "R Studio 1.0.153" was the latest version that was found.  
+* **Don't run "R for Windows"**.  This will give you a less user friendly interface that what is available with RStudio.
+
+<center>
+<table>
+<tr>
+<td><img src="./images/RUG_UWP_StartMenu.png"></td>
+<td style="width:100px"></td>
+<td><img src="./images/RStudio_uwp.png"></td>
+</tr>
+</table>
+</center>
+
 
 ### Personal Computer
 On your own computer you will have to **install both R and RStudio**
@@ -74,8 +92,7 @@ Once you open up RStudio, you'll see that it has four panels, which are:
 <table><tr><td>
 **Console** - *Bottom Left*
 
-* R commands can be run here
-* You can also find documentation for commands by typing in ?commandName to get help, i.e. if you type `?sum` you'll see the documentation for the `sum` function.
+* R commands can be run directly here
 
 **Environment/History** - *Top Right*
 
@@ -86,8 +103,8 @@ Once you open up RStudio, you'll see that it has four panels, which are:
 **R Script Files** - *Top Left*
 
 * While you can run R code directly in the console, you can also save the code in a script file that allows you to rerun the code at a later date.  
-* You can run lines of code by highlighting them, and then clicking on "Run" above.
-* You can run all the code at once by doing Code -> Run Region -> Run All
+* You can run lines of code by highlighting them, and then clicking on `Run` above.
+* You can run all the code at once by doing `Code` -> `Run Region` -> `Run All`
 
 **Files/Plots/Packages/Help** - *Bottom Right*
 
@@ -102,42 +119,30 @@ Once you open up RStudio, you'll see that it has four panels, which are:
 </td>
 </tr></table>
 
+## How to read this tutorial
 
-### Install Required Packages
-
-Once R and RStudio is installed, **open up RStudio and install the necessary packages for R**.  Note that with R, the word "package" and "library" are often used interchangeably.  Today we'll need to install the [ggplot2](http://docs.ggplot2.org/current/) library to do the plotting.
-
-
-#### Installation Steps
-
-* In the bottom right quadrant of RStudio, locate the `Packages` tab, and click on `Install`:
-
-<center><img src="./images/InstallRPackage.png" style="border:2px solid black"></center>
-
-* Then type in the name of the package `ggplot2`.  You should see it auto-complete as you type:
-
-<center><img src="./images/Install_swirl_type_name.png" style="border:2px solid black"></center>
-
-* Click on `Install` and make sure that `Install dependencies` is checked:
-
-<center><img src="./images/Install_swirl_click_install.png" style="border:2px solid black"></center>
-
-* You should then see statements like this in the console on the bottom left quadrant:
-
-<center><img src="./images/Install_swirl_console.png" style="border:2px solid black"></center>
-
-* As you can see in the console, you can also install packages just by typing:
-
-```{r, eval=FALSE}
-install.packages("swirl")
-```
-
-# How to read this tutorial
+### Running Code Examples
 Everything shown in the large gray boxes below is code that you can run by copy/pasting into the `Console` tab in RStudio. For example:
 
 ```{r}
 print("hello world")
 ```
+
+### Comments
+
+You may also see comments included in the code, as indicated by text following the `#` sign
+```{r}
+# This is a comment, R doesn't do anything with this
+```
+
+These comments can also be placed at the end of a line of R code
+```{r}
+a <- "R will assign this text to a" # This is a comment, R doesn't do anything with this
+```
+
+For your own work, it is generally a good idea to include comments to help other people understand your code, and they can also be useful for yourself if you haven't looked at a piece of code in a long time.
+
+### Saving code in an R Script
 
 You can also collect these statements in a new R file (`File` -> `New File` -> `R Script`) which you can then run.
 
@@ -146,35 +151,40 @@ If you do create a new R file, you can run the code by selecting one of the opti
 
 Gray bits of text `like this` usually refer to individual R commands, package names, or the exact name of things that you will see in the user interface.
 
-## Always always always first specify `options(stringsAsFactors = FALSE)`
-Make sure to always run this command when you start using R:
-```{r}
-options(stringsAsFactors = FALSE)
-```
+### Exercises
 
-We'll cover what this is in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.  In short, [R assumes that your data contains factors or categorical variables](http://www.stat.berkeley.edu/classes/s133/factors.html), which isn't necessarily the case.
+For sections labelled **Exercise** we only show the results of the code and not the code itself.  You should check to make sure that you get the same answers.
 
-## Using R as a calculator
+## Basic Operations
+
+### Using R as a calculator
+
+You can use R just as you would use a calculator, for example, to add two numbers:
 
 ```{r}
 3 + 2
 ```
 
-## Assinging values to variables.
+### Assinging values to variables.
 
-We can assign the value of `1` to the variable `a` by doing:
+We can assign the results of the calculation `3 + 2` to a variable named `a` by using `<-`
 ```{r}
-a = 1
+a <- 3 + 2
 ```
 
-And then can make sure that the value has been assigned:
+Note that in R you can also just use `=` to assign the result.  You often will see people use both forms of these.
+```{r}
+a = 3 + 2
+```
+
+Now print out the value of `a`:
 ```{r}
 a
 ```
 
-Instead of using `=`, we can also use `<-` which does the same thing.  You often will see people use both forms of these.
+You can also do the same with the `print` function:
 ```{r}
-a <- 1
+print(a)
 ```
 
 Although you assigned a number to the variable `a`, you can also assign to it different types of data like text:
@@ -183,12 +193,88 @@ a = "this is some text"
 a
 ```
 
+### Exercise
+
+Assign the result of five times three to a variable named `b` and print out the resulting value
+```{r, echo=FALSE}
+b <- 5 * 3
+b
+```
+
+Assign the result of `b` divided by 10 to a new variable `c` and print out the results using `print(c)`
+```{r, echo=FALSE}
+c <- b / 10
+print(c)
+```
+
+
 ## Vectors
 
+### Creating Vectors
+
+We can also assign a list of values to variables, instead of just a single value.  Below we use the `c()` function which means to concatenate or combine.
+
 ```{r}
-a  = c(3, 4, 5, 6, 7)
+a <- c(3, 7, 1, 6)
 a
 ```
+Note that when we print out the results, the commas are replaced by spaces.
+
+### Modifying Vectors
+We can also use `c()` to add values to the beginning or end.  Below we add `10` to the beginning and `21` to the end.
+```{r}
+a <- c(10, a)
+a
+a <- c(a, 21)
+a
+```
+
+We can also concatenate two vectors together:
+```{r}
+b <- c(9, 2, 5)
+c <- c(a, b)
+c
+```
+
+Note that here we have a variable named `c` and we also use the function `c()`.  R is able to understand that by this syntax we mean two different things.
+
+### Operations on Vectors
+
+With vectors you can do element-wise operations.  Below we divide each element of `c` by `10`.
+
+```{r}
+c / 10
+```
+
+We can divide one vector by another:
+```{r}
+a <- c(10, 6)
+b <- c(2, 5)
+a / b
+```
+
+This result is equivalent to `c(10/2, 6/5)`, in other words, dividing the first element of `a` by the first element of `b` and then dividing the second element of `a` by the second element of `b`
+
+If we divide vectors that are not of the same length, then we get a bit of a strange result:
+```{r}
+a <- c(10, 6, 4)
+b <- c(2, 5)
+a / b 
+```
+
+Even though R gives us a result, we get a warning that the vectors are not of the same length.  What is happening here is that R will wrap around the shorter vector.  Behind the scenes, it's doing a calculation like `c(10/2, 6/5, 4/2)`.  Note that the `2` appears twice as it is the first element of `b`.
+
+Above we divided the longer vector by the shorter vector.  Below we divide the shorter vector by the longer vector:
+
+```{r}
+b / a
+```
+
+Here the calculation being performed is `c(2/10, 5/6, 2/4)`.  Note that in both cases the resulting vector has three elements, meaning that the result always has the same number of elements as the longest vector.
+
+### Subsetting Vectors
+
+### Sequences
 
 Since this is a sequence from 3 to 7, we can also write it like:
 
@@ -196,6 +282,8 @@ Since this is a sequence from 3 to 7, we can also write it like:
 a  = c(3:7)
 a
 ```
+
+
 
 ## Matrices
 
@@ -226,6 +314,8 @@ rowSums(d)
 colMeans(d)
 colSums(d)
 ```
+
+### Subsetting Matrices
 
 ## Data Frames
 Data frames are conceptually similar to matrices, although you can mix in different types of data per column.  In the example below, the first two columns are numbers, while the last column is text.
@@ -277,7 +367,7 @@ mean(mtcars$mpg)
 sd(mtcars$mpg)
 ```
 
-# Reading CSV Files
+## Reading CSV Files
 
 The following example is based on [CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we've transformed into a CSV file.
 
@@ -313,10 +403,36 @@ df = read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
 ```
 
 
-# Reference Materials
+## Finding help
+
+```{r}
+?sum
+```
+
+```{r}
+?':'
+```
+
+### Exercise
+Locate the help pages for `abs` and `%%`
+
+In the `Help` window you should see:
+
+<center>
+<table>
+<tr>
+<td><img src="./images/HelpPageAbs.png"></td>
+<td style="width:100px"></td>
+<td><img src="./images/HelpPageModulo.png"></td>
+</tr>
+</table>
+</center>
+
+
+## Reference Materials
 For further information beyond what is covered in this practical, you can refer to the resources below.  If you are having trouble understanding the contents of the practical, these can be quite useful.
 
-## Cheat sheets
+### Cheat sheets
 
 **These sheets are important and summarize much of what you will need to know about R for this course**
 
@@ -347,7 +463,7 @@ For further information beyond what is covered in this practical, you can refer 
 
 
 
-## Additional Materials
+### Additional Materials
 
 * [How to Transition from Excel to R](https://districtdatalabs.silvrback.com/intro-to-r-for-microsoft-excel-users)
 * [R for Excel Users](http://www.rforexcelusers.com/)
@@ -369,3 +485,42 @@ Swirl is interesting since it guides you in learning R, within the R console.  Y
 | To assign the result of 5 + 7 to a new variable called x, you type x <- 5 +
 | 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
 ```
+
+## Maybe leave out
+
+### Install Required Packages
+
+Once R and RStudio is installed, **open up RStudio and install the necessary packages for R**.  Note that with R, the word "package" and "library" are often used interchangeably.  Today we'll need to install the [ggplot2](http://docs.ggplot2.org/current/) library to do the plotting.
+
+
+#### Installation Steps
+
+* In the bottom right quadrant of RStudio, locate the `Packages` tab, and click on `Install`:
+
+<center><img src="./images/InstallRPackage.png" style="border:2px solid black"></center>
+
+* Then type in the name of the package `ggplot2`.  You should see it auto-complete as you type:
+
+<center><img src="./images/Install_swirl_type_name.png" style="border:2px solid black"></center>
+
+* Click on `Install` and make sure that `Install dependencies` is checked:
+
+<center><img src="./images/Install_swirl_click_install.png" style="border:2px solid black"></center>
+
+* You should then see statements like this in the console on the bottom left quadrant:
+
+<center><img src="./images/Install_swirl_console.png" style="border:2px solid black"></center>
+
+* As you can see in the console, you can also install packages just by typing:
+
+```{r, eval=FALSE}
+install.packages("swirl")
+```
+
+### Always always always first specify `options(stringsAsFactors = FALSE)`
+Make sure to always run this command when you start using R:
+```{r}
+options(stringsAsFactors = FALSE)
+```
+
+We'll cover what this is in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.  In short, [R assumes that your data contains factors or categorical variables](http://www.stat.berkeley.edu/classes/s133/factors.html), which isn't necessarily the case.
