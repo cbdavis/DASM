@@ -625,6 +625,19 @@ Just like with vectors, we can still access elements that meet some condition
 a[a > 5]
 ```
 
+### Useful Functions
+By using the `summary()` function we can get a quick overview of statistical properties of the columns of the matrix.  This helps to give you an idea about the distribution of values by showing the min, max, median, etc values per column.
+```{r}
+summary(a)
+```
+
+Other functions show you the number of rows, columns and dimensions of the matrix
+```{r}
+nrow(a) # number of rows in a
+ncol(a) # number of columns in a
+dim(a) # dimension of a (number of rows and number of columns)
+```
+
 ### Exercise
 
 Find the average of all values in the second column of `a`
@@ -643,7 +656,9 @@ rowMeans(a[c(1,3),])
 
 ## Data Frames
 
-One issue with matrices is that it can only hold one type of data.  The example below shows what happens when you try to combine matrices with numbers and text:
+One issue with matrices is that it can only hold one type of data.  This is not always ideal as in your own research, you will often use data that is a mix of both text and numbers.  As example of this would be data containing the names of weather stations and then numerical information about temperature, humidity, etc.  
+
+The example below shows what happens when you try to combine matrices with numbers and text:
 ```{r}
 a <- matrix(1:12, nrow=4, ncol=3)
 a
@@ -693,25 +708,28 @@ Same, but rows two and three for columns `x` and `y`:
 a[2:3,c("x", "y")]
 ```
 
-You can also add a new column to an existing data frame:
+You can also add a new column to an existing data frame.  Here we add a new column `t` by using the syntax `a$t`
 ```{r}
 a$t <- c(10, 13, 17)
 a
 ```
 
-or remove an existing column:
+We can remove an existing column by assinging it a value of `NULL`
 ```{r}
 a$x <- NULL
 a
 ```
 
-
-We'll look at the `mtcars` data set that is included with R.  If you type `?mtcars` in the console, you'll see more documentation.  Looking at the first few lines of the `mtcars` data frame, we see the following which shows data in several columns: `mpg`, `cyl`, `disp`, `hp`, `drat`, `wt`, `qsec`, `vs`, `am`, `gear` and `carb`
+We'll not look at the `mtcars` data set that is included with R.  If you type `?mtcars` in the console, you'll see more documentation.  Looking at the first few lines of the `mtcars` data frame, we see the following which shows data in several columns: `mpg`, `cyl`, `disp`, `hp`, `drat`, `wt`, `qsec`, `vs`, `am`, `gear` and `carb`
 ```{r}
 head(mtcars)
 ```
 
 The `head` command just shows us the top few rows, and you can also use the `tail` command to look at the bottom rows.
+
+```{r}
+tail(mtcars)
+```
 
 For specific columns, we can use the `mean` and `sd` functions to find the average and standard deviation.
 ```{r}
@@ -719,18 +737,39 @@ mean(mtcars$mpg)
 sd(mtcars$mpg)
 ```
 
-### Other functions to maybe cover:
+Just like with matrices, we can also run the `summary()` function to get an overview of the range and distribution of values in each column:
+```{r}
+summary(mtcars)
+```
 
-* nrow
-* ncol
-* dim
-* summary
-* head
-* tail
+The same functions used to understand the size of matrices can be used for data frames too
+```{r}
+nrow(mtcars) # number of rows
+ncol(mtcars) # number of columns
+dim(mtcars) # dimension (number of rows and number of columns)
+```
+
+### Exercise
+
+Create a data frame with three columns `apples`, `pears` and `oranges` with the data values shown below:
+
+```{r, echo=FALSE}
+df <- data.frame(apples = c("Groningen", "Amsterdam", "Rotterdam", "Utrecht"),
+                 pears = 10:7,
+                 oranges = 1:4)
+df
+```
+
+Find the averages of the `pears` and `oranges` columns
+```{r, echo=FALSE}
+colMeans(df[,c("pears", "oranges")])
+```
 
 ## Reading CSV Files
 
 The following example is based on [CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we've transformed into a CSV file.
+
+### What is CSV?
 
 CSV stands for ["comma-separated values"](https://en.wikipedia.org/wiki/Comma-separated_values) which means that you represent tabular data by using commas to separate values from different columns:
 
@@ -743,17 +782,21 @@ pigs,5
 
 While you can technically read Excel files into R, reading CSV files is much much faster as it is a very simple data format.
 
-Now we'll load in an example data file and create several plots with it.
+### Saving the File to Your Computer
 
-For this, you'll need the UNFCCC_CO2_Emissions.csv file.  To get it, **right click** on this link: [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/UNFCCC_CO2_Emissions.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
+Now we'll load in an example data file. For this, you'll need the UNFCCC_CO2_Emissions.csv file.  To get it, **right click** on this link: [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/UNFCCC_CO2_Emissions.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
 
 Internet Explorer might try to save this as "UNFCCC_CO2_Emissions.**txt**", make sure to save this as "UNFCCC_CO2_Emissions.**csv**" or adjust your code so that it knows to read the correct file.
+
+### Set Correct Working Directory
 
 One thing you need to check is your working directory. This is the directory where R looks for any files.  You can set this in RStudio `Session` -> `Set Working Directory` -> `Choose Directory`
 
 <center><img src="./images/RStudioSetWorkingDirectory.png" style="border:2px solid black"></center>
 
 Make sure that this is set to the directory where you have placed the `UNFCCC_CO2_Emissions.csv` file.
+
+### Read CSV File
 
 ```{r, eval=FALSE}
 df <- read.csv(file="UNFCCC_CO2_Emissions.csv")
@@ -763,19 +806,44 @@ df <- read.csv(file="UNFCCC_CO2_Emissions.csv")
 df <- read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
 ```
 
-show how to do basic calculations like means, sd, sum, diff, etc
+### Inspect Data
 
-cover nrow, ncol, dim, class, summary
+When you do this, you'll notice that the data frame `df` appears in the `Environment` tab, and we can see that it has 1012 rows (observations) and 3 variables (columns).
+<center><img src="./images/RStudio_Data_Frame_In_Environment.png" style="border:2px solid black"></center>
+
+If you click this, you will be able to inspect the actual values in the data frame:
+<center><img src="./images/RStudio_Inspect_Data_Frame.png" style="border:2px solid black"></center>
+
+Use `summary` to get a quick overview of what is in the data:
+```{r}
+summary(df)
+```
+From this we see that it contains data on years from 1990 until 2012.
+
+If you have read everything in correctly, you should get the following values for the average and standard deviation of the `CO2_Mt` column.
+
+```{r}
+mean(df$CO2_Mt)
+sd(df$CO2_Mt)
+```
 
 ## Finding help
+
+In order to find help for how to use an R function, in the console, you can just type `?` followed by the name of the function.  For example, to find out how to use the `sum()` function, just type:
 
 ```{r}
 ?sum
 ```
 
+You'll note that this will bring up the help page in the bottom right quadrant of RStudio.
+
+If you want to find help for a function that doesn't start with a letter, you have to first surround it with single quotes.  for this example, we want to find information about how to use the `:` operator which allows us to create sequences via commands like `3:7`
+
 ```{r}
 ?':'
 ```
+
+There is also a search box in the `Help` tab of RStudio, and there are numerous examples online of how to use R commands.
 
 ### Exercise
 Locate the help pages for `abs` and `%%`
