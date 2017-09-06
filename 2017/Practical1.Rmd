@@ -148,6 +148,10 @@ For your own work, it is generally a good idea to include comments to help other
 
 For sections labelled **Exercise** we only show the results of the code and not the code itself.  You should check to make sure that you get the same answers.
 
+### Modifying & Rerunning Commands in the Console
+
+All of the commands that you use in the console are recorded in the `History`.  You can also access previous commands by pressing the up key on your keyboard.  When doing the exercises, it may take a few attempts for you to figure out the correct commands to use, and by using the up key you can easy recall your previous commands and modify them.
+
 ### Saving code in an R Script
 
 You can also collect these statements in a new R file (`File` -> `New File` -> `R Script`) which you can then run.
@@ -423,10 +427,24 @@ mean(y[y < 0])
 sd(y[y < 0])
 ```
 
-Create a vector containing the elements `4 2 7 1` and divide it by `y`
+Create a vector containing the elements `4 2 7 1` and divide it by `y`.  
 ```{r, echo=FALSE}
 b = c(4, 2, 7, 1)
 b/y
+```
+Note that when printing the contents of a vector, R will wrap the results in order to fit the screen.  If your results look different, then first check that the individual numbers are the same.  For example, when you see `[1]`, `[7]`, `[13]`, and `[19]`, that means that the values next to them are those at position 1, 7, 13 and 17 in the vector.  
+
+In other words, if I print out the vector `1:8`, then depending on the size of the screen, R might print it out like either of the two variants below:
+
+```{r, eval=FALSE}
+[1] 1 2 3 4
+[5] 5 6 7 8
+```
+
+```{r, eval=FALSE}
+[1] 1 2 3
+[4] 4 5 6
+[7] 7 8
 ```
 
 ## Sequences
@@ -666,7 +684,7 @@ b <- matrix(c("this", "is", "some", "text"), nrow=4, ncol=1)
 b
 cbind(a,b)
 ```
-What's happened is that by default R converted all the elements to text since it can't combine numbers and text together.  
+What's happened is that by default R converted all the elements to text since it can't combine numbers and text together.  You can tell this since the values are surrounded by quotations marks like `"`, although there are some cases where R will not always display these.
 
 A way around this is to use data frames.  A key difference from matrices is that data frames only require that you have a single data type *per column*.  In the example below, the first two columns are numbers, while the last column is text.  Note that when we specify `x =`, `y =` and `z = ` below, we actually creating a type of table where the columns will be labelled `x`, `y` and `z`.
 
@@ -763,133 +781,5 @@ df
 Find the averages of the `pears` and `oranges` columns
 ```{r, echo=FALSE}
 colMeans(df[,c("pears", "oranges")])
-```
-
-## Reading CSV Files
-
-The following example is based on [CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we've transformed into a CSV file.
-
-### What is CSV?
-
-CSV stands for ["comma-separated values"](https://en.wikipedia.org/wiki/Comma-separated_values) which means that you represent tabular data by using commas to separate values from different columns:
-
-```{csv}
-animal,farm_count
-chickens,20
-cows,10
-pigs,5
-```
-
-While you can technically read Excel files into R, reading CSV files is much much faster as it is a very simple data format.
-
-### Saving the File to Your Computer
-
-Now we'll load in an example data file. For this, you'll need the UNFCCC_CO2_Emissions.csv file.  To get it, **right click** on this link: [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/UNFCCC_CO2_Emissions.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
-
-Internet Explorer might try to save this as "UNFCCC_CO2_Emissions.**txt**", make sure to save this as "UNFCCC_CO2_Emissions.**csv**" or adjust your code so that it knows to read the correct file.
-
-### Set Correct Working Directory
-
-One thing you need to check is your working directory. This is the directory where R looks for any files.  You can set this in RStudio `Session` -> `Set Working Directory` -> `Choose Directory`
-
-<center><img src="./images/RStudioSetWorkingDirectory.png" style="border:2px solid black"></center>
-
-Make sure that this is set to the directory where you have placed the `UNFCCC_CO2_Emissions.csv` file.
-
-### Read CSV File
-
-```{r, eval=FALSE}
-df <- read.csv(file="UNFCCC_CO2_Emissions.csv")
-```
-
-```{r, echo=FALSE}
-df <- read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
-```
-
-### Inspect Data
-
-When you do this, you'll notice that the data frame `df` appears in the `Environment` tab, and we can see that it has 1012 rows (observations) and 3 variables (columns).
-<center><img src="./images/RStudio_Data_Frame_In_Environment.png" style="border:2px solid black"></center>
-
-If you click this, you will be able to inspect the actual values in the data frame:
-<center><img src="./images/RStudio_Inspect_Data_Frame.png" style="border:2px solid black"></center>
-
-Use `summary` to get a quick overview of what is in the data:
-```{r}
-summary(df)
-```
-From this we see that it contains data on years from 1990 until 2012.
-
-If you have read everything in correctly, you should get the following values for the average and standard deviation of the `CO2_Mt` column.
-
-```{r}
-mean(df$CO2_Mt)
-sd(df$CO2_Mt)
-```
-
-## Finding help
-
-In order to find help for how to use an R function, in the console, you can just type `?` followed by the name of the function.  For example, to find out how to use the `sum()` function, just type:
-
-```{r}
-?sum
-```
-
-You'll note that this will bring up the help page in the bottom right quadrant of RStudio.
-
-If you want to find help for a function that doesn't start with a letter, you have to first surround it with single quotes.  for this example, we want to find information about how to use the `:` operator which allows us to create sequences via commands like `3:7`
-
-```{r}
-?':'
-```
-
-There is also a search box in the `Help` tab of RStudio, and there are numerous examples online of how to use R commands.
-
-### Exercise
-Locate the help pages for `abs` and `%%`
-
-In the `Help` window you should see:
-
-<center>
-<table>
-<tr>
-<td><img src="./images/HelpPageAbs.png"></td>
-<td style="width:100px"></td>
-<td><img src="./images/HelpPageModulo.png"></td>
-</tr>
-</table>
-</center>
-
-## Reference Materials
-For further information beyond what is covered in this practical, you can refer to the resources below.  If you are having trouble understanding the contents of the practical, these can be quite useful.
-
-### Cheat sheets
-
-**Much of what has been covered in this practical is available for easy reference in the [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf).**  It is highly recommended that you keep a copy of this handy when using R.
-
-<a href="https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf">
-<img src="./images/rCheatSheetScreenShotFull.png" style="width:auto"></a>
-
-### Additional Materials
-
-* [How to Transition from Excel to R](https://districtdatalabs.silvrback.com/intro-to-r-for-microsoft-excel-users)
-* [R for Excel Users](http://www.rforexcelusers.com/)
-* [Quick-R](http://www.statmethods.net/index.html)
-
-For a more basic step-by-step introduction, you can install the [swirl](http://swirlstats.com/students.html) package:
-```{r, eval=FALSE}
-install.packages("swirl")
-```
-
-You can then work through tutorials by doing:
-```{r, eval=FALSE}
-library(swirl)
-swirl()
-```
-
-Swirl is interesting since it guides you in learning R, within the R console.  You'll see examples like this:
-```{eval=FALSE}
-| To assign the result of 5 + 7 to a new variable called x, you type x <- 5 +
-| 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
 ```
 
