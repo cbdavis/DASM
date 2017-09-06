@@ -21,23 +21,23 @@ Once R and RStudio is installed, **open up RStudio and install the necessary pac
 
 ### Installation Steps
 
-* In the bottom right quadrant of RStudio, locate the `Packages` tab, and click on `Install`:
+In the bottom right quadrant of RStudio, locate the `Packages` tab, and click on `Install`:
 
-<center><img src="./images/InstallRPackage.png" style="border:2px solid black"></center>
+<center><img src="./images/InstallRPackage.png" style="border:2px solid black"></center>&nbsp;<p>
 
-* Then type in the name of the package `ggplot2`.  You should see it auto-complete as you type:
+Then type in the name of the package `ggplot2`.  You should see it auto-complete as you type:
 
-<center><img src="./images/Installggplot2_type_name.png" style="border:2px solid black"></center>
+<center><img src="./images/Installggplot2_type_name.png" style="border:2px solid black"></center>&nbsp;<p>
 
-* Click on `Install` and make sure that `Install dependencies` is checked:
+Click on `Install` and make sure that `Install dependencies` is checked:
 
-<center><img src="./images/Installggplot2_clickInstall.png" style="border:2px solid black"></center>
+<center><img src="./images/Installggplot2_clickInstall.png" style="border:2px solid black"></center>&nbsp;<p>
 
-* You should then see statements like this in the console on the bottom left quadrant:
+You should then see statements like this in the console on the bottom left quadrant:
 
-<center><img src="./images/Installggplot2console.png" style="border:2px solid black"></center>
+<center><img src="./images/Installggplot2console.png" style="border:2px solid black"></center>&nbsp;<p>
 
-* As you can see in the console, you can also install packages just by typing:
+As you can see in the console, you can also install packages just by typing:
 
 ```{r, eval=FALSE}
 install.packages("ggplot2")
@@ -49,6 +49,8 @@ We first need to load the library that we'll be using for the rest of this tutor
 library(ggplot2)
 ```
 
+If later on you see an error like `Error in ggplot() : could not find function "ggplot"`, then that means that you forgot to load the library and that you need to run the `library(ggplot2)` command.
+
 ## Basics
 Many visualizations created with R are often created using the **[ggplot2 library](http://ggplot2.org/)**.  What's interesting about this library is that way in which it allows you to construct visualizations.  The gg in ggplot2 stands for the Grammar of Graphics. The idea is that when you create plots, you are basically writing sentences that are of the form:
   
@@ -56,25 +58,26 @@ Many visualizations created with R are often created using the **[ggplot2 librar
 
 The syntax may look strange at first, although it’s a very modular approach, and you can create very complex visualizations just by adding new parts to these sentences.
 
-```{r}
-head(mtcars)
-```
+We'll first start off by writing code that *doesn't work*, but it at least shows how we build up these statements.  First we have the `ggplot()` function.  You need to call this whenever you want to make a plot.
 
-```{r}
+```{r, eval=FALSE}
 ggplot()
 ```
 
-Need to specify which data frame we want to use
-```{r}
+Next we need to specify which data frame we want to use, via the `data=` argument.  In this case we use the `mtcars` data frame which we first showed in the previous practical.
+
+```{r, eval=FALSE}
 ggplot(data=mtcars)
 ```
 
-We now have to use `aes()` to map what are called the aesthetics.  What we are doing here is making sure that ggplot which columns are to be used for the `x` and `y` values in the plot.
+At this point, ggplot knows that we want to plot a data frame, but it's not sure which columns it should look at.
+
+We now have to use `aes()` to map what are called the aesthetics.  Here we tell ggplot which columns are to be used for the `x` and `y` values in the plot.  Note that we use don't use quotation marks for the column names, i.e. `aes(x=mpg, y=cyl)` is the correct syntax, while `aes(x="mpg", y="cyl")` will not give you the results that you want.
 ```{r}
 ggplot(data=mtcars, aes(x=mpg, y=cyl))
 ```
 
-We only see a blank grid since we haven't told ggplot what we want to do with the data
+Now we see a blank grid, whose ranges correspond to the min/max values of the `cyl` and `mpg` columns.  At this point ggplot knows *what* we want to plot, but not *how* to plot it.  To do this, we need to add one of the "Geoms" as referred to on the [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf).  These are the functions which begin with `geom_` and look like `geom_point`, `geom_line`, `geom_boxplot`, etc.
 
 Show different places where the data frame can be specified - if mixing data frames, then need to leave ggplot() empty
 
@@ -206,6 +209,8 @@ ggplot(animals,
 
 The following example is based on [CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we've transformed into a CSV file.
 
+### What is CSV?
+
 CSV stands for ["comma-separated values"](https://en.wikipedia.org/wiki/Comma-separated_values) which means that you represent tabular data by using commas to separate values from different columns:
 
 ```{csv}
@@ -217,11 +222,13 @@ pigs,5
 
 While you can technically read Excel files into R, reading CSV files is much much faster as it is a very simple data format.
 
-Now we'll load in an example data file and create several plots with it.
+### Saving the File to Your Computer
 
-For this, you'll need the UNFCCC_CO2_Emissions.csv file.  To get it, **right click** on this link: [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/UNFCCC_CO2_Emissions.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
+Now we'll load in an example data file. For this, you'll need the UNFCCC_CO2_Emissions.csv file.  To get it, **right click** on this link: [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/UNFCCC_CO2_Emissions.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
 
 Internet Explorer might try to save this as "UNFCCC_CO2_Emissions.**txt**", make sure to save this as "UNFCCC_CO2_Emissions.**csv**" or adjust your code so that it knows to read the correct file.
+
+### Set Correct Working Directory
 
 One thing you need to check is your working directory. This is the directory where R looks for any files.  You can set this in RStudio `Session` -> `Set Working Directory` -> `Choose Directory`
 
@@ -229,12 +236,35 @@ One thing you need to check is your working directory. This is the directory whe
 
 Make sure that this is set to the directory where you have placed the `UNFCCC_CO2_Emissions.csv` file.
 
+### Read CSV File
+
 ```{r, eval=FALSE}
-df = read.csv(file="UNFCCC_CO2_Emissions.csv")
+df <- read.csv(file="UNFCCC_CO2_Emissions.csv")
 ```
 
 ```{r, echo=FALSE}
-df = read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
+df <- read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
+```
+
+### Inspect Data
+
+When you do this, you'll notice that the data frame `df` appears in the `Environment` tab, and we can see that it has 1012 rows (observations) and 3 variables (columns).
+<center><img src="./images/RStudio_Data_Frame_In_Environment.png" style="border:2px solid black"></center>
+
+If you click this, you will be able to inspect the actual values in the data frame:
+<center><img src="./images/RStudio_Inspect_Data_Frame.png" style="border:2px solid black"></center>
+
+Use `summary` to get a quick overview of what is in the data:
+```{r}
+summary(df)
+```
+From this we see that it contains data on years from 1990 until 2012.
+
+If you have read everything in correctly, you should get the following values for the average and standard deviation of the `CO2_Mt` column.
+
+```{r}
+mean(df$CO2_Mt)
+sd(df$CO2_Mt)
 ```
 
 Create line plots per country of the amount of CO2 emissions:
@@ -303,67 +333,6 @@ ggplot(df, aes(x=Year, y=CO2_Mt, ymin=0)) + geom_line() + facet_wrap(~Country, s
 </table>
 </center>
 
-## Reading CSV Files
-
-The following example is based on [CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we've transformed into a CSV file.
-
-### What is CSV?
-
-CSV stands for ["comma-separated values"](https://en.wikipedia.org/wiki/Comma-separated_values) which means that you represent tabular data by using commas to separate values from different columns:
-
-```{csv}
-animal,farm_count
-chickens,20
-cows,10
-pigs,5
-```
-
-While you can technically read Excel files into R, reading CSV files is much much faster as it is a very simple data format.
-
-### Saving the File to Your Computer
-
-Now we'll load in an example data file. For this, you'll need the UNFCCC_CO2_Emissions.csv file.  To get it, **right click** on this link: [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/UNFCCC_CO2_Emissions.csv) and select **"Save Target As"** or **"Save Link As"** to save it to your computer.
-
-Internet Explorer might try to save this as "UNFCCC_CO2_Emissions.**txt**", make sure to save this as "UNFCCC_CO2_Emissions.**csv**" or adjust your code so that it knows to read the correct file.
-
-### Set Correct Working Directory
-
-One thing you need to check is your working directory. This is the directory where R looks for any files.  You can set this in RStudio `Session` -> `Set Working Directory` -> `Choose Directory`
-
-<center><img src="./images/RStudioSetWorkingDirectory.png" style="border:2px solid black"></center>
-
-Make sure that this is set to the directory where you have placed the `UNFCCC_CO2_Emissions.csv` file.
-
-### Read CSV File
-
-```{r, eval=FALSE}
-df <- read.csv(file="UNFCCC_CO2_Emissions.csv")
-```
-
-```{r, echo=FALSE}
-df <- read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
-```
-
-### Inspect Data
-
-When you do this, you'll notice that the data frame `df` appears in the `Environment` tab, and we can see that it has 1012 rows (observations) and 3 variables (columns).
-<center><img src="./images/RStudio_Data_Frame_In_Environment.png" style="border:2px solid black"></center>
-
-If you click this, you will be able to inspect the actual values in the data frame:
-<center><img src="./images/RStudio_Inspect_Data_Frame.png" style="border:2px solid black"></center>
-
-Use `summary` to get a quick overview of what is in the data:
-```{r}
-summary(df)
-```
-From this we see that it contains data on years from 1990 until 2012.
-
-If you have read everything in correctly, you should get the following values for the average and standard deviation of the `CO2_Mt` column.
-
-```{r}
-mean(df$CO2_Mt)
-sd(df$CO2_Mt)
-```
 
 ## Finding help
 
