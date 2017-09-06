@@ -43,14 +43,14 @@ This is a formula from an actual spreadsheet in use by a company.  This code is 
 
 ## Setting up R and RStudio
 
-You need to have both R and RStudio set up.  You can use R without RStudio, but if you do, the interface will look like the one on the left image below, and this can be a bit intimidating.  RStudio runs on top of R and provides a more visual interface, in addition to greatly assisting you with various aspects of programming.
+You need to have both R and RStudio set up.  You can use R without RStudio, but if you do, the interface will look like the one on the left image below, and this can be a bit intimidating.  You'll see this interface also referred to as the "R console".  RStudio runs on top of the R console and provides a more visual interface, in addition to greatly assisting you with various aspects of programming.
 
 <center>
 <table>
 <tr>
-<th><h3>R</h3></td>
+<th><h3>R console</h3></td>
 <th></td>
-<th><h3>R + RStudio</h3></td>
+<th><h3>R console + RStudio</h3></td>
 <tr>
 <td><img src="./images/RCommandLineConsole.png" style="height:250px; width:auto"></a></td>
 <td style="width:100px"><center><b><h3>vs.</h3></b></center></td>
@@ -128,6 +128,8 @@ Everything shown in the large gray boxes below is code that you can run by copy/
 print("hello world")
 ```
 
+Gray bits of text `like this` usually refer to individual R commands, package names, or the exact name of things that you will see in the user interface.
+
 ### Comments
 
 You may also see comments included in the code, as indicated by text following the `#` sign
@@ -142,18 +144,21 @@ a <- "R will assign this text to a" # This is a comment, R doesn't do anything w
 
 For your own work, it is generally a good idea to include comments to help other people understand your code, and they can also be useful for yourself if you haven't looked at a piece of code in a long time.
 
+### Exercises
+
+For sections labelled **Exercise** we only show the results of the code and not the code itself.  You should check to make sure that you get the same answers.
+
 ### Saving code in an R Script
 
 You can also collect these statements in a new R file (`File` -> `New File` -> `R Script`) which you can then run.
 
-If you do create a new R file, you can run the code by selecting one of the options under the `Run` button:
-<center><img src="./images/runCodeRStudio.png"></center>
+If you do create a new R file, you can run the code line by line by first placing your mouse cursor at the end of a line of code and then clicking on the `Run` button or using `Ctrl` + `Enter`.  You can do the same if you also select several lines of code.
 
-Gray bits of text `like this` usually refer to individual R commands, package names, or the exact name of things that you will see in the user interface.
+<center><img src="./images/RStudioRunCurrentLine.png"></center>
 
-### Exercises
+Additionally, it is possible to run all the lines of code at once via `Ctrl` + `Alt` + `R`. This will be useful once you work on your projects for this course.
 
-For sections labelled **Exercise** we only show the results of the code and not the code itself.  You should check to make sure that you get the same answers.
+<center><img src="./images/RStudio_Run_All.png" style="width:500px; height:auto"></center>
 
 ## Basic Operations
 
@@ -172,6 +177,21 @@ We can assign the results of the calculation `3 + 2` to a variable named `a` by 
 a <- 3 + 2
 ```
 
+If you look in the top right quadrant of RStudio, you'll see that in the `Environment` tab, it shows that the variable `a` now has a value of `5`.  In simple terms, the environment shows all of the variables which have some value assigned to them.  This means that you can reuse each of these variables later on for other calculations.
+
+
+
+<center>
+<table>
+<tr>
+<td><img src="./images/RStudioLabelledOverview.png" style="height:200px; width:auto"></td>
+<td style="width:100px"></td>
+<td><img src="./images/EnvironmentVariable.png" style="height:200px; width:auto"></td>
+</tr>
+</table>
+</center>
+
+
 Note that in R you can also just use `=` to assign the result.  You often will see people use both forms of these.
 ```{r}
 a = 3 + 2
@@ -189,44 +209,63 @@ print(a)
 
 Although you assigned a number to the variable `a`, you can also assign to it different types of data like text:
 ```{r}
-a = "this is some text"
+a <- "this is some text"
 a
 ```
 
 ### Valid Variable Names
 
-In the examples above, we just a variable simply named `a`.  R actually allows you to create much more descriptive names for variables
+In the examples above, we just a variable simply named `a`.  R actually allows you to create much more descriptive names for variables.  A variable name must start with a letter, but after that you can use a mix of letters, numbers, as well as periods and underscores.  
 
-```{r}
+In short the requirements are:
 
-```
+* First character must be: `a-z` or `A-Z`
+* All other characters can be: `a-z`, `A-Z`, `0-9`, `_`, `.`
 
-valid variable names (no hyphen in variable names), can't start a variable name with a number
+Valid variable names:
 
-a name must start with ‘.’ or a letter, and if it starts with ‘.’ the second character must not be a digit. Names are effectively unlimited in length. 
+* `abc`
+* `ABC`
+* `a123`
+* `a_123`
+* `a_12.3`
+* `theta_a_b`
 
-all alphanumeric symbols are allowed plus ‘.’ and ‘_’
+Invalid variable names:
+
+* `2abc`
+* `_a`
+* `a-123`
+
+In general, it's a good strategy to use descriptive "self-documenting" variable names like `temperature_Groningen` instead of `a` so that it's easier for others (and you later on) to understand your code.
 
 ### Exercise
 
 Assign the result of five times three to a variable named `b` and print out the resulting value
 ```{r, echo=FALSE}
 b <- 5 * 3
-b
+```
+
+```{r}
+print(b)
 ```
 
 Assign the result of `b` divided by 10 to a new variable `c` and print out the results using `print(c)`
 ```{r, echo=FALSE}
 c <- b / 10
-print(c)
 ```
 
+```{r}
+print(c)
+```
 
 ## Vectors
 
 ### Creating Vectors
 
-We can also assign a list of values to variables, instead of just a single value.  Below we use the `c()` function which means to concatenate or combine.
+We can also assign a variable a list of values instead of just a single value.  Vectors can be useful for representing information like hourly temperature readings over the course of a year.
+
+Below we use the `c()` function which is used to *concatenate* or *combine* values together.
 
 ```{r}
 a <- c(3, 7, 1, 6)
@@ -250,7 +289,7 @@ c <- c(a, b)
 c
 ```
 
-Note that here we have a variable named `c` and we also use the function `c()`.  R is able to understand that by this syntax we mean two different things.
+Note that here we have a variable named `c` and we also use the function `c()`.  R is able to understand that when we use `c` with parenthesis like `c(a,b)` we're referring to the function `c()`, while when we mention it without parenthesis like with `c <- 3`, we're referring to the variable `c` and not to the function.
 
 ### Operations on Vectors
 
@@ -290,7 +329,7 @@ Here the calculation being performed is `c(2/10, 5/6, 2/4)`.  Note that in both 
 
 Sometimes we don't want to use the all the values in a vector, but only want certain values.  For the examples below we'll work with a vector of ten random values:
 ```{r}
-x = c(-1, 0, 0, -9, 1, 4, 8, -2, 3, 5)
+x <- c(-1, 0, 0, -9, 1, 4, 8, -2, 3, 5)
 ```
 
 Get the third element of the vector:
@@ -299,6 +338,18 @@ x[3]
 ```
 
 Note that in R, indices start one, while in other languages they may start at zero.  In other words, in Python, `x[3]` would give you the fourth element in the vector.
+
+If you try to access elements in the vector at invalid locations, R will not generate an error, but will return `numeric(0)` or `NA`.  In a later practical we'll discuss what these mean, but for now you should keep in mind that if you see something like this, it may mean that you're trying to access an element that doesn't exist.
+
+```{r}
+x[0] # there is no element at location 0
+x[11] # only ten elements in the vector
+```
+
+If you do run into issues like this, you can always use the `length()` function to see how many items are contained within a vector.
+```{r}
+length(x)
+```
 
 Return everything except for the seventh element:
 ```{r}
@@ -343,15 +394,54 @@ x[x %in% 1:4]
 ```
 The values are returned in the order in which they are found, which is why the `4` appears before the `3`
 
+### Vectors and Statistical Functions
+
+With vectors you can also perform operations like finding the sum, cumulative sum, mean, median and standard deviation:
+```{r}
+sum(x) 
+cumsum(x) # cumulative sum
+mean(x)   # average of all values
+median(x) 
+sd(x)     # standard deviation
+```
+
+### Exercise
+
+For this exercise, you will work with the vector y:
+```{r}
+y = c(8, 3, 3, 6, 8, -4, -3, -2, -2, 10, 8, -4, 4, 0, -8, -6, 1, -8, -4, 4)
+```
+
+Find the average:
+```{r, echo=FALSE}
+mean(y)
+```
+
+Find the average and standard deviation for all values less than zero:
+```{r, echo=FALSE}
+mean(y[y < 0])
+sd(y[y < 0])
+```
+
+Create a vector containing the elements `4 2 7 1` and divide it by `y`
+```{r, echo=FALSE}
+b = c(4, 2, 7, 1)
+b/y
+```
+
 ## Sequences
 
-In R you will often be creating vectors that contain sequences of numbers.  If you would like to create a vector for the sequence of integers from `3` to `7`, you can do:
+In R you will often be creating vectors that contain sequences of numbers.  For many of the sequences you will need to create, R has several techniques that allow you to generate these without having to specify every element individually.
+
+Based on what we showed previously, if you would like to create a vector for the sequence of integers from `3` to `7`, you can do:
 
 ```{r}
 c(3, 4, 5, 6, 7)
 ```
 
-However, you don't have to specify the intermediate numbers since we're just taking consecutive integers.  Using the `:` operator, we can shorten our code that looks like `start_number:end_number`
+However, in this case, there's no point in specifing the intermediate numbers since we're just taking consecutive integers. What we want R to do is to start at a number and keep counting by one until we get to another number.
+
+Using the `:` operator, we can shorten our code so that looks like `start_number:end_number`
 
 ```{r}
 3:7
@@ -362,7 +452,7 @@ You will also sometimes see people use `c()` to do this.  This also gives the sa
 c(3:7)
 ```
 
-Sequences can count down too
+If the second number is smaller, then you will get a sequence that counts down.
 ```{r}
 7:3
 ```
@@ -412,24 +502,44 @@ You can even call `rep()` multiple times to generate very complex sequences
 rep(rep(1:3, times=2), each=2)
 ```
 
+### Exercise
+
+Create a sequence from -10 to 10, where each value is incremented by 0.5
+```{r, echo=FALSE}
+seq(-10, 10, 0.5)
+```
+
+Create a sequence from -10 to 10, with only five values
+```{r, echo=FALSE}
+seq(-10, 10, length.out=5)
+```
+
 ## Matrices
 
-Initialize a matrix of zeros with three columns and two rows.  
+### Initializing Matrices
+
+A matrix can be thought of as a tabular data contained in a set of rows and columns.  As a simple example, here we initialize a matrix of zeros with three columns and two rows.  
 ```{r}
-b = matrix(0, ncol=3, nrow=2)
+b <- matrix(0, ncol=3, nrow=2)
 b
 ```
 
-Then set the value at row 1 and column 2 to `3`
+### Assinging Values to Matrix Elements
+
+Then set the value at row 1 and column 2 to `3`.  The syntax we use here is of the form `b[row_number, column_number]`
 ```{r}
-b[1,2] = 3
+b[1,2] <- 3
 b
 ```
 
-We can also convert a vector into a matrix
+### Converting Vectors to Matrices
+
+We can also convert a vector of values into a matrix.  In this example, the vector consists of six elements, while the matrix consists of three columns and two rows.  R will just take the values in the vector and arrange them from top to bottom in the columns, moving from left to right.
+
 ```{r}
 matrix(1:6, ncol=3, nrow=2)
 ```
+
 In the previous example, the vector had the same number of elements as the matrix.  We can also create a matrix where the vector is repeated.  Note how the values are repeated.
 
 ```{r}
@@ -447,11 +557,13 @@ We can also control how R populates the matrix with vector values, by using the 
 matrix(1:6, ncol=3, nrow=2, byrow=TRUE)
 ```
 
+### Joining Matrices
+
 You can append a matrix to the end of another matrix using `rbind` which means that you will bind the rows together.
 ```{r}
-b = matrix(0, ncol=3, nrow=2)
-c = matrix(1, ncol=3, nrow=2)
-d = rbind(b,c)
+b <- matrix(0, ncol=3, nrow=2)
+c <- matrix(1, ncol=3, nrow=2)
+d <- rbind(b,c)
 d
 ```
 
@@ -459,6 +571,8 @@ You can also bind the columns together using `cbind`
 ```{r}
 cbind(b,c)
 ```
+
+### Statistical Functions and Matrices
 
 R also has functions that run operations such as `mean` and `sum` on matrix rows and columns:
 ```{r}
@@ -468,17 +582,23 @@ colMeans(d)
 colSums(d)
 ```
 
+We can also use the same functions as we used for vectors.  These will return a single value as they analyze all elements in the matrix.
+```{r}
+mean(d)
+sd(d)
+sum(d)
+median(d)
+```
+
 ### Subsetting Matrices
 
-
+Here we create a new matrix:
 ```{r}
-a = matrix(1:12, nrow=3, ncol=4, byrow = TRUE)
+a <- matrix(1:12, nrow=3, ncol=4, byrow = TRUE)
 a
 ```
 
-We can subset elements of a matrix by using square brackets, similar to how we accessed elements of a vector.  
-
-The main difference is that for matrices we need to specify first number corresponds to the row number, the second corresponds to the column number
+We can subset elements of a matrix by using square brackets, similar to how we accessed elements of a vector.  The main difference is that for matrices we need to specify first number corresponds to the row number, the second corresponds to the column number.
 
 Select values from row 2:
 ```{r}
@@ -505,13 +625,29 @@ Just like with vectors, we can still access elements that meet some condition
 a[a > 5]
 ```
 
+### Exercise
+
+Find the average of all values in the second column of `a`
+```{r, echo=FALSE}
+mean(a[,2])
+```
+
+Find the standard deviation of all values in `a` which are less than 6.5
+```{r, echo=FALSE}
+sd(a[a < 6.5])
+```
+Find the averages of the first and third rows of `a`.  You should just need a single line of code for this.
+```{r, echo=FALSE}
+rowMeans(a[c(1,3),])
+```
+
 ## Data Frames
 
 One issue with matrices is that it can only hold one type of data.  The example below shows what happens when you try to combine matrices with numbers and text:
 ```{r}
-a = matrix(1:12, nrow=4, ncol=3)
+a <- matrix(1:12, nrow=4, ncol=3)
 a
-b = matrix(c("this", "is", "some", "text"), nrow=4, ncol=1)
+b <- matrix(c("this", "is", "some", "text"), nrow=4, ncol=1)
 b
 cbind(a,b)
 ```
@@ -520,7 +656,7 @@ What's happened is that by default R converted all the elements to text since it
 A way around this is to use data frames.  A key difference from matrices is that data frames only require that you have a single data type *per column*.  In the example below, the first two columns are numbers, while the last column is text.  Note that when we specify `x =`, `y =` and `z = ` below, we actually creating a type of table where the columns will be labelled `x`, `y` and `z`.
 
 ```{r}
-a = data.frame(x = c(1:3),
+a <- data.frame(x = c(1:3),
                y = c(4:6),
                z = c("a", "b", "c"))
 a
@@ -559,7 +695,7 @@ a[2:3,c("x", "y")]
 
 You can also add a new column to an existing data frame:
 ```{r}
-a$t = c(10, 13, 17)
+a$t <- c(10, 13, 17)
 a
 ```
 
@@ -620,11 +756,11 @@ One thing you need to check is your working directory. This is the directory whe
 Make sure that this is set to the directory where you have placed the `UNFCCC_CO2_Emissions.csv` file.
 
 ```{r, eval=FALSE}
-df = read.csv(file="UNFCCC_CO2_Emissions.csv")
+df <- read.csv(file="UNFCCC_CO2_Emissions.csv")
 ```
 
 ```{r, echo=FALSE}
-df = read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
+df <- read.csv(file="./data/UNFCCC_CO2_Emissions.csv")
 ```
 
 show how to do basic calculations like means, sd, sum, diff, etc
