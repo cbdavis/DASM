@@ -17,7 +17,13 @@ library(knitr)
 
 ## Install packages
 
-Once R and RStudio is installed, **open up RStudio and install the necessary packages for R**.  Note that with R, the word "package" and "library" are often used interchangeably.  Today we'll need to install the [ggplot2](http://docs.ggplot2.org/current/) library to do the plotting.
+For this practical, we need to **open up RStudio and install the necessary packages for R**.  Note that with R, the terms "package" and "library" are often used interchangeably and they mean the same thing.  Today we'll need to install the [tidyverse](https://www.tidyverse.org/) package.
+
+The Tidyverse package is a sort of "meta-package" that actually installs a collection of other packages which are very useful for working with R.  In other words, instead of installing ten different packages individually, you just install this one package and it grabs everything that you need.  The online book [R for Data Science](http://r4ds.had.co.nz/) goes into much more detail about how these packages can be used, and may be useful to refer to in the future, especially if your thesis project involves a lot of data analysis in R.
+
+For this practical, there are two particular packages contained within Tidyverse that we will be using.
+
+The first package is [`dplyr`](http://dplyr.tidyverse.org/), which makes it easy to do very complex operations with data frames.  The second is [`ggplot2`](http://docs.ggplot2.org/current/) which allows you to plot data using a variety of visualizations.
 
 ### Installation Steps
 
@@ -25,33 +31,134 @@ In the bottom right quadrant of RStudio, locate the `Packages` tab, and click on
 
 <center><img src="./images/InstallRPackage.png" style="border:2px solid black"></center>&nbsp;<p>
 
-Then type in the name of the package `ggplot2`.  You should see it auto-complete as you type:
+Then type in the name of the package `tidyverse`.  You should see it auto-complete as you type:
 
-<center><img src="./images/Installggplot2_type_name.png" style="border:2px solid black"></center>&nbsp;<p>
+<center><img src="./images/Install_Tidyverse_Type_Name.png" style="border:2px solid black"></center>&nbsp;<p>
 
 Click on `Install` and make sure that `Install dependencies` is checked:
 
-<center><img src="./images/Installggplot2_clickInstall.png" style="border:2px solid black"></center>&nbsp;<p>
+<center><img src="./images/Install_Tidyverse_Click_Install.png" style="border:2px solid black"></center>&nbsp;<p>
 
-You should then see statements like this in the console on the bottom left quadrant:
+The installation may take a minute or two because of the number of different packages it has to install.  You should then see statements like this in the console on the bottom left quadrant:
 
-<center><img src="./images/Installggplot2console.png" style="border:2px solid black"></center>&nbsp;<p>
+<center><img src="./images/Install_Tidyverse_Console.png" style="border:2px solid black"></center>&nbsp;<p>
 
-As you can see in the console, you can also install packages just by typing:
+Once you see `package ‘tidyverse’ successfully unpacked and MD5 sums checked`, then things have been installed successfully.
+
+You can also install packages just by typing:
 
 ```{r, eval=FALSE}
-install.packages("ggplot2")
+install.packages("tidyverse")
 ```
 
 We first need to load the library that we'll be using for the rest of this tutorial:
 
 ```{r, message=FALSE}
-library(ggplot2)
+library(tidyverse)
 ```
 
-If later on you see an error like `Error in ggplot() : could not find function "ggplot"`, then that means that you forgot to load the library and that you need to run the `library(ggplot2)` command.
+After running this command, you may see messages like this:
+<center><img src="./images/Load_Tidyverse_Warning_Messages.png"></center>
+For this practical, these warnings are normal and won't cause a problem.
 
-## Basics
+If later on you see an error that says something like `could not find function`, then that means that you forgot to load the library and that you need to make sure to run the `library(tidyverse)` command.
+
+## Data Types
+
+Use `class()` to see what type of data type you are working with
+
+Converting between data types
+
+`as.numeric()`
+`as.factor()`
+`as.data.frame()`
+
+* boolean
+* numeric
+* character
+* factor
+
+TODO: show this as a data frame instead where certain factor values are repeated
+```{r}
+df = data.frame(person = c("Alice", "Bob", "Carol"),
+                type_of_person = factor(c("doesn't like cheese", "likes cheese", "likes cheese")),
+                favourite_number = c(4, 8, 9), 
+                likes_cheese = c(FALSE, TRUE, TRUE))
+```
+
+Behind the scenes, factors are actually numbers.  You shouldn't use these numbers directly, R just uses them internally to perform some of its calculations quicker.
+```{r}
+as.numeric(df$type_of_person)
+```
+
+## Conditionals
+
+!=
+== is not the same as =
+
+
+## dplyr
+
+set of verbs for performing operations on data frames
+
+explain the `%>%` symbol
+
+### Select
+
+select particular columns
+
+### Filter
+
+logical operators
+
+filter for cars in some list
+
+```{r}
+mtcars %>% filter(hp < 100)
+```
+
+We separate multiple conditions by a comma
+
+```{r}
+mtcars %>% filter(100 <= hp, hp < 200)
+```
+
+Note that the order of the conditional statements doesn't matter
+
+instead of `hp < 200` like above we can also use `200 > hp`
+
+```{r}
+mtcars %>% filter(100 <= hp, 200 > hp)
+```
+
+We can also do filtering on values in multiple columns
+```{r}
+mtcars %>% filter(100 <= hp, 200 > hp, cyl == 8)
+```
+
+
+### Summarise
+
+For all cars, find the average and standard deviation of all the horsepower (`hp`) values:
+
+```{r}
+mtcars %>% summarize(avg_hp = mean(hp), sd_hp = sd(hp))
+```
+
+Find the average fuel efficiency (`mpg` = "miles per gallon") for different ranges of horsepower (`hp`)
+
+```{r}
+mtcars %>% filter(hp < 100) %>% summarise(avg_mpg = mean(mpg))
+
+mtcars %>% filter(100 <= hp, hp < 200) %>% summarise(avg_mpg = mean(mpg))
+
+mtcars %>% filter(200 <= hp, hp < 300) %>% summarise(avg_mpg = mean(mpg))
+```
+
+### multiple verbs
+
+## ggplot2 Basics
+
 Many visualizations created with R are often created using the **[ggplot2 library](http://ggplot2.org/)**.  What's interesting about this library is that way in which it allows you to construct visualizations.  The gg in ggplot2 stands for the Grammar of Graphics. The idea is that when you create plots, you are basically writing sentences that are of the form:
   
   `Here's my data frame` + `Here are the x and y columns` + `Apply this kind of plot to that data` + `These are the axis labels` + `here are some more additional transformations`
@@ -78,6 +185,9 @@ ggplot(data=mtcars, aes(x=mpg, y=cyl))
 ```
 
 Now we see a blank grid, whose ranges correspond to the min/max values of the `cyl` and `mpg` columns.  At this point ggplot knows *what* we want to plot, but not *how* to plot it.  To do this, we need to add one of the "Geoms" as referred to on the [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf).  These are the functions which begin with `geom_` and look like `geom_point`, `geom_line`, `geom_boxplot`, etc.
+
+`ggplot(data=` **your data frame** `, aes(x=` **column in your data frame** `, y=` **another column in your data frame** `)) + geom_` **point, line, etc.**
+
 
 Show different places where the data frame can be specified - if mixing data frames, then need to leave ggplot() empty
 
@@ -204,6 +314,7 @@ ggplot(animals,
 
 ```
 
+## Maybe also cover: axis labels, abline
 
 ## Reading CSV Files
 
