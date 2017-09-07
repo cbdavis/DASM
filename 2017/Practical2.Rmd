@@ -95,6 +95,10 @@ as.numeric(df$type_of_person)
 
 !=
 == is not the same as =
+>
+>=
+
+
 
 
 ## dplyr
@@ -157,164 +161,6 @@ mtcars %>% filter(200 <= hp, hp < 300) %>% summarise(avg_mpg = mean(mpg))
 
 ### multiple verbs
 
-## ggplot2 Basics
-
-Many visualizations created with R are often created using the **[ggplot2 library](http://ggplot2.org/)**.  What's interesting about this library is that way in which it allows you to construct visualizations.  The gg in ggplot2 stands for the Grammar of Graphics. The idea is that when you create plots, you are basically writing sentences that are of the form:
-  
-  `Here's my data frame` + `Here are the x and y columns` + `Apply this kind of plot to that data` + `These are the axis labels` + `here are some more additional transformations`
-
-The syntax may look strange at first, although it’s a very modular approach, and you can create very complex visualizations just by adding new parts to these sentences.
-
-We'll first start off by writing code that *doesn't work*, but it at least shows how we build up these statements.  First we have the `ggplot()` function.  You need to call this whenever you want to make a plot.
-
-```{r, eval=FALSE}
-ggplot()
-```
-
-Next we need to specify which data frame we want to use, via the `data=` argument.  In this case we use the `mtcars` data frame which we first showed in the previous practical.
-
-```{r, eval=FALSE}
-ggplot(data=mtcars)
-```
-
-At this point, ggplot knows that we want to plot a data frame, but it's not sure which columns it should look at.
-
-We now have to use `aes()` to map what are called the aesthetics.  Here we tell ggplot which columns are to be used for the `x` and `y` values in the plot.  Note that we use don't use quotation marks for the column names, i.e. `aes(x=mpg, y=cyl)` is the correct syntax, while `aes(x="mpg", y="cyl")` will not give you the results that you want.
-```{r}
-ggplot(data=mtcars, aes(x=mpg, y=cyl))
-```
-
-Now we see a blank grid, whose ranges correspond to the min/max values of the `cyl` and `mpg` columns.  At this point ggplot knows *what* we want to plot, but not *how* to plot it.  To do this, we need to add one of the "Geoms" as referred to on the [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf).  These are the functions which begin with `geom_` and look like `geom_point`, `geom_line`, `geom_boxplot`, etc.
-
-`ggplot(data=` **your data frame** `, aes(x=` **column in your data frame** `, y=` **another column in your data frame** `)) + geom_` **point, line, etc.**
-
-
-Show different places where the data frame can be specified - if mixing data frames, then need to leave ggplot() empty
-
-Don't need to specify `ggplot(data=mtcars, ...` can just leave that blank and use `ggplot(mtcars, ...`
-
-also if color, fill outside the aesthetics
-
-difference between color and fill
-
-ggplot - one variable vs. two variables
-
-show equivalence
-ggplot() + geom_point(data=
-ggplot(data=) + geom_point()
-
-if specify in ggplot(data= then don't have to specify it again
-
-+ geom_point() + geom_line()
-
-have a section on common problems (for inspiration check section 3 in Data Science for R, ggplot) - issues like you can break lines, but end of line has to be a '+'.  Also issue with color="red" matters where you put it in the aes
-
-### Scatter plot
-To understand this, we can first do a simple scatter plot.  You'll notice with the syntax that we first start with the `mtcars` data frame, then we specify which columns are to be associated with the `x` and `y` values, and then we specify that we want to plot the data as points by adding `+ geom_point()`.
-
-```{r mtcarsGeomPoint, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
-```
-
-In the following examples, you may see the code examples split over multiple lines.  The two statements below are actually equivalent, but by spreading the commands over multiple lines it can sometimes help to make things more readable by separating the code into its different functional pieces.
-
-```{r, eval=FALSE}
-ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
-
-ggplot(mtcars, 
-       aes(x=hp, y=mpg)) + 
-  geom_point()
-```
-
-We can also use values from other columns to modify particular attributes of the points.  For example, we can set the color of the points to indicate the number of cylinders
-```{r mtCarsPointColor, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl)) + geom_point()
-```
-
-We can set the size of the points based on the weight of the car
-```{r mtCarsColorSizePoint, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl, size=wt)) + geom_point()
-```
-
-### Boxplot
-For this example, we need to specify `x=factor(cyl)` to make sure that there is a boxplot drawn for each unique value of `cyl`.
-
-```{r mtCarsBoxPlot, cache=TRUE}
-ggplot(mtcars, aes(x=factor(cyl), y=mpg)) + geom_boxplot()
-```
-
-### Histogram
-Histogram of the number of cars with a particular fuel economy value:
-
-```{r mtCarsHistorgram, cache=TRUE}
-ggplot(mtcars, aes(x=mpg)) + geom_histogram()
-```
-
-We can also change the bin width:
-```{r mtCarsHistorgram2, cache=TRUE}
-ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=5)
-```
-
-### Bar charts
-Count the number of cars with specific numbers of cylinders
-```{r mtCarsBarChart, cache=TRUE}
-ggplot(mtcars, 
-       aes(x=cyl)) + 
-  geom_bar()
-```
-
-### Pie chart
-
-Pie charts can be created as well, although they require a few more steps.  Part of the reason for this is that [many data visualization experts discourage their use](https://www.quora.com/How-and-why-are-pie-charts-considered-evil-by-data-visualization-experts) since other types of visualizations can communicate the information more effectively.
-
-The general strategy to create a pie chart using ggplot2 is to first create a bar chart and then to use polar coordinates to turn the bars into a circle.
-
-In other words, we start with this:
-```{r mtCarsNotYetPieChart, cache=TRUE}
-ggplot(mtcars, 
-       aes(x=factor(1), fill=factor(cyl))) + 
-  geom_bar(width=1)
-```
-
-To explain what's going on:
-
-* `x=factor(1)` - This places the bars at the same location, which allows them to be stacked
-* `fill=factor(cyl)` - The fill color for the bars is based on the value of `cyl`
-* `geom_bar(width=1)` - This is needed to that there isn't a hole in the plot when we use the code in the step below.
-* **Note:** the height of the bars is counting the number of cars (i.e. number of rows in the `mtcars` data frame) with a specific value for `cyl`.  In other words, the size of the pie slices is not based on actual numeric values in `mtcars`.
-
-We then turn this into a pie chart by adding `+ coord_polar(theta="y")`:
-```{r mtCarsPieChart1, cache=TRUE}
-
-# this does a count
-ggplot(mtcars, 
-       aes(x=factor(1), fill=factor(cyl))) + 
-  geom_bar(width=1) + coord_polar(theta="y")
-```
-
-If we want to create a pie chart where the size of the slices correspond to actual values in the data and not just to counts of things with the same values, we need to take a slightly different approach.
-
-Here we have a data frame listing types of animals and values associated with them:
-```{r animalsDataFrame, cache=TRUE}
-animals = data.frame(animal_type = c("chickens", "cows", "pigs"),
-                     farm_count = c(20, 10, 5))
-animals
-```
-
-We then add `y=farm_count` and `stat="identity"` to make sure that this is plotted correctly.  We also use `theme_void()` to remove the axis labels that we saw in the previous plot.
-
-Using `stat="identity"` means that the size of the pie slices are based on the values contained in the data, and not on the count of things with the same values.
-
-```{r mtCarsPieChart2, cache=TRUE}
-ggplot(animals, 
-       aes(x=factor(1), y=farm_count, fill=factor(animal_type))) + 
-  geom_bar(width=1, stat="identity") + 
-  coord_polar(theta="y") + 
-  theme_void()
-
-```
-
-## Maybe also cover: axis labels, abline
 
 ## Reading CSV Files
 
@@ -415,6 +261,186 @@ ggplot(df, aes(x=Year, y=CO2_Mt, ymin=0)) + geom_line() + facet_wrap(~Country, s
 ```
 
 
+## ggplot2 Basics
+
+show with mtcars how to use 2 colors outside of the aes (just filter on different values)
+
+
+
+Many visualizations created with R are often created using the **[ggplot2 library](http://ggplot2.org/)**.  What's interesting about this library is that way in which it allows you to construct visualizations.  The gg in ggplot2 stands for the Grammar of Graphics. The idea is that when you create plots, you are basically writing sentences that are of the form:
+  
+  `Here's my data frame` + `Here are the x and y columns` + `Apply this kind of plot to that data` + `These are the axis labels` + `here are some more additional transformations`
+
+The syntax may look strange at first, although it’s a very modular approach, and you can create very complex visualizations just by adding new parts to these sentences.
+
+We'll first start off by writing code that *doesn't work*, but it at least shows how we build up these statements.  First we have the `ggplot()` function.  You need to call this whenever you want to make a plot.
+
+```{r, eval=FALSE}
+ggplot()
+```
+
+Next we need to specify which data frame we want to use, via the `data=` argument.  In this case we use the `mtcars` data frame which we first showed in the previous practical.
+
+```{r, eval=FALSE}
+ggplot(data=mtcars)
+```
+
+At this point, ggplot knows that we want to plot a data frame, but it's not sure which columns it should look at.
+
+We now have to use `aes()` to map what are called the aesthetics.  Here we tell ggplot which columns are to be used for the `x` and `y` values in the plot.  Note that we use don't use quotation marks for the column names, i.e. `aes(x=mpg, y=cyl)` is the correct syntax, while `aes(x="mpg", y="cyl")` will not give you the results that you want.
+```{r}
+ggplot(data=mtcars, aes(x=mpg, y=cyl))
+```
+
+Now we see a blank grid, whose ranges correspond to the min/max values of the `cyl` and `mpg` columns.  At this point ggplot knows *what* we want to plot, but not *how* to plot it.  To do this, we need to add one of the "Geoms" as referred to on the [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf).  These are the functions which begin with `geom_` and look like `geom_point`, `geom_line`, `geom_boxplot`, etc.
+
+`ggplot(data=` **your data frame** `, aes(x=` **column in your data frame** `, y=` **another column in your data frame** `)) + geom_` **point, line, etc.**
+
+
+Show different places where the data frame can be specified - if mixing data frames, then need to leave ggplot() empty
+
+Don't need to specify `ggplot(data=mtcars, ...` can just leave that blank and use `ggplot(mtcars, ...`
+
+also if color, fill outside the aesthetics
+
+difference between color and fill
+
+ggplot - one variable vs. two variables
+
+show equivalence
+ggplot() + geom_point(data=
+ggplot(data=) + geom_point()
+
+if specify in ggplot(data= then don't have to specify it again
+
++ geom_point() + geom_line()
+
+have a section on common problems (for inspiration check section 3 in Data Science for R, ggplot) - issues like you can break lines, but end of line has to be a '+'.  Also issue with color="red" matters where you put it in the aes
+
+### Scatter plot
+To understand this, we can first do a simple scatter plot.  You'll notice with the syntax that we first start with the `mtcars` data frame, then we specify which columns are to be associated with the `x` and `y` values, and then we specify that we want to plot the data as points by adding `+ geom_point()`.
+
+```{r mtcarsGeomPoint, cache=TRUE}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
+```
+
+Don't put the plus at the beginning of the line
+
+
+In the following examples, you may see the code examples split over multiple lines.  The two statements below are actually equivalent, but by spreading the commands over multiple lines it can sometimes help to make things more readable by separating the code into its different functional pieces.
+
+```{r, eval=FALSE}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
+
+ggplot(mtcars, 
+       aes(x=hp, y=mpg)) + 
+  geom_point()
+```
+
+We can also use values from other columns to modify particular attributes of the points.  For example, we can set the color of the points to indicate the number of cylinders
+```{r mtCarsPointColor, cache=TRUE}
+ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl)) + geom_point()
+```
+
+We can set the size of the points based on the weight of the car
+```{r mtCarsColorSizePoint, cache=TRUE}
+ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl, size=wt)) + geom_point()
+```
+
+show something where put the color outside the aes
+also specify "red" within the aes - it's not really red then.  Where you put the color matters
+
+### Boxplot
+
+What happens when we don't use factor (show what goes wrong)
+
+For this example, we need to specify `x=factor(cyl)` to make sure that there is a boxplot drawn for each unique value of `cyl`.
+
+```{r mtCarsBoxPlot, cache=TRUE}
+ggplot(mtcars, aes(x=factor(cyl), y=mpg)) + geom_boxplot()
+```
+
+### Histogram
+Histogram of the number of cars with a particular fuel economy value:
+
+```{r mtCarsHistorgram, cache=TRUE}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram()
+```
+
+We can also change the bin width:
+```{r mtCarsHistorgram2, cache=TRUE}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=5)
+```
+
+### Bar charts
+Count the number of cars with specific numbers of cylinders
+```{r mtCarsBarChart, cache=TRUE}
+ggplot(mtcars, 
+       aes(x=cyl)) + 
+  geom_bar()
+```
+
+### Pie chart
+
+Pie charts can be created as well, although they require a few more steps.  Part of the reason for this is that [many data visualization experts discourage their use](https://www.quora.com/How-and-why-are-pie-charts-considered-evil-by-data-visualization-experts) since other types of visualizations can communicate the information more effectively.
+
+The general strategy to create a pie chart using ggplot2 is to first create a bar chart and then to use polar coordinates to turn the bars into a circle.
+
+In other words, we start with this:
+```{r mtCarsNotYetPieChart, cache=TRUE}
+ggplot(mtcars, 
+       aes(x=factor(1), fill=factor(cyl))) + 
+  geom_bar(width=1)
+```
+
+To explain what's going on:
+
+* `x=factor(1)` - This places the bars at the same location, which allows them to be stacked
+* `fill=factor(cyl)` - The fill color for the bars is based on the value of `cyl`
+* `geom_bar(width=1)` - This is needed to that there isn't a hole in the plot when we use the code in the step below.
+* **Note:** the height of the bars is counting the number of cars (i.e. number of rows in the `mtcars` data frame) with a specific value for `cyl`.  In other words, the size of the pie slices is not based on actual numeric values in `mtcars`.
+
+We then turn this into a pie chart by adding `+ coord_polar(theta="y")`:
+```{r mtCarsPieChart1, cache=TRUE}
+
+# this does a count
+ggplot(mtcars, 
+       aes(x=factor(1), fill=factor(cyl))) + 
+  geom_bar(width=1) + coord_polar(theta="y")
+```
+
+If we want to create a pie chart where the size of the slices correspond to actual values in the data and not just to counts of things with the same values, we need to take a slightly different approach.
+
+Here we have a data frame listing types of animals and values associated with them:
+```{r animalsDataFrame, cache=TRUE}
+animals = data.frame(animal_type = c("chickens", "cows", "pigs"),
+                     farm_count = c(20, 10, 5))
+animals
+```
+
+We then add `y=farm_count` and `stat="identity"` to make sure that this is plotted correctly.  We also use `theme_void()` to remove the axis labels that we saw in the previous plot.
+
+Using `stat="identity"` means that the size of the pie slices are based on the values contained in the data, and not on the count of things with the same values.
+
+```{r mtCarsPieChart2, cache=TRUE}
+ggplot(animals, 
+       aes(x=factor(1), y=farm_count, fill=factor(animal_type))) + 
+  geom_bar(width=1, stat="identity") + 
+  coord_polar(theta="y") + 
+  theme_void()
+
+```
+
+## Maybe also cover: axis labels, abline
+
+ggtitle
+xlab
+ylab
+
+hline
+vline
+abline
+
 ## Cheat sheets
 
 **These sheets are important and summarize much of what you will need to know about R for this course**
@@ -422,6 +448,8 @@ ggplot(df, aes(x=Year, y=CO2_Mt, ymin=0)) + geom_line() + facet_wrap(~Country, s
 * [R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf) - this covers many of the basics of using R that you will need to know.
 * [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) - this covers all the types of visualizations that can be done with `ggplot2`
 * [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.  We will cover `dplyr` in a later practical.
+
+Only show R and ggplot cheatsheet
 
 <center>
 <table>
