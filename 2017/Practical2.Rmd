@@ -8,7 +8,7 @@ output:
 number_sections: false
 ---
   
-# Plotting in R {.tabset .tabset-fade .tabset-pills}
+#  {.tabset .tabset-fade .tabset-pills}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 options(stringsAsFactors = FALSE)
@@ -65,38 +65,143 @@ If later on you see an error that says something like `could not find function`,
 
 ## Data Types
 
+* numeric - integers, real numbers
+* character - "a", "hello world"
+* matrix
+* data.frame
+* logical - boolean values of `TRUE`, `FALSE`
+* factor - typically used for "categories" of data
+
+Within a single data frame, we can have different data types per column
+```{r}
+df = data.frame(person = c("Alice", "Bob", "Carol"),   # character
+                type_of_person = factor(c("doesn't like cheese", "likes cheese", "likes cheese")),  # factor
+                favourite_number = c(4, 8, 9),         # numeric
+                likes_cheese = c(FALSE, TRUE, TRUE))   # logical
+```
+
+### Determining Data Types
+
 Use `class()` to see what type of data type you are working with
 
-Converting between data types
+```{r}
+# Some logical values
+a = TRUE
+class(a)
+b = c(TRUE, FALSE, TRUE)
+class(b)
+
+# numeric
+a = 3
+class(a)
+b = 3.14:10
+class(b)
+
+# character
+a = "3"
+class(a)
+b = c("hello", "this", "is", "a", "vector", "of", "characters")
+class(b)
+```
+
+As shown in the previous practical, we can run `summary()` on this data frame to get an idea of what its contents are.  
+
+```{r}
+summary(df)
+```
+
+```{r}
+class(df$person)
+class(df$type_of_person)
+class(df$favourite_number)
+class(df$likes_cheese)
+```
+
+### Converting between Data Types
 
 `as.numeric()`
 `as.factor()`
+`as.matrix()`
 `as.data.frame()`
 
-* boolean
-* numeric
-* character
-* factor
-
-TODO: show this as a data frame instead where certain factor values are repeated
+We can convert the character `3` into the number `"3"` and vice versa:
 ```{r}
-df = data.frame(person = c("Alice", "Bob", "Carol"),
-                type_of_person = factor(c("doesn't like cheese", "likes cheese", "likes cheese")),
-                favourite_number = c(4, 8, 9), 
-                likes_cheese = c(FALSE, TRUE, TRUE))
+as.numeric("3")
+as.character(3)
 ```
 
-Behind the scenes, factors are actually numbers.  You shouldn't use these numbers directly, R just uses them internally to perform some of its calculations quicker.
+Factors are a bit of a strange data type since they're generally used to represent categories of things.  If we create a factor for a vector we see:
+```{r}
+as.factor(c(3, 4, 7, 2, 4, 3))
+```
+
+The part about `Levels: 2 3 4 7` shows that its treating these numbers as labels or categories.  In other words, these values would be used to say things like Category 2 = "likes cheese", Category 3 = "doesn't like cheese", etc.
+
+We can also convert factors into characters, in which case we'll have a character vector
+```{r}
+as.character(df$type_of_person)
+```
+
+You can also convert them to numbers, although this is not necessarily useful.  
 ```{r}
 as.numeric(df$type_of_person)
 ```
 
+Occasionally when you read in a data file, R may interpret numbers as factors, in which case you have to convert the factors first to characters and then to numbers
+```{r}
+a = as.factor(c(3, 4, 7, 2, 4, 3))
+class(a)                          # first check if this is a factor
+as.numeric(a)                     # these don't look like the numbers
+as.character(a)                   # these look like the numbers, but they're in character form
+as.numeric(as.character(a))       # this is what we need
+a <- as.numeric(as.character(a))  # use this to overwrite the original value
+a
+```
+
 ## Conditionals
 
-!=
-== is not the same as =
->
->=
+```{r}
+a <- 5
+```
+
+### `!=` not equal to
+```{r}
+a != 6
+a != 5
+```
+
+### `==` equal to
+```{r}
+a == 5
+```
+
+### `>`, `<` greater than, less than
+```{r}
+a > 5
+```
+
+### `>=`, `<=` greater/less than or equal
+```{r}
+a <= 5
+```
+
+### `%in%` value is in a list
+```{r}
+a %in% 1:10
+```
+
+### `!` negation
+This takes the opposite of the value that comes after it
+```{r}
+(a == 5)
+!(a == 5)
+```
+
+
+### Don't use:
+
+* `=` - only used for variable assignement
+* `=>`, `=<` - incorrect form for greater/less than or equal
 
 
 
@@ -430,6 +535,7 @@ ggplot(animals,
   theme_void()
 
 ```
+
 
 ## Maybe also cover: axis labels, abline
 
