@@ -15,3 +15,102 @@ options(stringsAsFactors = FALSE)
 ```
 
 We'll cover what this is in a later practical, but for now it's important to specify the `stringsAsFactors` option whenever running code as you may get confusing results without it.  In short, [R assumes that your data contains factors or categorical variables](http://www.stat.berkeley.edu/classes/s133/factors.html), which isn't necessarily the case.
+
+## Cheat sheets
+
+**These sheets are important and summarize much of what you will need to know about R for this course**
+
+* [R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf) - this covers many of the basics of using R that you will need to know.
+* [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) - this covers all the types of visualizations that can be done with `ggplot2`
+* [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.  We will cover `dplyr` in a later practical.
+
+Only show R and ggplot cheatsheet
+
+<center>
+<table>
+<tr>
+<td style="text-align:center"><b>R cheat sheet</b></td>
+<td style="width:50px"></td>
+<td style="text-align:center"><b>ggplot2 cheat sheet</b></td>
+<td style="width:50px"></td>
+<td style="text-align:center"><b>dplyr cheat sheet</b></td>
+</tr>
+
+<tr>
+<td><a href="https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf">
+<img src="./images/rCheatSheetScreenShot.png" style="height:200px; width:auto"></a></td>
+<td style="width:50px"></td>
+<td><a href="https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf"><img src="./images/ggplotScreenShot.png" style="height:200px; width:auto"></a></td>
+<td style="width:50px"></td>
+<td><a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf"><img src="./images/dplyrScreenShot.png" style="height:200px; width:auto"></a></td>
+</tr>
+</table>
+</center>
+
+
+## Finding help
+
+In order to find help for how to use an R function, in the console, you can just type `?` followed by the name of the function.  For example, to find out how to use the `sum()` function, just type:
+
+```{r}
+?sum
+```
+
+You'll note that this will bring up the help page in the bottom right quadrant of RStudio.
+
+If you want to find help for a function that doesn't start with a letter, you have to first surround it with single quotes.  for this example, we want to find information about how to use the `:` operator which allows us to create sequences via commands like `3:7`
+
+```{r}
+?':'
+```
+
+There is also a search box in the `Help` tab of RStudio, and there are numerous examples online of how to use R commands.
+
+### Exercise
+Locate the help pages for `abs` and `%%`
+
+In the `Help` window you should see:
+
+<center>
+<table>
+<tr>
+<td><img src="./images/HelpPageAbs.png"></td>
+<td style="width:100px"></td>
+<td><img src="./images/HelpPageModulo.png"></td>
+</tr>
+</table>
+</center>
+
+## Reference Materials
+For further information beyond what is covered in this practical, you can refer to the resources below.  If you are having trouble understanding the contents of the practical, these can be quite useful.
+
+### Cheat sheets
+
+**Much of what has been covered in this practical is available for easy reference in the [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf).**  It is highly recommended that you keep a copy of this handy when using R.
+
+<a href="https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf">
+<img src="./images/rCheatSheetScreenShotFull.png" style="width:auto"></a>
+
+### Additional Materials
+
+* [How to Transition from Excel to R](https://districtdatalabs.silvrback.com/intro-to-r-for-microsoft-excel-users)
+* [R for Excel Users](http://www.rforexcelusers.com/)
+* [Quick-R](http://www.statmethods.net/index.html)
+
+For a more basic step-by-step introduction, you can install the [swirl](http://swirlstats.com/students.html) package:
+```{r, eval=FALSE}
+install.packages("swirl")
+```
+
+You can then work through tutorials by doing:
+```{r, eval=FALSE}
+library(swirl)
+swirl()
+```
+
+Swirl is interesting since it guides you in learning R, within the R console.  You'll see examples like this:
+```{eval=FALSE}
+| To assign the result of 5 + 7 to a new variable called x, you type x <- 5 +
+| 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
+```
+

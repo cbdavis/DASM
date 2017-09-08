@@ -17,13 +17,14 @@ library(knitr)
 
 ## Install packages
 
-For this practical, we need to **open up RStudio and install the necessary packages for R**.  Note that with R, the terms "package" and "library" are often used interchangeably and they mean the same thing.  Today we'll need to install the [tidyverse](https://www.tidyverse.org/) package.
+For this practical, we need to **open up RStudio and install the necessary packages for R**.  Note that with R, the terms "package" and "library" are often used interchangeably and they mean the same thing.  
 
-The Tidyverse package is a sort of "meta-package" that actually installs a collection of other packages which are very useful for working with R.  In other words, instead of installing ten different packages individually, you just install this one package and it grabs everything that you need.  The online book [R for Data Science](http://r4ds.had.co.nz/) goes into much more detail about how these packages can be used, and may be useful to refer to in the future, especially if your thesis project involves a lot of data analysis in R.
+Today we'll need to install the **[tidyverse](https://www.tidyverse.org/)** package.  The Tidyverse package is a sort of "meta-package" that actually installs a collection of other packages which are very useful for working with R.  In other words, instead of installing twenty different packages individually, you just install this one package and it grabs everything that you need.  The online book [R for Data Science](http://r4ds.had.co.nz/) goes into much more detail about how these packages can be used, and may be useful to refer to in the future, especially if your thesis project involves a lot of data analysis in R.
 
-For this practical, there are two particular packages contained within Tidyverse that we will be using.
+For this practical, there are two particular packages contained within Tidyverse that we will be using:
 
-The first package is [`dplyr`](http://dplyr.tidyverse.org/), which makes it easy to do very complex operations with data frames.  The second is [`ggplot2`](http://docs.ggplot2.org/current/) which allows you to plot data using a variety of visualizations.
+* The first package is [`dplyr`](http://dplyr.tidyverse.org/), which makes it easy to do very complex operations with data frames.  
+* The second is [`ggplot2`](http://docs.ggplot2.org/current/) which allows you to plot data using a variety of visualizations.
 
 ### Installation Steps
 
@@ -65,14 +66,21 @@ If later on you see an error that says something like `could not find function`,
 
 ## Data Types
 
-* numeric - integers, real numbers
-* character - "a", "hello world"
-* matrix
-* data.frame
-* logical - boolean values of `TRUE`, `FALSE`
-* factor - typically used for "categories" of data
+### Common Data Types
 
-Within a single data frame, we can have different data types per column
+There are several data types you'll frequently use when working with R.  In the previous practical we discussed the first four of these.  
+
+* `numeric` - integers, real numbers
+* `character` - "a", "hello world"
+* `matrix`
+* `data.frame`
+* `logical` - boolean values of `TRUE`, `FALSE`
+* `factor` - typically used to indicate categories/labels for data observations
+
+Within a single data frame, we can have different data types per column.  Note that here we use factors in the `type_of_person` column to label people as `doesn't like cheese` and `likes cheese`.  In the `likes_cheese` column, we encode the same information but as a series of `TRUE` and `FALSE` values.  
+
+If we have multiple labels such as `doesn't like cheese`, `likes Gouda cheese`, `likes stinky cheese`, then it makes sense to use factors since they can support as many distinct categories as you wish to have.
+
 ```{r}
 df = data.frame(person = c("Alice", "Bob", "Carol"),   # character
                 type_of_person = factor(c("doesn't like cheese", "likes cheese", "likes cheese")),  # factor
@@ -82,7 +90,9 @@ df = data.frame(person = c("Alice", "Bob", "Carol"),   # character
 
 ### Determining Data Types
 
-Use `class()` to see what type of data type you are working with
+When working with R, you may sometimes need to check which data types you are working with.  This is typically necessary when you run into some strange error or your calculation doesn't seem to give you the correct results.
+
+To do this, use `class()` to see what type of data type you are working with
 
 ```{r}
 # Some logical values
@@ -104,12 +114,7 @@ b = c("hello", "this", "is", "a", "vector", "of", "characters")
 class(b)
 ```
 
-As shown in the previous practical, we can run `summary()` on this data frame to get an idea of what its contents are.  
-
-```{r}
-summary(df)
-```
-
+You can use `class()` also on the columns of a data frame.
 ```{r}
 class(df$person)
 class(df$type_of_person)
@@ -119,10 +124,12 @@ class(df$likes_cheese)
 
 ### Converting between Data Types
 
-`as.numeric()`
-`as.factor()`
-`as.matrix()`
-`as.data.frame()`
+Ocassionally you may find that you are working with data that is not of the correct data type.  You can fix this by using one of the following functions:
+
+* `as.numeric()`
+* `as.factor()`
+* `as.matrix()`
+* `as.data.frame()`
 
 We can convert the character `3` into the number `"3"` and vice versa:
 ```{r}
@@ -130,14 +137,16 @@ as.numeric("3")
 as.character(3)
 ```
 
+#### Factors
+
 Factors are a bit of a strange data type since they're generally used to represent categories of things.  If we create a factor for a vector we see:
 ```{r}
 as.factor(c(3, 4, 7, 2, 4, 3))
 ```
 
-The part about `Levels: 2 3 4 7` shows that its treating these numbers as labels or categories.  In other words, these values would be used to say things like Category 2 = "likes cheese", Category 3 = "doesn't like cheese", etc.
+The part about `Levels: 2 3 4 7` shows that its treating these numbers as labels or categories.  In other words, these values would be used to say things like Category 2 = "brown hair", Category 3 = "black hair", etc.
 
-We can also convert factors into characters, in which case we'll have a character vector
+We can also convert factors into characters, in which case we'll have a character vector:
 ```{r}
 as.character(df$type_of_person)
 ```
@@ -158,8 +167,19 @@ a <- as.numeric(as.character(a))  # use this to overwrite the original value
 a
 ```
 
-## Conditionals
+## Relational Operators
 
+Relational operators allow us to compare values and see if these values meet some condition or not.  In the previous practical we used some of these to help with subsetting sets of elements from vectors, matrices and data frames.  Below we show more of the operators and give a more detailed overview of how they work.
+
+Operators you will commonly used are:
+
+* `!=`
+* `==`
+* `>`, `<`
+* `>=`, `<=`
+* `%in%`
+
+Assign a value to `a` so we can then try out different relational operators on it.
 ```{r}
 a <- 5
 ```
@@ -168,6 +188,23 @@ a <- 5
 ```{r}
 a != 6
 a != 5
+```
+
+When you use these relational operators on a vector (or a matrix or data frame), it performs an evaluation on each element in the vector, resulting in a vector of `TRUE` and `FALSE` values
+
+```{r}
+b = c(3, 7, 2, 1, 4)
+b != 7
+```
+
+Again, we can use this to return the subset of elements matching the criteria.
+```{r}
+b[b != 7]
+```
+
+And we can see that the results above are the same as the statement below:
+```{r}
+b[c(TRUE, FALSE, TRUE, TRUE, TRUE)]
 ```
 
 ### `==` equal to
@@ -197,58 +234,130 @@ This takes the opposite of the value that comes after it
 !(a == 5)
 ```
 
-
 ### Don't use:
 
 * `=` - only used for variable assignement
 * `=>`, `=<` - incorrect form for greater/less than or equal
 
-
-
-
 ## dplyr
 
-set of verbs for performing operations on data frames
+In the previous practical, we talked about subsetting elements within a data frame, although you'll often need to do much more complex operations.  
 
-explain the `%>%` symbol
+One package that helps with this is the **[dplyr package](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)**.  The main idea with `dplyr` is that you start off with data in a data frame, and then you perform a series of operations, or data transformations, which are connected together via the `%>%` symbol which acts as a sort of "pipe" through which data flows.  The philosophy behind `dplyr` is that it provides you way to specify a set of "verbs" describing what you want to do with your data.
 
-### Select
+In very general terms, with the `dplyr` library we can create a series of statements that look like:
 
-select particular columns
+**some data frame** `%>%` **operation 1** `%>%` **operation 2**
 
-### Filter
+### `select()`
 
-logical operators
-
-filter for cars in some list
+In the following example, we use `select()` to return a data frame consisting of the `mpg` and `cyl` columns.  
 
 ```{r}
-mtcars %>% filter(hp < 100)
+mtcars %>% select(mpg, cyl)
 ```
 
-We separate multiple conditions by a comma
+Note that you can also write the same command as shown below, where you create a new line after the `%>%` symbol.  This can be useful to do if you have a large number of operations.
+
+```{r, eval=FALSE}
+mtcars %>% 
+  select(mpg, cyl)
+```
+
+Note if you try to start a new line with the `%>%` symbol, you will get an error.  This symbol always has to be at the end of the previous line, like we showed above.
+
+```{r, error=TRUE}
+mtcars 
+  %>% select(mpg, cyl)
+```
+
+### `filter()`
+
+We can use `filter()` to only return rows matching some condition.  Below we only keep the rows which have a value of `hp` below 90.
+```{r}
+mtcars %>% 
+  filter(hp < 90)
+```
+
+Within a single `filter()` statement you can have multiple comparisons separated by a comma.  Here we only keep rows where the value of `hp` is between 100 and 200.
+```{r}
+mtcars %>% 
+  filter(100 < hp, hp >= 200)
+```
+
+As mentioned, we can chain together multiple operations.  Below we combine the `filter()` and `select()` statements from above.
 
 ```{r}
-mtcars %>% filter(100 <= hp, hp < 200)
+mtcars %>% 
+  filter(100 < hp, hp <= 200) %>% 
+  select(mpg, cyl)
 ```
 
-Note that the order of the conditional statements doesn't matter
+The command above is basically of the form: `mtcars` `%>%` **"keep these rows"** `%>%` **"keep these columns"**
 
-instead of `hp < 200` like above we can also use `200 > hp`
-
+In the `filter()` statement, rows are only returned which match **all** of the conditions specified.  For example, the command below won't return any values since a car can't have a `hp` value simultaneously below 100 and above 200.
 ```{r}
-mtcars %>% filter(100 <= hp, 200 > hp)
+mtcars %>% 
+  filter(hp < 100, hp >= 200) %>% 
+  select(mpg, cyl)
 ```
 
-We can also do filtering on values in multiple columns
+However, we can use `filter()` to find all cars which have a `hp` below 100 **or** above 200.  For this we use the `|` symbol which specifies a logical "or".  R will read this as meaning something like `filter(hp < 100` **"or"** `hp >= 200)`.
 ```{r}
-mtcars %>% filter(100 <= hp, 200 > hp, cyl == 8)
+mtcars %>% 
+  filter(hp < 100 | hp >= 200) %>% 
+  select(mpg, cyl)
 ```
 
+By using the `&` symbol you can specify a logical "and".  This is basically what the comma in the one of the previous examples was doing, and we could rewrite `filter(100 < hp, hp <= 200)` as `filter(100 < hp & hp <= 200)` since we're looking for rows where `hp` is above 100 **and** less than or equal to 200.
+```{r}
+mtcars %>% 
+  filter(100 < hp & hp <= 200) %>% 
+  select(mpg, cyl)
+```
 
-### Summarise
+Filter can also be used on multiple columns.  Note that we create a separate clause `(hp >= 250 | hp < 100)` to contain a logical "or" statement.  The reason for the parenthesis is that this is a single condition that we want to match.  For the other conditions, we want rows where the value of `cyl` is 4, and the `mpg` is greater than 30.
+```{r}
+mtcars %>% 
+  filter((hp >= 250 | hp < 100),   # condition 1
+         cyl == 4,                 # condition 2
+         mpg > 30) %>%             # condition 3
+  select(mpg, cyl)
+```
 
-For all cars, find the average and standard deviation of all the horsepower (`hp`) values:
+The order of the statements will sometimes matter and you should pay attention to this.  For example, note that if we put the `select()` statement before the `filter()` statement, we will get an error since our `select(mpg,cyl)` statement only keeps the `mpg` and `cyl` columns, while the `filter()` statement needs information on the `hp` column.  This is what is meant by `Evaluation error: object 'hp' not found`.  In other words, you will sometimes run into errors with `dplyr` when your statements aren't in the correct sequence.
+
+```{r, error=TRUE}
+mtcars %>% 
+  select(mpg, cyl) %>% 
+  filter((hp >= 250 | hp < 100),   # condition 1
+         cyl == 4,                 # condition 2
+         mpg > 30)                 # condition 3
+```
+
+### `summarise()`
+
+The functions `filter()` and `select()` allow us to select specific rows and columns, although we usually also want to do some sort of statistical calculations over the values in a data frame.
+
+Below we use `summarize()` to find the average and standard deviation of all the horsepower (`hp`) values.  Only a single row is returned since these calculations are performed over the entire set of rows.  The `summarise()` function actually creates new columns based on the names you specify, and multiple columns can be created by using a comma.
+
+The commands are of the form
+
+* `summarize(`**new_column_name**`=`**operation**`)`
+* `summarize(`**new_column_name**`=`**operation**`, `**another_new_column_name**`=`**another operation**`)`
+
+Find the average `hp`
+```{r}
+mtcars %>% summarize(avg_hp = mean(hp))
+```
+
+Note that you should always preceed these statements with your data frame (i.e. `mtcars %>% `).  Without this, `dplyr` won't know where to find the values for `hp`.
+
+```{r, error=TRUE}
+summarize(avg_hp = mean(hp))
+```
+
+Find the average `hp` and standard deviation of `hp`:
 
 ```{r}
 mtcars %>% summarize(avg_hp = mean(hp), sd_hp = sd(hp))
@@ -264,10 +373,221 @@ mtcars %>% filter(100 <= hp, hp < 200) %>% summarise(avg_mpg = mean(mpg))
 mtcars %>% filter(200 <= hp, hp < 300) %>% summarise(avg_mpg = mean(mpg))
 ```
 
-### multiple verbs
+
+## ggplot2 Basics
+
+Many visualizations created with R are often created using the **[ggplot2 library](http://ggplot2.org/)**.  What's interesting about this library is that way in which it allows you to construct visualizations.  The gg in ggplot2 stands for the Grammar of Graphics. The idea is that when you create plots, you are basically writing sentences that are of the form:
+  
+  `Here's my data frame` + `Here are the x and y columns` + `Apply this kind of plot to that data` + `These are the axis labels` + `here are some more additional transformations`
+
+The syntax may look strange at first, although it’s a very modular approach, and you can create very complex visualizations just by adding new parts to these sentences.
+
+We'll first start off by writing code that *doesn't work*, but it at least shows how we build up these statements.  First we have the `ggplot()` function.  You need to call this whenever you want to make a plot.
+
+```{r, eval=FALSE}
+ggplot()
+```
+
+Next we need to specify which data frame we want to use, via the `data=` argument.  In this case we use the `mtcars` data frame which we first showed in the previous practical.
+
+```{r, eval=FALSE}
+ggplot(data=mtcars)
+```
+
+At this point, ggplot knows that we want to plot a data frame, but it's not sure which columns it should look at.
+
+We now have to use `aes()` to map what are called the aesthetics.  Here we tell ggplot which columns are to be used for the `x` and `y` values in the plot.  
+
+Note that we use don't use quotation marks for the column names, i.e. `aes(x=mpg, y=cyl)` is the correct syntax, while `aes(x="mpg", y="cyl")` will not give you the results that you want.
+```{r}
+ggplot(data=mtcars, aes(x=mpg, y=cyl))
+```
+
+Now we see a blank grid, whose ranges correspond to the min/max values of the `cyl` and `mpg` columns.  At this point ggplot knows *what* we want to plot, but not *how* to plot it.  To do this, we need to add one of the "Geoms" as referred to on the [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf).  These are the functions which begin with `geom_` and look like `geom_point`, `geom_line`, `geom_boxplot`, etc.
+
+In other words, you will be writing a lot of statements of the form:
+
+`ggplot(data=` **your data frame** `, aes(x=` **column in your data frame** `, y=` **another column in your data frame** `)) + geom_` **point, line, etc.**
 
 
-## Reading CSV Files
+
+### Scatter plot
+To understand this, we can first do a simple scatter plot.  You'll notice with the syntax that we first start with the `mtcars` data frame, then we specify which columns are to be associated with the `x` and `y` values, and then we specify that we want to plot the data as points by adding `+ geom_point()`.
+
+```{r mtcarsGeomPoint, cache=TRUE}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
+```
+
+In the following examples, you may see the code examples split over multiple lines.  The two statements below are actually equivalent, but by spreading the commands over multiple lines it can sometimes help to make things more readable by separating the code into its different functional pieces.
+
+```{r, eval=FALSE}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
+
+ggplot(mtcars, 
+       aes(x=hp, y=mpg)) + 
+  geom_point()
+```
+
+Note that the `+` can't be at the beginning of the line, otherwise you will get an error.  It always has to appear at the end of the line, just like with the `%>%` used for `dplyr`.
+
+**Incorrect:**
+```{r, error=TRUE, eval=FALSE}
+ggplot(mtcars, 
+       aes(x=hp, y=mpg))
+  + geom_point()
+```
+
+We can also use values from other columns to modify particular attributes of the points.  For example, we can set the color of the points to indicate the number of cylinders
+```{r mtCarsPointColor, cache=TRUE}
+ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl)) + geom_point()
+```
+
+We can set the size of the points based on the weight of the car
+```{r mtCarsColorSizePoint, cache=TRUE}
+ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl, size=wt)) + geom_point()
+```
+
+### Multiple Plot Types
+
+Although it's not directly useful for the `mtcars` data set, you should know that `ggplot` makes it easy for you to overlay multiple visualizations.  Below we create both a scatter plot and a line plot.
+```{r}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point() + geom_line()
+```
+
+Because the specify the data frame and `aes` in the `ggplot()` function, we don't have to specify them later since ggplot is already aware of them.  This saves you from having to write more extensive code like this:
+```{r}
+ggplot() + 
+  geom_point(data=mtcars, aes(x=hp, y=mpg)) + 
+  geom_line(data=mtcars, aes(x=hp, y=mpg))
+```
+
+### Boxplot
+
+For this example, we need to specify `x=factor(cyl)` to make sure that there is a boxplot drawn for each unique value of `cyl`.
+
+```{r mtCarsBoxPlot, cache=TRUE}
+ggplot(mtcars, aes(x=factor(cyl), y=mpg)) + geom_boxplot()
+```
+
+Without this step, only a single boxplot will be drawn:
+```{r}
+ggplot(mtcars, aes(x=cyl, y=mpg)) + geom_boxplot()
+```
+
+### Histogram
+Histogram of the number of cars with a particular fuel economy value:
+
+```{r mtCarsHistorgram, cache=TRUE}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram()
+```
+
+We can also change the bin width:
+```{r mtCarsHistorgram2, cache=TRUE}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=5)
+```
+
+### Bar charts
+Count the number of cars with specific numbers of cylinders
+```{r mtCarsBarChart, cache=TRUE}
+ggplot(mtcars, 
+       aes(x=cyl)) + 
+  geom_bar()
+```
+
+### Pie chart
+
+Pie charts can be created as well, although they require a few more steps.  Part of the reason for this is that [many data visualization experts discourage their use](https://www.quora.com/How-and-why-are-pie-charts-considered-evil-by-data-visualization-experts) since other types of visualizations can communicate the information more effectively.
+
+The general strategy to create a pie chart using ggplot2 is to first create a bar chart and then to use polar coordinates to turn the bars into a circle.
+
+In other words, we start with this:
+```{r mtCarsNotYetPieChart, cache=TRUE}
+ggplot(mtcars, 
+       aes(x=factor(1), fill=factor(cyl))) + 
+  geom_bar(width=1)
+```
+
+To explain what's going on:
+
+* `x=factor(1)` - This places the bars at the same location, which allows them to be stacked
+* `fill=factor(cyl)` - The fill color for the bars is based on the value of `cyl`
+* `geom_bar(width=1)` - This is needed to that there isn't a hole in the plot when we use the code in the step below.
+* **Note:** the height of the bars is counting the number of cars (i.e. number of rows in the `mtcars` data frame) with a specific value for `cyl`.  In other words, the size of the pie slices is not based on actual numeric values in `mtcars`.
+
+We then turn this into a pie chart by adding `+ coord_polar(theta="y")`:
+```{r mtCarsPieChart1, cache=TRUE}
+
+# this does a count
+ggplot(mtcars, 
+       aes(x=factor(1), fill=factor(cyl))) + 
+  geom_bar(width=1) + coord_polar(theta="y")
+```
+
+If we want to create a pie chart where the size of the slices correspond to actual values in the data and not just to counts of things with the same values, we need to take a slightly different approach.
+
+Here we have a data frame listing types of animals and values associated with them:
+```{r animalsDataFrame, cache=TRUE}
+animals = data.frame(animal_type = c("chickens", "cows", "pigs"),
+                     farm_count = c(20, 10, 5))
+animals
+```
+
+We then add `y=farm_count` and `stat="identity"` to make sure that this is plotted correctly.  We also use `theme_void()` to remove the axis labels that we saw in the previous plot.
+
+Using `stat="identity"` means that the size of the pie slices are based on the values contained in the data, and not on the count of things with the same values.
+
+```{r mtCarsPieChart2, cache=TRUE}
+ggplot(animals, 
+       aes(x=factor(1), y=farm_count, fill=factor(animal_type))) + 
+  geom_bar(width=1, stat="identity") + 
+  coord_polar(theta="y") + 
+  theme_void()
+
+```
+
+### A Note on Colors
+
+If you want to specify a specific color for the points, you need to place that within the `geom_` statement.  If `colour` is inside the `ggplot()` function, then the color you get will get will not be the one you specify:
+```{r}
+# these points are not blue
+ggplot(mtcars, aes(x=hp, y=mpg, colour="blue")) + geom_point()
+```
+
+```{r}
+# these points are not blue either
+ggplot(mtcars, aes(x=hp, y=mpg), colour="blue") + geom_point()
+```
+
+To fix this, `colour` needs to be specified outside the `aes()` function:
+```{r}
+# these points are blue
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point(colour="blue")
+```
+
+If you want to make values for one color red and one color blue, then one way to achieve this is to do the following.  We use `dplyr` to create data frames where `cyl` is 4 and 6 respectively, and then assign columns in the `geom_point()` functions, where `colour` is outside of `aes()`.  Note that `ggplot()` has to be empty since we are plotting two different data frames.
+
+```{r}
+ggplot() + geom_point(data = mtcars %>% filter(cyl == 4), aes(x=hp, y=mpg), colour="red") + 
+  geom_point(data = mtcars %>% filter(cyl == 6), aes(x=hp, y=mpg), colour="blue")
+```
+
+### Horizontal, Vertical & Diagonal Lines
+`ggplot` also allows you to horizontal, vertical and diagonal lines.  These are useful if you wish to indicate some level or threshold in the data.
+```{r}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point() + geom_hline(yintercept = 10)
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point() + geom_vline(xintercept = 100)
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point() + geom_abline(intercept=5, slope=0.1)
+```
+
+### Titles and Axis Labels
+
+You can overwrite the default axis labels by using `xlab()` and `ylab()`.  A title can also be added by using `ggtitle()`.
+```{r}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point() + xlab("Horsepower") + ylab("Miles Per Gallon") + 
+  ggtitle("Horsepower vs. Miles Per Gallon for Some Sports Cars")
+```
+
+## Reading & Plotting from CSV Files
 
 The following example is based on [CO2 emissions data from the UNFCCC](http://unfccc.int/ghg_data/ghg_data_unfccc/time_series_annex_i/items/3814.php), specifically the ["CO2 excluding LULUCF" Excel spreadsheet](http://unfccc.int/files/ghg_emissions_data/application/x-zip-compressed/ai_co2_wolulucf.zip.zip) which we've transformed into a CSV file.
 
@@ -363,285 +683,5 @@ The plot above shows the variation, but you'll notice that the minimum value on 
 
 ```{r EmissionsPerCountryFacetWrapYmin0, fig.width=12, fig.height=10, cache=TRUE}
 ggplot(df, aes(x=Year, y=CO2_Mt, ymin=0)) + geom_line() + facet_wrap(~Country, scales="free_y")
-```
-
-
-## ggplot2 Basics
-
-show with mtcars how to use 2 colors outside of the aes (just filter on different values)
-
-
-
-Many visualizations created with R are often created using the **[ggplot2 library](http://ggplot2.org/)**.  What's interesting about this library is that way in which it allows you to construct visualizations.  The gg in ggplot2 stands for the Grammar of Graphics. The idea is that when you create plots, you are basically writing sentences that are of the form:
-  
-  `Here's my data frame` + `Here are the x and y columns` + `Apply this kind of plot to that data` + `These are the axis labels` + `here are some more additional transformations`
-
-The syntax may look strange at first, although it’s a very modular approach, and you can create very complex visualizations just by adding new parts to these sentences.
-
-We'll first start off by writing code that *doesn't work*, but it at least shows how we build up these statements.  First we have the `ggplot()` function.  You need to call this whenever you want to make a plot.
-
-```{r, eval=FALSE}
-ggplot()
-```
-
-Next we need to specify which data frame we want to use, via the `data=` argument.  In this case we use the `mtcars` data frame which we first showed in the previous practical.
-
-```{r, eval=FALSE}
-ggplot(data=mtcars)
-```
-
-At this point, ggplot knows that we want to plot a data frame, but it's not sure which columns it should look at.
-
-We now have to use `aes()` to map what are called the aesthetics.  Here we tell ggplot which columns are to be used for the `x` and `y` values in the plot.  Note that we use don't use quotation marks for the column names, i.e. `aes(x=mpg, y=cyl)` is the correct syntax, while `aes(x="mpg", y="cyl")` will not give you the results that you want.
-```{r}
-ggplot(data=mtcars, aes(x=mpg, y=cyl))
-```
-
-Now we see a blank grid, whose ranges correspond to the min/max values of the `cyl` and `mpg` columns.  At this point ggplot knows *what* we want to plot, but not *how* to plot it.  To do this, we need to add one of the "Geoms" as referred to on the [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf).  These are the functions which begin with `geom_` and look like `geom_point`, `geom_line`, `geom_boxplot`, etc.
-
-`ggplot(data=` **your data frame** `, aes(x=` **column in your data frame** `, y=` **another column in your data frame** `)) + geom_` **point, line, etc.**
-
-
-Show different places where the data frame can be specified - if mixing data frames, then need to leave ggplot() empty
-
-Don't need to specify `ggplot(data=mtcars, ...` can just leave that blank and use `ggplot(mtcars, ...`
-
-also if color, fill outside the aesthetics
-
-difference between color and fill
-
-ggplot - one variable vs. two variables
-
-show equivalence
-ggplot() + geom_point(data=
-ggplot(data=) + geom_point()
-
-if specify in ggplot(data= then don't have to specify it again
-
-+ geom_point() + geom_line()
-
-have a section on common problems (for inspiration check section 3 in Data Science for R, ggplot) - issues like you can break lines, but end of line has to be a '+'.  Also issue with color="red" matters where you put it in the aes
-
-### Scatter plot
-To understand this, we can first do a simple scatter plot.  You'll notice with the syntax that we first start with the `mtcars` data frame, then we specify which columns are to be associated with the `x` and `y` values, and then we specify that we want to plot the data as points by adding `+ geom_point()`.
-
-```{r mtcarsGeomPoint, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
-```
-
-Don't put the plus at the beginning of the line
-
-
-In the following examples, you may see the code examples split over multiple lines.  The two statements below are actually equivalent, but by spreading the commands over multiple lines it can sometimes help to make things more readable by separating the code into its different functional pieces.
-
-```{r, eval=FALSE}
-ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
-
-ggplot(mtcars, 
-       aes(x=hp, y=mpg)) + 
-  geom_point()
-```
-
-We can also use values from other columns to modify particular attributes of the points.  For example, we can set the color of the points to indicate the number of cylinders
-```{r mtCarsPointColor, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl)) + geom_point()
-```
-
-We can set the size of the points based on the weight of the car
-```{r mtCarsColorSizePoint, cache=TRUE}
-ggplot(mtcars, aes(x=hp, y=mpg, colour=cyl, size=wt)) + geom_point()
-```
-
-show something where put the color outside the aes
-also specify "red" within the aes - it's not really red then.  Where you put the color matters
-
-### Boxplot
-
-What happens when we don't use factor (show what goes wrong)
-
-For this example, we need to specify `x=factor(cyl)` to make sure that there is a boxplot drawn for each unique value of `cyl`.
-
-```{r mtCarsBoxPlot, cache=TRUE}
-ggplot(mtcars, aes(x=factor(cyl), y=mpg)) + geom_boxplot()
-```
-
-### Histogram
-Histogram of the number of cars with a particular fuel economy value:
-
-```{r mtCarsHistorgram, cache=TRUE}
-ggplot(mtcars, aes(x=mpg)) + geom_histogram()
-```
-
-We can also change the bin width:
-```{r mtCarsHistorgram2, cache=TRUE}
-ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=5)
-```
-
-### Bar charts
-Count the number of cars with specific numbers of cylinders
-```{r mtCarsBarChart, cache=TRUE}
-ggplot(mtcars, 
-       aes(x=cyl)) + 
-  geom_bar()
-```
-
-### Pie chart
-
-Pie charts can be created as well, although they require a few more steps.  Part of the reason for this is that [many data visualization experts discourage their use](https://www.quora.com/How-and-why-are-pie-charts-considered-evil-by-data-visualization-experts) since other types of visualizations can communicate the information more effectively.
-
-The general strategy to create a pie chart using ggplot2 is to first create a bar chart and then to use polar coordinates to turn the bars into a circle.
-
-In other words, we start with this:
-```{r mtCarsNotYetPieChart, cache=TRUE}
-ggplot(mtcars, 
-       aes(x=factor(1), fill=factor(cyl))) + 
-  geom_bar(width=1)
-```
-
-To explain what's going on:
-
-* `x=factor(1)` - This places the bars at the same location, which allows them to be stacked
-* `fill=factor(cyl)` - The fill color for the bars is based on the value of `cyl`
-* `geom_bar(width=1)` - This is needed to that there isn't a hole in the plot when we use the code in the step below.
-* **Note:** the height of the bars is counting the number of cars (i.e. number of rows in the `mtcars` data frame) with a specific value for `cyl`.  In other words, the size of the pie slices is not based on actual numeric values in `mtcars`.
-
-We then turn this into a pie chart by adding `+ coord_polar(theta="y")`:
-```{r mtCarsPieChart1, cache=TRUE}
-
-# this does a count
-ggplot(mtcars, 
-       aes(x=factor(1), fill=factor(cyl))) + 
-  geom_bar(width=1) + coord_polar(theta="y")
-```
-
-If we want to create a pie chart where the size of the slices correspond to actual values in the data and not just to counts of things with the same values, we need to take a slightly different approach.
-
-Here we have a data frame listing types of animals and values associated with them:
-```{r animalsDataFrame, cache=TRUE}
-animals = data.frame(animal_type = c("chickens", "cows", "pigs"),
-                     farm_count = c(20, 10, 5))
-animals
-```
-
-We then add `y=farm_count` and `stat="identity"` to make sure that this is plotted correctly.  We also use `theme_void()` to remove the axis labels that we saw in the previous plot.
-
-Using `stat="identity"` means that the size of the pie slices are based on the values contained in the data, and not on the count of things with the same values.
-
-```{r mtCarsPieChart2, cache=TRUE}
-ggplot(animals, 
-       aes(x=factor(1), y=farm_count, fill=factor(animal_type))) + 
-  geom_bar(width=1, stat="identity") + 
-  coord_polar(theta="y") + 
-  theme_void()
-
-```
-
-
-## Maybe also cover: axis labels, abline
-
-ggtitle
-xlab
-ylab
-
-hline
-vline
-abline
-
-## Cheat sheets
-
-**These sheets are important and summarize much of what you will need to know about R for this course**
-
-* [R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf) - this covers many of the basics of using R that you will need to know.
-* [Data Visualization with ggplot2 Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) - this covers all the types of visualizations that can be done with `ggplot2`
-* [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames.  We will cover `dplyr` in a later practical.
-
-Only show R and ggplot cheatsheet
-
-<center>
-<table>
-<tr>
-<td style="text-align:center"><b>R cheat sheet</b></td>
-<td style="width:50px"></td>
-<td style="text-align:center"><b>ggplot2 cheat sheet</b></td>
-<td style="width:50px"></td>
-<td style="text-align:center"><b>dplyr cheat sheet</b></td>
-</tr>
-
-<tr>
-<td><a href="https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf">
-<img src="./images/rCheatSheetScreenShot.png" style="height:200px; width:auto"></a></td>
-<td style="width:50px"></td>
-<td><a href="https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf"><img src="./images/ggplotScreenShot.png" style="height:200px; width:auto"></a></td>
-<td style="width:50px"></td>
-<td><a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf"><img src="./images/dplyrScreenShot.png" style="height:200px; width:auto"></a></td>
-</tr>
-</table>
-</center>
-
-
-## Finding help
-
-In order to find help for how to use an R function, in the console, you can just type `?` followed by the name of the function.  For example, to find out how to use the `sum()` function, just type:
-
-```{r}
-?sum
-```
-
-You'll note that this will bring up the help page in the bottom right quadrant of RStudio.
-
-If you want to find help for a function that doesn't start with a letter, you have to first surround it with single quotes.  for this example, we want to find information about how to use the `:` operator which allows us to create sequences via commands like `3:7`
-
-```{r}
-?':'
-```
-
-There is also a search box in the `Help` tab of RStudio, and there are numerous examples online of how to use R commands.
-
-### Exercise
-Locate the help pages for `abs` and `%%`
-
-In the `Help` window you should see:
-
-<center>
-<table>
-<tr>
-<td><img src="./images/HelpPageAbs.png"></td>
-<td style="width:100px"></td>
-<td><img src="./images/HelpPageModulo.png"></td>
-</tr>
-</table>
-</center>
-
-## Reference Materials
-For further information beyond what is covered in this practical, you can refer to the resources below.  If you are having trouble understanding the contents of the practical, these can be quite useful.
-
-### Cheat sheets
-
-**Much of what has been covered in this practical is available for easy reference in the [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf).**  It is highly recommended that you keep a copy of this handy when using R.
-
-<a href="https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf">
-<img src="./images/rCheatSheetScreenShotFull.png" style="width:auto"></a>
-
-### Additional Materials
-
-* [How to Transition from Excel to R](https://districtdatalabs.silvrback.com/intro-to-r-for-microsoft-excel-users)
-* [R for Excel Users](http://www.rforexcelusers.com/)
-* [Quick-R](http://www.statmethods.net/index.html)
-
-For a more basic step-by-step introduction, you can install the [swirl](http://swirlstats.com/students.html) package:
-```{r, eval=FALSE}
-install.packages("swirl")
-```
-
-You can then work through tutorials by doing:
-```{r, eval=FALSE}
-library(swirl)
-swirl()
-```
-
-Swirl is interesting since it guides you in learning R, within the R console.  You'll see examples like this:
-```{eval=FALSE}
-| To assign the result of 5 + 7 to a new variable called x, you type x <- 5 +
-| 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
 ```
 
