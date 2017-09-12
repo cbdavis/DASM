@@ -114,3 +114,84 @@ Swirl is interesting since it guides you in learning R, within the R console.  Y
 | 7. This can be read as 'x gets 5 plus 7'. Give it a try now.
 ```
 
+
+
+
+
+
+
+
+```{r}
+times_true_mean_in_confidence_interval = 0
+num_tests = 500
+# create a loop where the value of "count" will be 1, 2, 3... num_tests
+for (count in c(1:num_tests)){
+  
+  # sample random values from the distribution
+  vals = rnorm(n, mean=0, sd=1)
+  
+  # calculate mean and standard deviation
+  mean_pts = mean(vals)
+  sd_pts = sd(vals)
+  
+  # calculate left and right sides of the 95% confidence interval
+  left = mean_pts - (1.96 * sd_pts/sqrt(n))
+  right = mean_pts + (1.96 * sd_pts/sqrt(n))
+  
+  # see if the true_mean is within the bounds of the interval
+  if (true_mean >= left & true_mean <= right){
+    # if it's in the interval, add one to this variable
+    times_true_mean_in_confidence_interval = times_true_mean_in_confidence_interval + 1
+  }
+}
+
+# show how many times the true_mean falls within the intervals calculated
+times_true_mean_in_confidence_interval
+
+# what percentage of the time does the true_mean fall within the intervals calculated?
+times_true_mean_in_confidence_interval / num_tests
+```
+
+What if we ran this 10,000 times?  How would this percentage change as we repeatedly took more random samples?
+
+Note that the x axis is scaled logarithmically.
+
+```{r, echo=FALSE}
+times_true_mean_in_confidence_interval = 0
+
+set.seed(1234)
+
+num_tests = 10000
+percent_times_true_mean_in_interval = c()
+## create a loop where the value of "count" will be 1, 2, 3... num_tests
+for (count in c(1:num_tests)){
+  
+  # sample random values from the distribution
+  vals = rnorm(n, mean=0, sd=1)
+  
+  # calculate mean and standard deviation
+  mean_pts = mean(vals)
+  sd_pts = sd(vals)
+  
+  # calculate left and right sides of the interval
+  left = mean_pts - (1.96 * sd_pts/sqrt(n))
+  right = mean_pts + (1.96 * sd_pts/sqrt(n))
+  
+  # see if the true_mean is within the bounds of the interval
+  if (true_mean >= left & true_mean <= right){
+    # if it's in the interval, add one to this variable
+    times_true_mean_in_confidence_interval = times_true_mean_in_confidence_interval + 1
+  }
+  
+  percent_times_true_mean_in_interval = c(percent_times_true_mean_in_interval,
+                                          (times_true_mean_in_confidence_interval/count))
+}
+
+data = data.frame(percent = percent_times_true_mean_in_interval,
+                  iteration = c(1:num_tests))
+ggplot(data, aes(x=iteration, y=percent)) + geom_point() + geom_line() +  
+  xlab("Iteration") + 
+  ylab("Percent times true mean in 95% confidence interval") + scale_x_log10()
+```
+
+This shows that there is a lot of variation at first, but as expected, with more samples, we settle into the 95% range.
