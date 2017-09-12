@@ -124,7 +124,7 @@ class(df$likes_cheese)
 
 ### Converting between Data Types
 
-Ocassionally you may find that you are working with data that is not of the correct data type.  You can fix this by using one of the following functions:
+Occasionally you may find that you are working with data that is not of the correct data type.  You can fix this by using one of the following functions:
 
 * `as.numeric()`
 * `as.factor()`
@@ -236,7 +236,7 @@ This takes the opposite of the value that comes after it
 
 ### Don't use:
 
-* `=` - only used for variable assignement
+* `=` - only used for variable assignment
 * `=>`, `=<` - incorrect form for greater/less than or equal
 
 ## dplyr
@@ -351,7 +351,7 @@ Find the average `hp`
 mtcars %>% summarize(avg_hp = mean(hp))
 ```
 
-Note that you should always preceed these statements with your data frame (i.e. `mtcars %>% `).  Without this, `dplyr` won't know where to find the values for `hp`.
+Note that you should always precede these statements with your data frame (i.e. `mtcars %>% `).  Without this, `dplyr` won't know where to find the values for `hp`.
 
 ```{r, error=TRUE}
 summarize(avg_hp = mean(hp))

@@ -232,7 +232,7 @@ class(b)</code></pre>
 </div>
 <div id="converting-between-data-types" class="section level3">
 <h3>Converting between Data Types</h3>
-<p>Ocassionally you may find that you are working with data that is not of the correct data type. You can fix this by using one of the following functions:</p>
+<p>Occasionally you may find that you are working with data that is not of the correct data type. You can fix this by using one of the following functions:</p>
 <ul>
 <li><code>as.numeric()</code></li>
 <li><code>as.factor()</code></li>
@@ -334,7 +334,7 @@ b != 7</code></pre>
 <div id="dont-use" class="section level3">
 <h3>Don’t use:</h3>
 <ul>
-<li><code>=</code> - only used for variable assignement</li>
+<li><code>=</code> - only used for variable assignment</li>
 <li><code>=&gt;</code>, <code>=&lt;</code> - incorrect form for greater/less than or equal</li>
 </ul>
 </div>
@@ -516,7 +516,7 @@ b != 7</code></pre>
 <pre class="r"><code>mtcars %&gt;% summarize(avg_hp = mean(hp))</code></pre>
 <pre><code>##     avg_hp
 ## 1 146.6875</code></pre>
-<p>Note that you should always preceed these statements with your data frame (i.e. <code>mtcars %&gt;%</code>). Without this, <code>dplyr</code> won’t know where to find the values for <code>hp</code>.</p>
+<p>Note that you should always precede these statements with your data frame (i.e. <code>mtcars %&gt;%</code>). Without this, <code>dplyr</code> won’t know where to find the values for <code>hp</code>.</p>
 <pre class="r"><code>summarize(avg_hp = mean(hp))</code></pre>
 <pre><code>## Error in mean(hp): object 'hp' not found</code></pre>
 <p>Find the average <code>hp</code> and standard deviation of <code>hp</code>:</p>
