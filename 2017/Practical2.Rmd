@@ -614,6 +614,8 @@ Internet Explorer might try to save this as "UNFCCC_CO2_Emissions.**txt**", make
 
 One thing you need to check is your working directory. This is the directory where R looks for any files.  You can set this in RStudio `Session` -> `Set Working Directory` -> `Choose Directory`
 
+Note that for this step, you're **selecting the directory** that you just placed the csv file in, **not the actual csv file itself** (R won't let you select the file since it only wants to know the directory).  In other words, you're just telling R that when you mention a file it should look there.  Without this, you would have to specify the entire directory structure leading to that file.
+
 <center><img src="./images/RStudioSetWorkingDirectory.png" style="border:2px solid black"></center>
 
 Make sure that this is set to the directory where you have placed the `UNFCCC_CO2_Emissions.csv` file.
