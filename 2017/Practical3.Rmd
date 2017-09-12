@@ -1,14 +1,14 @@
 ---
 title: "DASM Practical 3"
 author: "Chris Davis"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: 
-    html_document:
-        toc: true
-        number_sections: false
+  html_document:
+  toc: false
+number_sections: false
 ---
 
-#  {.tabset .tabset-fade .tabset-pills}
+# {.tabset .tabset-fade .tabset-pills}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
