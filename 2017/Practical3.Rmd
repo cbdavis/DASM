@@ -192,13 +192,13 @@ Below you can see how these letters are combined with the names of the distribut
 <table width=400><tr><td>
 | Distribution<br>Name | Random<br>Samples  | Density<br>Function | Cumulative<br>Distribution | Quantile |
 |----------------------+--------------------+---------------------+----------------------------+----------|
-| [Normal](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Normal.html)               | `rnorm`            | `dnorm`             | `pnorm`                    | `qnorm`  |
-| [Poison](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Poisson.html)               | `rpois`            | `dpois`             | `ppois`                    | `qpois`  |
-| [Binomial](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Binomial.html)             | `rbinom`           | `dbinom`            | `pbinom`                   | `qbinom` |
-| [Uniform](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Uniform.html)              | `runif`            | `dunif`             | `punif`                    | `qunif`  |
-| [Student t](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/TDist.html)            | `rt`               | `dt`                | `pt`                       | `qt`     |
-| [Chi-Squared](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Chisquare.html)          | `rchisq`           | `dchisq`            | `pchisq`                   | `qchisq` |
-| [F](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html)                    | `rf`               | `df`                | `pf`                       | `qf`     |
+| [Normal](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Normal.html)               | `rnorm`            | $f_{n}$ `dnorm`             | $F_{n}$ `pnorm`                    | `qnorm`  |
+| $f_{p}$ [Poisson](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Poisson.html)               | `rpois`            | `dpois`             | `ppois`                    | `qpois`  |
+| $f_{B}$ [Binomial](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Binomial.html)             | `rbinom`           | `dbinom`            | `pbinom`                   | `qbinom` |
+| $f_{U}$[Uniform](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Uniform.html)              | `runif`            | `dunif`             | `punif`                    | `qunif`  |
+| $f_{t}$ [Student t](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/TDist.html)            | `rt`               | `dt`                | `pt`                       | `qt`     |
+| $f_{C}$ [Chi-Squared](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Chisquare.html)          | `rchisq`           | `dchisq`            | `pchisq`                   | `qchisq` |
+| $f_{F}$ [F](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html)                    | `rf`               | `df`                | `pf`                       | `qf`     |
 </td></tr></table>
 *Main Source: [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf)*
 </center>
@@ -286,12 +286,142 @@ runif(10, min=-1, max=1)
 rbinom(10, size=10, prob=0.5)
 ```
 
+### Exercise
+
+1st ex
+plot a density and cumulative normal distributions with mu=something sd = something
+
+find quantiles where x percent values are bigger than 95%, etc.
+
+
+2nd ex
+plot a density and cumulative binomial distributions with mu=something sd = something
+
+3rd ex
+take a random sample of size=10 and calculate the mean, compare that to the original mean
+
+try with 100, 1000 values, etc.  See how the mean varies
+
+### Binonial Distributions
+
+This example is from Lecture 2, and is worked out in R below.
+
+You observe cars at an intersection: At a usual day 50% go right and 50% go left. Today you walk past quickly and you have time to observe 10 cars. 
+
+(Hide the code and have the students come up with the same results)
+
+#### You want to know the chance that x cars will go to the right. What distribution do you use with which parameters?
+
+As mentioned in the lecture, this is a binomial distribution with p = 0.5 and n = 10.  We define "success" as a car turning right.
+```{r}
+n = 10 # number of observations
+p = 0.5 # probability
+
+# in n observations, the number of cars that can turn right is somewhere between 0 and n
+x = c(0:n)
+data = data.frame(x = x, 
+                  vals = dbinom(x, size=10, prob=0.5))
+
+ggplot(data, aes(x=x, y = vals)) + 
+  geom_point() + # show the discrete probabilities
+  geom_line() + # connect the dots to show the distribution better
+  xlab("Number of Cars Turning Right") + 
+  ylab("Probability") + 
+  scale_x_continuous(breaks = c(0:10)) # set up the x axis so that it shows integers instead of 0, 2.5, etc
+
+```
+
+#### What is the chance that only 2 will go right?
+
+```{r}
+dbinom(2, size=10, prob=0.5)
+```
+
+#### What is the chance that more than 7 go right?
+
+We can add up the probabilities in a series of statements like this:
+```{r}
+dbinom(8, size=10, prob=0.5) + 
+  dbinom(9, size=10, prob=0.5) + 
+  dbinom(10, size=10, prob=0.5)
+```
+This isn't a good approach if we have to sum up the probabilities for a lot of numbers like 8, 9, ... 1000.  
+
+A much more efficient way is to pass a vector of numbers to `dbinom` and then use the `sum` function to sum up the probabilities:
+```{r}
+# pass a vector of 8, 9, 10 and then sum up the probabilities
+sum(dbinom(c(8:10), size=10, prob=0.5))
+```
+
+#### Now you stop and observe 1000 cars: what is the most likely number to go right and what is the standard deviation?
+
+To find the most likely number to go right, we calculate the expected value $E(x) = np$
+```{r}
+n = 1000
+p = 0.5
+n * p
+```
+
+To find the standard deviation: 
+
+* First find the variance: $Var(x) = np(1-p)$
+* Use $\sigma = \sqrt{Var(x)}$
+
+```{r}
+var = n*p*(1-p)
+sqrt(var)
+```
+
+#### You observe 100 cars and see that 43 go to the right? Which uncertainty should you quote?
+
+Again using $Var(x) = np(1-p)$ and $\sigma = \sqrt{Var(x)}$
+```{r}
+n = 100
+sqrt(n * p * (1-p))
+```
+
+#### What is the chance that this observation was made on a typical day?
+
+Probability of observing exactly 43 cars turning right:
+```{r}
+dbinom(43, size=n, prob=0.5)
+```
+
+Probability of observing at most 43 cars turning right:
+```{r}
+# sum up the probabilities for observing between 0 and 43 cars
+sum(dbinom(c(0:43), size=n, prob=0.5))
+```
+
+## Confidence Intervals
+
+### Using quartile functions to calculate confidence intervals
+
+(work out example from lecture slides - factory and bolts, slides contain R code, slide 35 + maybe others after that)
+
+include formulas from slide
+
+Slide 42 - confidence intervals for the variance - qchisq (code in lecture)
+
+
+### Exercise
+
+have them work out the problem (bolt factory)
+
+try with 90, 95, 99% confidence interval
 
 ## Q-Q Plots
+
+
+slide 43 - Testing normalcy of samples
+
+
 ### Using Q-Q plots to determine if a distribution is normal.
 
 
 A [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) should definitely show that a normal distribution is indeed normally distributed:
+
+(show with different samples sizes)
 
 ```{r}
 x <- rnorm(100) # 100 samples from a normal distribution
@@ -417,203 +547,23 @@ This shows that if we split the data into two clusters, then data in those clust
 
 If you type `help(package="datasets")` into the RStudio Console you'll see a list of other data sets which are included with R.  You can experiment with these just as we did with the `faithful` data set to see if this data is normally distributed as well.
 
-## Confidence Intervals
-### Using quartile functions to calculate confidence intervals
+### Exercises
 
-Take a random sample n< 30 from a normal distribution:
-```{r}
-n = 30 # number of random samples
+(use binomial for exercise - if go to large n for binomial, get normal distribution (?)  try for different values of n)  if n is much bigger than the number of trials, then approaches a normal distribution
 
-# set the mean and standard deviation of the distribution
-true_mean = 0
-true_sd = 1
+data size of 10, then 5 trials
 
-# take random samples
-vals = rnorm(n, mean=true_mean, sd=true_sd)
-```
+successes are x, trials are n (in lecture notes)
 
-Now we calculate $\mu$ and $\sigma$ of the distribution and compare it to to the original distribution
-
-```{r}
-mean_pts = mean(vals)
-mean_pts
-```
-
-In the original distribution $\mu = 0$, while in the new sample it's `r mean_pts`. 
-
-```{r}
-sd_pts = sd(vals)
-sd_pts
-```
-In the original distribution $\sigma = 1$, while in the new sample it's `r sd_pts`. 
-
-We now will calculate the 95% confidence interval of the mean and compare to that of the original distribution.  From the book, we know that we can calculate the 95% confidence interval using $\bar{y} \pm 1.96 \cdot \sigma_{\bar{y}}$ where $\sigma_{\bar{y}} = \frac{\sigma}{\sqrt{n}}$.
-
-We will see for how many samples the 95% confidence interval includes the true mean.  Here, for 500 iterations we take `n` random numbers from the distribution, and calculate the confidence intervals.
-
-```{r}
-times_true_mean_in_confidence_interval = 0
-num_tests = 500
-# create a loop where the value of "count" will be 1, 2, 3... num_tests
-for (count in c(1:num_tests)){
-  
-  # sample random values from the distribution
-  vals = rnorm(n, mean=0, sd=1)
-  
-  # calculate mean and standard deviation
-  mean_pts = mean(vals)
-  sd_pts = sd(vals)
-  
-  # calculate left and right sides of the 95% confidence interval
-  left = mean_pts - (1.96 * sd_pts/sqrt(n))
-  right = mean_pts + (1.96 * sd_pts/sqrt(n))
-  
-  # see if the true_mean is within the bounds of the interval
-  if (true_mean >= left & true_mean <= right){
-    # if it's in the interval, add one to this variable
-    times_true_mean_in_confidence_interval = times_true_mean_in_confidence_interval + 1
-  }
-}
-
-# show how many times the true_mean falls within the intervals calculated
-times_true_mean_in_confidence_interval
-
-# what percentage of the time does the true_mean fall within the intervals calculated?
-times_true_mean_in_confidence_interval / num_tests
-```
-
-What if we ran this 10,000 times?  How would this percentage change as we repeatedly took more random samples?
-
-Note that the x axis is scaled logarithmically.
-
-```{r, echo=FALSE}
-times_true_mean_in_confidence_interval = 0
-
-set.seed(1234)
-
-num_tests = 10000
-percent_times_true_mean_in_interval = c()
-## create a loop where the value of "count" will be 1, 2, 3... num_tests
-for (count in c(1:num_tests)){
-  
-  # sample random values from the distribution
-  vals = rnorm(n, mean=0, sd=1)
-  
-  # calculate mean and standard deviation
-  mean_pts = mean(vals)
-  sd_pts = sd(vals)
-  
-  # calculate left and right sides of the interval
-  left = mean_pts - (1.96 * sd_pts/sqrt(n))
-  right = mean_pts + (1.96 * sd_pts/sqrt(n))
-  
-  # see if the true_mean is within the bounds of the interval
-  if (true_mean >= left & true_mean <= right){
-    # if it's in the interval, add one to this variable
-    times_true_mean_in_confidence_interval = times_true_mean_in_confidence_interval + 1
-  }
-  
-  percent_times_true_mean_in_interval = c(percent_times_true_mean_in_interval,
-                                          (times_true_mean_in_confidence_interval/count))
-}
-
-data = data.frame(percent = percent_times_true_mean_in_interval,
-                  iteration = c(1:num_tests))
-ggplot(data, aes(x=iteration, y=percent)) + geom_point() + geom_line() +  
-  xlab("Iteration") + 
-  ylab("Percent times true mean in 95% confidence interval") + scale_x_log10()
-```
-
-This shows that there is a lot of variation at first, but as expected, with more samples, we settle into the 95% range.
-
-### Binonial Distributions
-
-This example is from Lecture 2, and is worked out in R below.
-
-You observe cars at an intersection: At a usual day 50% go right and 50% go left. Today you walk past quickly and you have time to observe 10 cars. 
-
-##### You want to know the chance that x cars will go to the right. What distribution do you use with which parameters?
-
-As mentioned in the lecture, this is a binomial distribution with p = 0.5 and n = 10.  We define "success" as a car turning right.
-```{r}
-n = 10 # number of observations
-p = 0.5 # probability
-
-# in n observations, the number of cars that can turn right is somewhere between 0 and n
-x = c(0:n)
-data = data.frame(x = x, 
-                  vals = dbinom(x, size=10, prob=0.5))
-
-ggplot(data, aes(x=x, y = vals)) + 
-  geom_point() + # show the discrete probabilities
-  geom_line() + # connect the dots to show the distribution better
-  xlab("Number of Cars Turning Right") + 
-  ylab("Probability") + 
-  scale_x_continuous(breaks = c(0:10)) # set up the x axis so that it shows integers instead of 0, 2.5, etc
-
-```
-
-##### What is the chance that only 2 will go right?
-
-```{r}
-dbinom(2, size=10, prob=0.5)
-```
-
-##### What is the chance that more than 7 go right?
-
-We can add up the probabilities in a series of statements like this:
-```{r}
-dbinom(8, size=10, prob=0.5) + 
-  dbinom(9, size=10, prob=0.5) + 
-  dbinom(10, size=10, prob=0.5)
-```
-This isn't a good approach if we have to sum up the probabilities for a lot of numbers like 8, 9, ... 1000.  
-
-A much more efficient way is to pass a vector of numbers to `dbinom` and then use the `sum` function to sum up the probabilities:
-```{r}
-# pass a vector of 8, 9, 10 and then sum up the probabilities
-sum(dbinom(c(8:10), size=10, prob=0.5))
-```
-
-##### Now you stop and observe 1000 cars: what is the most likely number to go right and what is the standard deviation?
-
-To find the most likely number to go right, we calculate the expected value $E(x) = np$
-```{r}
+size=50 
 n = 1000
-p = 0.5
-n * p
-```
 
-To find the standard deviation: 
-
-* First find the variance: $Var(x) = np(1-p)$
-* Use $\sigma = \sqrt{Var(x)}$
+also try size=500
 
 ```{r}
-var = n*p*(1-p)
-sqrt(var)
+x<- rbinom(n=1000, size=500, prob=0.9); qqnorm(x);qqline(x)
 ```
 
-##### You observe 100 cars and see that 43 go to the right? Which uncertainty should you quote?
-
-Again using $Var(x) = np(1-p)$ and $\sigma = \sqrt{Var(x)}$
-```{r}
-n = 100
-sqrt(n * p * (1-p))
-```
-
-##### What is the chance that this observation was made on a typical day?
-
-Probability of observing exactly 43 cars turning right:
-```{r}
-dbinom(43, size=n, prob=0.5)
-```
-
-Probability of observing at most 43 cars turning right:
-```{r}
-# sum up the probabilities for observing between 0 and 43 cars
-sum(dbinom(c(0:43), size=n, prob=0.5))
-```
 
 ## Exercises
 
