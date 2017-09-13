@@ -730,6 +730,8 @@ If you type `help(package="datasets")` into the RStudio Console you'll see a lis
 
 ### Exercises
 
+**TODO** throw in a different (real world example), could also just keep binomial example here
+
 (use binomial for exercise - if go to large n for binomial, get normal distribution (?)  try for different values of n)  if n is much bigger than the number of trials, then approaches a normal distribution
 
 data size of 10, then 5 trials
