@@ -3,8 +3,8 @@ title: "DASM Practical 3"
 author: "Chris Davis"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: 
-  html_document:
-  toc: false
+html_document:
+toc: false
 number_sections: false
 ---
 
@@ -14,18 +14,19 @@ number_sections: false
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Getting started
+## Bayes Theorem
 
-Make sure to load the `tidyverse` library so we can do plotting.
-```{r}
+### Getting started
+
+Make sure to load the `tidyverse` library so we can do plotting later on.
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 ```
 
-## Bayes Theorem
-
+### Example
 This example is based on the one already presented in the lecture slides, although it goes into more of a visual explanation and also shows how you can use R code to calculate Bayesian Probabilities.  Bayes Theorem can be difficult to understand since you're calculating probabilities on different subsets of the whole population, and sometimes you really have to think about why `P(A,B)`, `P(A|B)` and `P(B|A)` are all different, although certain observations in the data influence the calculation of all three.
 
-### Problem Statement
+#### Problem Statement
 
 We have the following definition of the events and probabilities:
 
@@ -174,7 +175,6 @@ There are two interesting things that we see here:
 * Past a certain point, as the test becomes more accurate in spotting cows with BSE, the percentage of false positives drops at a higher rate than the corresponding increase in accuracy.
 * If BSE spreads, then your false positives go down, and the "accuracy" of the test (i.e. $P(B|A)$) goes up without actually changing anything with the test.  In other words, "accuracy" is partly a function of population size.
 
-
 ## Distributions
 
 ### Background
@@ -186,26 +186,54 @@ R contains functions that allow you to easily work with distributions.  The name
 * **p** - cumulative distribution
 * **q** - quantile function
 
-Below you can see how these letters are combined with the names of the distributions:
+Below you can see how these letters are combined with the names of the distributions.  The notations ($f_{n}$, etc.) correspond with those used in the lectures.
 
 <center>
-<table width=400><tr><td>
+<table width=500><tr><td>
 | Distribution<br>Name | Random<br>Samples  | Density<br>Function | Cumulative<br>Distribution | Quantile |
 |----------------------+--------------------+---------------------+----------------------------+----------|
-| [Normal](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Normal.html)               | `rnorm`            | $f_{n}$ `dnorm`             | $F_{n}$ `pnorm`                    | `qnorm`  |
-| $f_{p}$ [Poisson](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Poisson.html)               | `rpois`            | `dpois`             | `ppois`                    | `qpois`  |
-| $f_{B}$ [Binomial](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Binomial.html)             | `rbinom`           | `dbinom`            | `pbinom`                   | `qbinom` |
-| $f_{U}$[Uniform](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Uniform.html)              | `runif`            | `dunif`             | `punif`                    | `qunif`  |
-| $f_{t}$ [Student t](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/TDist.html)            | `rt`               | `dt`                | `pt`                       | `qt`     |
-| $f_{C}$ [Chi-Squared](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Chisquare.html)          | `rchisq`           | `dchisq`            | `pchisq`                   | `qchisq` |
-| $f_{F}$ [F](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html)                    | `rf`               | `df`                | `pf`                       | `qf`     |
+| [Normal](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Normal.html)         | `rnorm`  | $f_{n}$ `dnorm`  | $F_{n}$ `pnorm`  | `qnorm`  |
+| [Poisson](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Poisson.html)       | `rpois`  | $f_{p}$ `dpois`  | $F_{p}$ `ppois`  | `qpois`  |
+| [Binomial](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Binomial.html)     | `rbinom` | $f_{B}$ `dbinom` | $F_{B}$ `pbinom` | `qbinom` |
+| [Uniform](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Uniform.html)       | `runif`  | $f_{U}$ `dunif`  | $F_{U}$ `punif`  | `qunif`  |
+| [Student t](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/TDist.html)       | `rt`     | $f_{t}$ `dt`     | $F_{t}$ `pt`     | `qt`     |
+| [Chi-Squared](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Chisquare.html) | `rchisq` | $f_{C}$ `dchisq` | $F_{C}$ `pchisq` | `qchisq` |
+| [F](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html)               | `rf`     | $f_{F}$ `df`     | $F_{F}$ `pf`     | `qf`     |
 </td></tr></table>
 *Main Source: [Base R Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/06/r-cheat-sheet.pdf)*
 </center>
 
-
 Type `?Distributions` into the RStudio Console in order to see documentation on all of the distributions
 
+#### Understanding the Documentation for Functions
+
+If you type `?pnorm` in the console, you'll bring up the documentation for this function.  You'll see the following description of the function:
+
+`pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)`
+
+From this, we can see four things:
+
+* The name of the function - `pnorm`
+* The order in which the function expects the arguments - `q` is first, `mean` is second, etc.
+* The default values of the arguments - `sd = 1`.  If we don't explicitly specify a value, it will choose these stated defaults:
+* `mean` = `0`
+* `sd` = `1`
+* `lower.tail` = `TRUE`
+* `log.p` = `FALSE`
+* The names of the arguments - we can specify the name of the argument when we tell the function which value to use (examples below)
+
+When you use the command `pnorm(1)`, you're saying the same thing as `pnorm(q=1)`, since the function description shows that the first argument in the `pnorm()` function is `q`, which the documentation states is a vector of quantiles.  
+
+These are all the same due to the default values and the specification of the expected order of the arguments:
+
+* `pnorm(1)`
+* `pnorm(1, 0, 1)` 
+* `pnorm(1, mean=0, sd=1)`
+
+These two examples are the same as the three above, except that we've changed the order of the arguments.  Any time you change the order of the arguments, you need to explicitly specify the name of the argument (like `sd=`) so the function understands where to find that particular argument.
+
+* `pnorm(1, sd=1, mean=0)`
+* `pnorm(1, sd=1)`
 
 ### Examples
 
@@ -222,20 +250,41 @@ dist_data = data.frame(x=xvals,
                        dist = dnorm(xvals),
                        cumulative_dist = pnorm(xvals))
 
-# take a look at the data frame
+# take a look at the first few rows of the data frame
 head(dist_data)
 
 # plot probability vs. cumulative probability
 ggplot() + 
-  geom_line(data=dist_data, aes(x=x, y=dist)) + 
-  geom_line(data=dist_data, aes(x=x, y=cumulative_dist)) + 
+  geom_line(data=dist_data, aes(x=x, y=dist, color="probability density")) + 
+  geom_line(data=dist_data, aes(x=x, y=cumulative_dist, color="cumulative distribution")) + 
   ylab("Probability") + 
   xlab("X Values")
 ```
 
+You'll see that in the example above, we added code like `color="probability density"` within the aesthetics specification (`aes()`).  When we do this, R will automatically assign a color for that particular text, and it will show up in the legend as well.
+
+Note that the following three plotting commands are all the same.  For this example, the two lines we are plotting both use the same data frame and column for x, so we can specify this like `ggplot(data=dist_data, aes(x=x))`.  This means that these settings will be used for all the folloing `geom_`* statements (`geom_line`, `geom_point`, etc.).  Instead of specifying the same parameter settings multiple times, we can just specify them once.
+
+```{r, eval=FALSE}
+# specify data frame, x & y in the geom_line statements
+ggplot() + 
+  geom_line(data=dist_data, aes(x=x, y=dist)) + 
+  geom_line(data=dist_data, aes(x=x, y=cumulative_dist))
+
+# specify data frame in ggplot(), then specify x & y in the geom_line statements
+ggplot(data=dist_data) + 
+  geom_line(aes(x=x, y=dist)) + 
+  geom_line(aes(x=x, y=cumulative_dist))
+
+# specify data frame and x in ggplot(), then specify y in the geom_line statements
+ggplot(data=dist_data, aes(x=x)) + 
+  geom_line(aes(y=dist)) +           
+  geom_line(aes(y=cumulative_dist))
+```
+
 ##### Find the probability that x > x0 or x < x0
 
-If you type `?pnorm` in the console, you'll find that the documentation for `lower.tail` states that "*if TRUE (default), probabilities are P[X ≤ x] otherwise, P[X > x]*".  This applies for the other distributions as well.
+Type `?pnorm` to bring up documentation for the probability distribution of the normal distribution.  For this example, you need to note that for `lower.tail` that "*if TRUE (default), probabilities are P[X ≤ x] otherwise, P[X > x]*".  This applies for the other distributions as well.
 
 ```{r}
 x0 = 1
@@ -286,23 +335,97 @@ runif(10, min=-1, max=1)
 rbinom(10, size=10, prob=0.5)
 ```
 
-### Exercise
+### Exercise 1
 
-1st ex
-plot a density and cumulative normal distributions with mu=something sd = something
+Plot a density and cumulative normal distributions with `mu`=5 `sd`=10
 
-find quantiles where x percent values are bigger than 95%, etc.
+find quantiles where x percent values are bigger than 80%, 90%, 95%, 99%, etc.
 
+Your plot may look slightly different on the x axis depending on which range of x you choose.
 
-2nd ex
+```{r, echo=FALSE}
+# create a series of x values
+xvals = seq(-45, 55, 0.01)
+mu = 5
+sd = 10
+# create a data frame containing values for the density function (sampled at
+# each value of xvals) and the cumulative distribution sampled at the same values
+
+dist_data = data.frame(x=xvals, 
+                       dist = dnorm(xvals, mean=mu, sd=sd),
+                       cumulative_dist = pnorm(xvals, mean=mu, sd=sd))
+
+# plot probability vs. cumulative probability
+ggplot() + 
+  geom_line(data=dist_data, aes(x=x, y=dist, color="probability density")) + 
+  geom_line(data=dist_data, aes(x=x, y=cumulative_dist, color="cumulative distribution")) + 
+  ylab("Probability") + 
+  xlab("X Values") + 
+  geom_vline(xintercept = qnorm(0.80, mean=mu, sd=sd), linetype="dashed") + 
+  geom_vline(xintercept = qnorm(0.90, mean=mu, sd=sd), linetype="dashed") +
+  geom_vline(xintercept = qnorm(0.95, mean=mu, sd=sd), linetype="dashed") + 
+  geom_vline(xintercept = qnorm(0.99, mean=mu, sd=sd), linetype="dashed") 
+
+```
+
+### Exercise 2
+
 plot a density and cumulative binomial distributions with mu=something sd = something
 
-3rd ex
-take a random sample of size=10 and calculate the mean, compare that to the original mean
+100 trails and a probability of success of 0.3
 
-try with 100, 1000 values, etc.  See how the mean varies
+50, 90, 99% 
 
-### Binonial Distributions
+Your plot may look slightly different on the x axis depending on which range of x you choose.
+
+```{r, echo=FALSE}
+# create a series of x values
+xvals = seq(0,100,1)
+trials = 100
+p_success = 0.3
+# create a data frame containing values for the density function (sampled at
+# each value of xvals) and the cumulative distribution sampled at the same values
+
+dist_data = data.frame(x=xvals, 
+                       dist = dbinom(xvals, size=trials, prob=p_success),
+                       cumulative_dist = pbinom(xvals, size=trials, prob=p_success))
+
+# plot probability vs. cumulative probability
+ggplot() + 
+  geom_line(data=dist_data, aes(x=x, y=dist, color="probability density")) + 
+  geom_line(data=dist_data, aes(x=x, y=cumulative_dist, color="cumulative distribution")) + 
+  ylab("Probability") + 
+  xlab("X Values") + 
+  geom_vline(xintercept = qbinom(0.50, size=trials, prob=p_success), linetype="dashed") + 
+  geom_vline(xintercept = qbinom(0.90, size=trials, prob=p_success), linetype="dashed") +
+  geom_vline(xintercept = qbinom(0.99, size=trials, prob=p_success), linetype="dashed") 
+
+```
+
+
+### Exercise 3
+
+mean of 5, sd of 10
+
+Take a random sample of size=10 and calculate the mean, compare that to the original mean.  Note that your values may be slightly different from what is shown here:
+
+```{r, echo=FALSE}
+mean(rnorm(10, mean=5, sd=10))
+```
+
+try with 100,  values, etc.  See how the mean varies
+
+```{r, echo=FALSE}
+mean(rnorm(100, mean=5, sd=10))
+```
+
+Try with 1000 values
+
+```{r, echo=FALSE}
+mean(rnorm(1000, mean=5, sd=10))
+```
+
+## Binomial Example
 
 This example is from Lecture 2, and is worked out in R below.
 
@@ -310,10 +433,10 @@ You observe cars at an intersection: At a usual day 50% go right and 50% go left
 
 (Hide the code and have the students come up with the same results)
 
-#### You want to know the chance that x cars will go to the right. What distribution do you use with which parameters?
+### You want to know the chance that x cars will go to the right. What distribution do you use with which parameters?
 
 As mentioned in the lecture, this is a binomial distribution with p = 0.5 and n = 10.  We define "success" as a car turning right.
-```{r}
+```{r, echo=FALSE}
 n = 10 # number of observations
 p = 0.5 # probability
 
@@ -331,13 +454,15 @@ ggplot(data, aes(x=x, y = vals)) +
 
 ```
 
-#### What is the chance that only 2 will go right?
+### What is the chance that only 2 will go right?
 
-```{r}
+```{r, echo=FALSE}
 dbinom(2, size=10, prob=0.5)
 ```
 
-#### What is the chance that more than 7 go right?
+### What is the chance that more than 7 go right?
+
+**TODO** we should explain this is the previous tab
 
 We can add up the probabilities in a series of statements like this:
 ```{r}
@@ -353,7 +478,7 @@ A much more efficient way is to pass a vector of numbers to `dbinom` and then us
 sum(dbinom(c(8:10), size=10, prob=0.5))
 ```
 
-#### Now you stop and observe 1000 cars: what is the most likely number to go right and what is the standard deviation?
+### Now you stop and observe 1000 cars: what is the most likely number to go right and what is the standard deviation?
 
 To find the most likely number to go right, we calculate the expected value $E(x) = np$
 ```{r}
@@ -372,7 +497,7 @@ var = n*p*(1-p)
 sqrt(var)
 ```
 
-#### You observe 100 cars and see that 43 go to the right? Which uncertainty should you quote?
+### You observe 100 cars and see that 43 go to the right? Which uncertainty should you quote?
 
 Again using $Var(x) = np(1-p)$ and $\sigma = \sqrt{Var(x)}$
 ```{r}
@@ -380,7 +505,7 @@ n = 100
 sqrt(n * p * (1-p))
 ```
 
-#### What is the chance that this observation was made on a typical day?
+### What is the chance that this observation was made on a typical day?
 
 Probability of observing exactly 43 cars turning right:
 ```{r}
@@ -399,10 +524,39 @@ sum(dbinom(c(0:43), size=n, prob=0.5))
 
 (work out example from lecture slides - factory and bolts, slides contain R code, slide 35 + maybe others after that)
 
+Small sample: n <~ 30, from normal distribution 
+
+Example: A factory produces bolts that should be 10cm wide. You take a sample of 10 bolts and measure on average 10.25 cm with a standard deviation of 0.8. 
+
+What is the 95% confidence interval of the mean?
+
+$\alpha$ = 0.05, $\frac{s}{\sqrt{n}}$= 0.253, df = 9
+
+$t_0.025$ = `qt(0.025, 9)` = -2.26
+$t_0.925$ = `qt(0.975, 9)` = 2.26 = -qt(0.025, 9)
+
+Confidence interval:
+[ 10.25 – 2.26 * 0.253 , 10.25 + 2.26 * 0.253] = [0.94, 11.09]
+
+Using a small sample we cannot be so certain about our estimate!
+
 include formulas from slide
 
 Slide 42 - confidence intervals for the variance - qchisq (code in lecture)
 
+Give a 95% confidence interval on the standard deviation:
+
+$\left[ \frac{s^{2}(n-1)}{\chi^{2}_{1-\alpha/2}}, \frac{s^{2}(n-1)}{\chi^{2}_{\alpha/2}}\right]$
+
+Confidence interval of $\sigma^{2}$:
+
+[0.64 * 9 / qchisq(0.025, 9) , 0.64 * 9 / qchisq(0.975,9)] = [2.13 , 0.303]
+
+Confidence interval of $\sigma$:
+
+[0.55 , 1.46]
+
+Which could we estimate more precisely the mean or the standard deviation?
 
 ### Exercise
 
@@ -413,7 +567,34 @@ try with 90, 95, 99% confidence interval
 ## Q-Q Plots
 
 
-slide 43 - Testing normalcy of samples
+slide 43 - Testing normalcy of samples - use this to explain what will be shown with the Q-Q plots in the examples below
+
+Normal Probability Plot
+
+Suppose you have a sample xi (i = 1 … n) form an unknown population
+
+First you order the sample by size: $x_1$< $x_2$ < ... < $x_i$ < ... < $x_n$
+
+You can assign a "cumulative probability" Pi to each measurement with 
+
+Pi = (i – 0.5)/n.  xi has then at least a fraction of Pi data values smaller than xi.
+
+xi(Pi)  is the Pi-th quantile of the sample 
+
+(e.g., i = 10, n = 20, x10 = 1.2, Pi = 0.475, this means at least 47.5% of the values in the data set are smaller than 1.2)
+
+For the same Pi you calculate the values zi of the standard normal distribution. 
+
+If the data (zi, xi) form a straight line on a scatter plot, then it is plausible that the distribution of the underlying population is approximately normal
+
+
+A sample x (n = 15) looks like this: 
+
+(make histogram here)
+
+
+Plot of Pi (= 0.025,  0.075, …) versus the sample values (add abline)
+
 
 
 ### Using Q-Q plots to determine if a distribution is normal.
