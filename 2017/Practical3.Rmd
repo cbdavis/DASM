@@ -329,19 +329,56 @@ As we'd expect, the value for `qnorm(0.5)` is exactly where the cumulative proba
 
 ### Take random samples from distributions
 
+10 samples from a normal distribution
 ```{r}
 rnorm(10)
-runif(10, min=-1, max=1)
-rbinom(10, size=10, prob=0.5)
 ```
+
+10 samples from a uniform distribution where random values are between -1 and 1
+```{r}
+runif(10, min=-1, max=1)  
+```
+
+10 samples from a binomial distribution, 100 trials (`size=100`) with probability of success of 0.5 (`prop=0.5`)
+```{r}
+rbinom(10, size=100, prob=0.5)
+```
+
+We can use the `hist()` command to quickly make a histogram and show that the random samples do approximate the distributions that they are drawn from, especially for a large number of samples:
+
+```{r}
+hist(rnorm(10000), breaks=100)
+hist(runif(10000, min=-1, max=1), breaks=100)
+hist(rbinom(10000, size=100, prob=0.5), breaks=100)
+```
+
+### Add up multiple probability densities
+
+If you're working with a binomial distribution, sometimes you will need to sum up a set of probabilities in the case where you are trying to determine the probability of having greater than or less than a certain number of successful results.
+
+For example, given a situation where we have 5 trials, the probability of success on each trial is 0.3, what is the probability that we will have less than 3 successes?
+
+To calculate this, we have to first consider that less than 3 successes means that we could have 0, 1, or 2 successes.  
+
+For each of these 3 cases (0, 1, or 2 successes), we can add up the probabilities in a series of statements like this:
+```{r}
+dbinom(0, size=5, prob=0.3) +    # probability of 0 successes
+  dbinom(1, size=5, prob=0.3) +  # probability of 1 successes 
+  dbinom(2, size=5, prob=0.3)    # probability of 2 successes 
+```
+This isn't a good approach if we have to sum up the probabilities for a lot of numbers like 8, 9, ... 1000.  
+
+A much more efficient way is to pass a sequence of numbers to `dbinom` and then use the `sum` function to sum up the probabilities:
+```{r}
+# pass a vector of 0, 1, 2 and then sum up the probabilities
+sum(dbinom(c(0:2), size=5, prob=0.3))
+```
+
+## Distributions - Exercises
 
 ### Exercise 1
 
-Plot a density and cumulative normal distributions with `mu`=5 `sd`=10
-
-find quantiles where x percent values are bigger than 80%, 90%, 95%, 99%, etc.
-
-Your plot may look slightly different on the x axis depending on which range of x you choose.
+Plot a density and cumulative normal distributions with a mean of 5, and a standard deviation of 10.  Add vertical lines to show the 80%, 90%, and 99% quantiles.  Note that your plot may look slightly different on the x axis depending on which range of x values you choose.
 
 ```{r, echo=FALSE}
 # create a series of x values
@@ -363,20 +400,13 @@ ggplot() +
   xlab("X Values") + 
   geom_vline(xintercept = qnorm(0.80, mean=mu, sd=sd), linetype="dashed") + 
   geom_vline(xintercept = qnorm(0.90, mean=mu, sd=sd), linetype="dashed") +
-  geom_vline(xintercept = qnorm(0.95, mean=mu, sd=sd), linetype="dashed") + 
   geom_vline(xintercept = qnorm(0.99, mean=mu, sd=sd), linetype="dashed") 
 
 ```
 
 ### Exercise 2
 
-plot a density and cumulative binomial distributions with mu=something sd = something
-
-100 trails and a probability of success of 0.3
-
-50, 90, 99% 
-
-Your plot may look slightly different on the x axis depending on which range of x you choose.
+Plot the probability density and cumulative probability for a binomial distribution with 100 trails and a probability of success of 0.3.  Add vertical lines to show the 50%, 90%, and 99% quantiles.
 
 ```{r, echo=FALSE}
 # create a series of x values
@@ -405,38 +435,38 @@ ggplot() +
 
 ### Exercise 3
 
-mean of 5, sd of 10
+Assume a normal distribution with a mean of 5 and a standard deviation of 10.
 
-Take a random sample of size=10 and calculate the mean, compare that to the original mean.  Note that your values may be slightly different from what is shown here:
+Take 10 random samples, calculate the mean, and observe how the calculated mean differs from the actual mean (5).  Note that your own values may be slightly different from what is shown here since we're taking random samples.  If you run your code multiple times you will see that the values are a bit different each time.
 
 ```{r, echo=FALSE}
 mean(rnorm(10, mean=5, sd=10))
 ```
 
-try with 100,  values, etc.  See how the mean varies
+Do the same, except with 100 samples
 
 ```{r, echo=FALSE}
 mean(rnorm(100, mean=5, sd=10))
 ```
 
-Try with 1000 values
+... and again with 1000 values
 
 ```{r, echo=FALSE}
 mean(rnorm(1000, mean=5, sd=10))
 ```
 
-## Binomial Example
+### Exercise 4
 
-This example is from Lecture 2, and is worked out in R below.
+This example is from Lecture 2, so you can compare your results also with the lecture slides.
 
 You observe cars at an intersection: At a usual day 50% go right and 50% go left. Today you walk past quickly and you have time to observe 10 cars. 
 
-(Hide the code and have the students come up with the same results)
+#### You want to know the chance that x cars will go to the right. What distribution do you use with which parameters?
 
-### You want to know the chance that x cars will go to the right. What distribution do you use with which parameters?
+#### Plot the probability density for the number of cars turning right
 
-As mentioned in the lecture, this is a binomial distribution with p = 0.5 and n = 10.  We define "success" as a car turning right.
 ```{r, echo=FALSE}
+# As mentioned in the lecture, this is a binomial distribution with p = 0.5 and n = 10.  We define "success" as a car turning right.
 n = 10 # number of observations
 p = 0.5 # probability
 
@@ -454,34 +484,23 @@ ggplot(data, aes(x=x, y = vals)) +
 
 ```
 
-### What is the chance that only 2 will go right?
+#### What is the chance that only 2 will go right?
 
 ```{r, echo=FALSE}
 dbinom(2, size=10, prob=0.5)
 ```
 
-### What is the chance that more than 7 go right?
+#### What is the chance that more than 7 go right?
 
-**TODO** we should explain this is the previous tab
-
-We can add up the probabilities in a series of statements like this:
-```{r}
-dbinom(8, size=10, prob=0.5) + 
-  dbinom(9, size=10, prob=0.5) + 
-  dbinom(10, size=10, prob=0.5)
-```
-This isn't a good approach if we have to sum up the probabilities for a lot of numbers like 8, 9, ... 1000.  
-
-A much more efficient way is to pass a vector of numbers to `dbinom` and then use the `sum` function to sum up the probabilities:
-```{r}
+```{r, echo=FALSE}
 # pass a vector of 8, 9, 10 and then sum up the probabilities
 sum(dbinom(c(8:10), size=10, prob=0.5))
 ```
 
-### Now you stop and observe 1000 cars: what is the most likely number to go right and what is the standard deviation?
+#### Now you stop and observe 1000 cars: what is the most likely number to go right and what is the standard deviation?
 
 To find the most likely number to go right, we calculate the expected value $E(x) = np$
-```{r}
+```{r, echo=FALSE}
 n = 1000
 p = 0.5
 n * p
@@ -492,120 +511,220 @@ To find the standard deviation:
 * First find the variance: $Var(x) = np(1-p)$
 * Use $\sigma = \sqrt{Var(x)}$
 
-```{r}
+```{r, echo=FALSE}
 var = n*p*(1-p)
 sqrt(var)
 ```
 
-### You observe 100 cars and see that 43 go to the right? Which uncertainty should you quote?
+#### You observe 100 cars and see that 43 go to the right? Which uncertainty should you quote?
 
-Again using $Var(x) = np(1-p)$ and $\sigma = \sqrt{Var(x)}$
-```{r}
+Again using $Var(x) = np(1-p)$ and $\sigma = \sqrt{Var(x)}$, find $\sigma$
+```{r, echo=FALSE}
 n = 100
 sqrt(n * p * (1-p))
 ```
 
-### What is the chance that this observation was made on a typical day?
+#### What is the chance that this observation was made on a typical day?
 
 Probability of observing exactly 43 cars turning right:
-```{r}
+```{r, echo=FALSE}
 dbinom(43, size=n, prob=0.5)
 ```
 
 Probability of observing at most 43 cars turning right:
-```{r}
+```{r, echo=FALSE}
 # sum up the probabilities for observing between 0 and 43 cars
 sum(dbinom(c(0:43), size=n, prob=0.5))
 ```
 
 ## Confidence Intervals
 
-### Using quartile functions to calculate confidence intervals
+### Using quantile functions to calculate confidence intervals
 
-(work out example from lecture slides - factory and bolts, slides contain R code, slide 35 + maybe others after that)
+A factory produces bolts that should be 10cm wide. You take a sample of 10 bolts and measure on average 10.25 cm with a standard deviation of 0.8. 
 
-Small sample: n <~ 30, from normal distribution 
+#### What is the 95% confidence interval of the mean?
 
-Example: A factory produces bolts that should be 10cm wide. You take a sample of 10 bolts and measure on average 10.25 cm with a standard deviation of 0.8. 
+Because we're looking for the 95% confidence interval, $\alpha$ = 0.05.  Since we're looking at 10 samples, our degrees of freedom is df = 9.
 
-What is the 95% confidence interval of the mean?
+The standard error is defined as $\frac{s}{\sqrt{n}}$, and we use $\bar{x}$ to represent the mean
 
-$\alpha$ = 0.05, $\frac{s}{\sqrt{n}}$= 0.253, df = 9
+```{r}
+x_bar = 10.25      # mean of the samples
+sd_samples = 0.8   # standard deviation of the samples
+num_samples = 10
+standard_error = sd_samples / sqrt(num_samples)
+```
 
-$t_0.025$ = `qt(0.025, 9)` = -2.26
-$t_0.925$ = `qt(0.975, 9)` = 2.26 = -qt(0.025, 9)
+Using the Student t distribution, calculate $t_{\alpha/2}$:
+```{r}
+t_0.025 = qt(0.025, 9)
+t_0.025
+```
 
-Confidence interval:
-[ 10.25 – 2.26 * 0.253 , 10.25 + 2.26 * 0.253] = [0.94, 11.09]
+Calculate $t_{1 - \alpha/2}$:
+```{r}
+t_0.975 = qt(0.975, 9)
+t_0.975
 
-Using a small sample we cannot be so certain about our estimate!
+-qt(0.025, 9) # another way to reach the same value
+```
 
-include formulas from slide
+Our confidence interval will then be between $\left[\bar{x} + t_{\alpha/2} \cdot \frac{s}{\sqrt{n}}, \bar{x} + t_{1 - \alpha/2} \cdot \frac{s}{\sqrt{n}} \right]$
 
-Slide 42 - confidence intervals for the variance - qchisq (code in lecture)
+In R, this looks like:
+```{r}
+lower_limit = x_bar + t_0.025 * standard_error
+upper_limit = x_bar + t_0.975 * standard_error
+c(lower_limit, upper_limit)
+```
 
-Give a 95% confidence interval on the standard deviation:
+#### What is the 95% confidence interval on the standard deviation?
 
-$\left[ \frac{s^{2}(n-1)}{\chi^{2}_{1-\alpha/2}}, \frac{s^{2}(n-1)}{\chi^{2}_{\alpha/2}}\right]$
+Remember that variance is $\sigma^{2}$, while the standard deviation is $\sigma$.
 
-Confidence interval of $\sigma^{2}$:
+We can calculate the confidence interval for $\sigma^{2}$ by using $\left[ \frac{s^{2}(n-1)}{\chi^{2}_{1-\alpha/2}}, \frac{s^{2}(n-1)}{\chi^{2}_{\alpha/2}}\right]$
 
-[0.64 * 9 / qchisq(0.025, 9) , 0.64 * 9 / qchisq(0.975,9)] = [2.13 , 0.303]
+Note that when calculating the confidence interval for the standard deviation, the lower limit in the confidence interval will be based on the quantile at 97.5%, while the upper limit will be based on that at 2.5% (see page 346 in the textbook).
 
-Confidence interval of $\sigma$:
+In R, we can write it like this:
+```{r}
+lower_limit = (sd_samples^2 * (num_samples - 1)) / 
+                        qchisq(0.975, 9)
+upper_limit = (sd_samples^2 * (num_samples - 1)) / 
+                        qchisq(0.025, 9)
+c(lower_limit, upper_limit)
+```
 
-[0.55 , 1.46]
-
-Which could we estimate more precisely the mean or the standard deviation?
+Since we are looking for the confidence interval for $\sigma$ instead of $\sigma^{2}$, we can just take the square root of the previous values
+```{r}
+sqrt(c(lower_limit, upper_limit))
+```
 
 ### Exercise
 
-have them work out the problem (bolt factory)
+At the same factory, we now take a sample of 20 bolts and discover that with this larger sample, we now have an average of 10.13 cm with a standard deviation of 0.7.  
 
-try with 90, 95, 99% confidence interval
+#### What are the 90% and 99% confidence intervals of the mean?
+
+90% confidence interval
+```{r, echo=FALSE}
+x_bar = 10.13      # mean of the samples
+sd_samples = 0.7   # standard deviation of the samples
+num_samples = 20
+standard_error = sd_samples / sqrt(num_samples)
+t_0.05 = qt(0.05, 19)
+t_0.95 = qt(0.95, 19)
+lower_limit = x_bar + t_0.05 * standard_error
+upper_limit = x_bar + t_0.95 * standard_error
+c(lower_limit, upper_limit)
+```
+
+99% confidence interval
+```{r, echo=FALSE}
+x_bar = 10.13      # mean of the samples
+sd_samples = 0.7   # standard deviation of the samples
+num_samples = 20
+standard_error = sd_samples / sqrt(num_samples)
+t_0.005 = qt(0.005, 19)
+t_0.995 = qt(0.995, 19)
+lower_limit = x_bar + t_0.005 * standard_error
+upper_limit = x_bar + t_0.995 * standard_error
+c(lower_limit, upper_limit)
+```
+
+#### What are the 90% and 99% confidence intervals on the standard deviation?
+
+90% confidence interval
+```{r, echo=FALSE}
+upper_limit = (sd_samples^2 * (num_samples - 1)) / 
+                        qchisq(0.05, 19)
+lower_limit = (sd_samples^2 * (num_samples - 1)) / 
+                        qchisq(0.95, 19)
+sqrt(c(lower_limit, upper_limit))
+```
+
+99% confidence interval
+```{r, echo=FALSE}
+upper_limit = (sd_samples^2 * (num_samples - 1)) / 
+                        qchisq(0.005, 19)
+lower_limit = (sd_samples^2 * (num_samples - 1)) / 
+                        qchisq(0.995, 19)
+sqrt(c(lower_limit, upper_limit))
+```
 
 ## Q-Q Plots
 
+A [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) can be used to see if the values in a sample are normally distributed.  
 
-slide 43 - Testing normalcy of samples - use this to explain what will be shown with the Q-Q plots in the examples below
+Suppose you have a sample of values from an unknown population.  In the example below, we're actually sampling from a normal distribution, but pretend for now that we don't know where the data is from.  
 
-Normal Probability Plot
+```{r}
+x = rnorm(50)
+x
+```
 
-Suppose you have a sample xi (i = 1 … n) form an unknown population
+First you order the sample values from the lowest to the highest values.  We can use the `sort()` function for this:
+```{r}
+x = sort(x)
+x
+```
 
-First you order the sample by size: $x_1$< $x_2$ < ... < $x_i$ < ... < $x_n$
+You can assign a "cumulative probability" $P_i$ to each measurement with $P_i = \frac{(i - 0.5)}{n}$.  
 
-You can assign a "cumulative probability" Pi to each measurement with 
+```{r}
+i = seq_along(x)   # creates a sequence of 1, 2, ... up to the length of x (50 in this example)
+P = (i - 0.5) / length(x)  # vector of values for each P_i
+```
 
-Pi = (i – 0.5)/n.  xi has then at least a fraction of Pi data values smaller than xi.
+xi has then at least a fraction of Pi data values smaller than xi.
 
 xi(Pi)  is the Pi-th quantile of the sample 
 
-(e.g., i = 10, n = 20, x10 = 1.2, Pi = 0.475, this means at least 47.5% of the values in the data set are smaller than 1.2)
+Our 10th element is:
+```{r}
+x[10]
+```
 
-For the same Pi you calculate the values zi of the standard normal distribution. 
+and at the 10th location, our value for P is 
+```{r}
+P[10]
+```
 
-If the data (zi, xi) form a straight line on a scatter plot, then it is plausible that the distribution of the underlying population is approximately normal
+This means that at least `r P[10]*100`% of the values in the data set are smaller than `r x[10]`
 
+We then create a new variable `z` where we find the locations of the quantiles specified in `P`
+```{r}
+z = qnorm(P, mean = mean(x), sd=sd(x))
+```
 
-A sample x (n = 15) looks like this: 
+We then plot `z` versus `x`.  If the line is straight, then the data appears to be normally distributed
+```{r}
+plot(z,x)
+```
 
-(make histogram here)
+In R we can automatically perform all these steps just by using `qqnorm()` and `qqline()`.  
 
+The function `qqnorm()` draws the points in the scatter plot, and `qqline()` draws the line showing where we would expect the points to lie if they are normally distributed.
+```{r}
+qqnorm(x)
+qqline(x)   
+```
 
-Plot of Pi (= 0.025,  0.075, …) versus the sample values (add abline)
+Even with a low number of samples, many of the points are on the diagonal line, which indicates that our data (which is actually sampled from a normal distribution) looks like it could be normally distributed.
 
-
-
-### Using Q-Q plots to determine if a distribution is normal.
-
-
-A [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) should definitely show that a normal distribution is indeed normally distributed:
-
-(show with different samples sizes)
+What is we try 500 samples instead of just 50?
 
 ```{r}
-x <- rnorm(100) # 100 samples from a normal distribution
+x <- rnorm(500)
+qqnorm(x)
+qqline(x)
+```
+
+What about 10000 samples?
+
+```{r}
+x <- rnorm(10000)
 qqnorm(x)
 qqline(x)
 ```
@@ -648,6 +767,8 @@ data = as.data.frame(x)
 ggplot(data, aes(x=x)) +  geom_histogram(binwidth = 1) + xlim(c(0,50))
 ```
 
+Create a Q-Q plot for the data.  Note that the horizontal lines are because the samples from the binomial distribution are integer values.
+
 ```{r}
 qqnorm(x)
 qqline(x)
@@ -663,26 +784,26 @@ qqnorm(x)
 qqline(x)
 ```
 
-#### Using Q-Q plots on real-world data sets
+#### Exercise on real-world data sets
 
 We next use the `faithful` data set which is included with R.  You can type `?faithful` in the RStudio console to get more information on it.  This data is about the [Old Faithful geyser](https://en.wikipedia.org/wiki/Old_Faithful) in Yellowstone National Park in the US.  This geyser is famous for erupting on a very regular schedule and the data set has information on how long the eruptions are (`faithful$eruptions`) and the amount of time until the next eruption (`faithful$waiting`).
 
-We can first make a Q-Q plot of the waiting times:
-```{r}
+Make a Q-Q plot of the waiting times (`faithful$waiting`):
+```{r, echo=FALSE}
 x = faithful$waiting
 qqnorm(x)
 qqline(x)
 ```
 
-This tells us that the eruptions are clearly not normally distributed.  To investigate further, we can plot a histogram of the values:
-```{r}
+This tells us that the eruptions are clearly not normally distributed.  To investigate further, create a histogram of the values:
+```{r, echo=FALSE}
 ggplot(faithful, aes(x=waiting)) + geom_histogram(binwidth=2)
 ```
 
 From the histogram, we see from this is that it's clearly bi-modal as there are two distinct peaks.
 
-To investigate further, we can do a scatter plot showing how the waiting time might be related to the length of the eruption.
-```{r}
+To investigate further, create a scatter plot showing how the waiting time might be related to the length of the eruption.
+```{r, echo=FALSE}
 ggplot(faithful, aes(x=eruptions, y=waiting)) + geom_point() + 
   xlab("Length of eruption (minutes)") + 
   ylab("Waiting time until next eruption (minutes)")
@@ -703,11 +824,11 @@ which(faithful$eruptions < 3)
 
 The numbers above correspond to the rows in the `faithful` data set where the eruptions are less than three minutes.
 
-Now we create the two separate data frames from the `faithful` data frame:
+Now create two separate data frames from the `faithful` data frame, where `faithful_short` has eruptions < 3 and `faithful_long` has eruptions >= 3
 
-```{r}
-faithful_short = faithful[which(faithful$eruptions < 3),]
-faithful_long = faithful[which(faithful$eruptions >= 3),]
+```{r, echo=FALSE}
+faithful_short = faithful %>% filter(eruptions < 3)
+faithful_long = faithful %>% filter(eruptions >= 3)
 ```
 
 Q-Q plot for the short eruptions:
