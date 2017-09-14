@@ -655,7 +655,7 @@ sqrt(c(lower_limit, upper_limit))
 
 ## Q-Q Plots
 
-A [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) can be used to see if the values in a sample are normally distributed.  
+A [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) (or Quantile-Quantile plot) can be used to see if the values in a sample are normally distributed.  
 
 Suppose you have a sample of values from an unknown population.  In the example below, we're actually sampling from a normal distribution, but pretend for now that we don't know where the data is from.  
 
