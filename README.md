@@ -4,7 +4,7 @@ This is the collection of R Tutorials for the [Data Analysis and Statistical Met
 
 * [Practical 1](http://cbdavis.github.io/DASM/2017/Practical1.html) - into to basic R functions, vectors, sequences, matrices and data frames.  
 * [Practical 2](http://cbdavis.github.io/DASM/2017/Practical2.html) - plotting with ggplot2, loading CSV files, using dplyr for data frame operations.
-  * For this practical you will need to download the   [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/UNFCCC_CO2_Emissions.csv) to your computer.
+    * For this practical you will need to download the   [UNFCCC_CO2_Emissions.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/UNFCCC_CO2_Emissions.csv) to your computer.
 * [Practical 3](http://cbdavis.github.io/DASM/2017/Practical3.html) - Bayes' Theorem, Distributions, QQ-Plots.
 * (more forthcoming)
 
