@@ -173,7 +173,7 @@ ggplot(df, aes(x=p_B_given_A, y=p_A_given_B)) +
 There are two interesting things that we see here: 
 
 * Past a certain point, as the test becomes more accurate in spotting cows with BSE, the percentage of false positives drops at a higher rate than the corresponding increase in accuracy.
-* If BSE spreads, then your false positives go down, and the "accuracy" of the test (i.e. $P(B|A)$) goes up without actually changing anything with the test.  In other words, "accuracy" is partly a function of population size.
+* If BSE spreads, then your false positives go down, and the "accuracy" of the test (i.e. $P(B|A)$) goes up without actually changing anything with the test.  In other words, "accuracy" is partly a function of percentage of cows with BSE.
 
 ## Distributions
 
@@ -216,10 +216,10 @@ From this, we can see four things:
 * The name of the function - `pnorm`
 * The order in which the function expects the arguments - `q` is first, `mean` is second, etc.
 * The default values of the arguments - `sd = 1`.  If we don't explicitly specify a value, it will choose these stated defaults:
-* `mean` = `0`
-* `sd` = `1`
-* `lower.tail` = `TRUE`
-* `log.p` = `FALSE`
+    * `mean` = `0`
+    * `sd` = `1`
+    * `lower.tail` = `TRUE`
+    * `log.p` = `FALSE`
 * The names of the arguments - we can specify the name of the argument when we tell the function which value to use (examples below)
 
 When you use the command `pnorm(1)`, you're saying the same thing as `pnorm(q=1)`, since the function description shows that the first argument in the `pnorm()` function is `q`, which the documentation states is a vector of quantiles.  
@@ -675,13 +675,14 @@ You can assign a "cumulative probability" $P_i$ to each measurement with $P_i = 
 ```{r}
 i = seq_along(x)   # creates a sequence of 1, 2, ... up to the length of x (50 in this example)
 P = (i - 0.5) / length(x)  # vector of values for each P_i
+P
 ```
 
-xi has then at least a fraction of Pi data values smaller than xi.
+$x_i$ has then at least a fraction of $P_i$ data values smaller than $x_i$.
 
-xi(Pi)  is the Pi-th quantile of the sample 
+$x_i(P_i)$  is the $P_{i}$-th quantile of the sample.
 
-Our 10th element is:
+As an example of this, our 10th element is:
 ```{r}
 x[10]
 ```
@@ -789,6 +790,7 @@ qqline(x)
 We next use the `faithful` data set which is included with R.  You can type `?faithful` in the RStudio console to get more information on it.  This data is about the [Old Faithful geyser](https://en.wikipedia.org/wiki/Old_Faithful) in Yellowstone National Park in the US.  This geyser is famous for erupting on a very regular schedule and the data set has information on how long the eruptions are (`faithful$eruptions`) and the amount of time until the next eruption (`faithful$waiting`).
 
 Make a Q-Q plot of the waiting times (`faithful$waiting`):
+
 ```{r, echo=FALSE}
 x = faithful$waiting
 qqnorm(x)
@@ -796,6 +798,7 @@ qqline(x)
 ```
 
 This tells us that the eruptions are clearly not normally distributed.  To investigate further, create a histogram of the values:
+
 ```{r, echo=FALSE}
 ggplot(faithful, aes(x=waiting)) + geom_histogram(binwidth=2)
 ```
@@ -803,6 +806,7 @@ ggplot(faithful, aes(x=waiting)) + geom_histogram(binwidth=2)
 From the histogram, we see from this is that it's clearly bi-modal as there are two distinct peaks.
 
 To investigate further, create a scatter plot showing how the waiting time might be related to the length of the eruption.
+
 ```{r, echo=FALSE}
 ggplot(faithful, aes(x=eruptions, y=waiting)) + geom_point() + 
   xlab("Length of eruption (minutes)") + 
@@ -814,15 +818,7 @@ We see a few things here:
 * The longer the eruption, the longer we will have to wait until the next one.  
 * There seem to be two distinct clusters.  It's not clear what is causing this, and since the data doesn't mention the date of the eruption, we don't know it randomly switches between short and long eruptions, or if for years there were long eruptions, but now there are only short eruptions due to factors such as earthquakes changing the water supply to the geyser.
 
-We can also split up the data into two sets, where one lists all the eruptions that lasted less than three minutes, and the other one contains those which are longer.
-
-For this, we use the `which` command, which returns the indices of the matching locations in a vector:
-
-```{r}
-which(faithful$eruptions < 3)
-```
-
-The numbers above correspond to the rows in the `faithful` data set where the eruptions are less than three minutes.
+We should split up the data into two sets, where one lists all the eruptions that lasted less than three minutes, and the other one contains those which are longer.
 
 Now create two separate data frames from the `faithful` data frame, where `faithful_short` has eruptions < 3 and `faithful_long` has eruptions >= 3
 
@@ -831,49 +827,25 @@ faithful_short = faithful %>% filter(eruptions < 3)
 faithful_long = faithful %>% filter(eruptions >= 3)
 ```
 
-Q-Q plot for the short eruptions:
-```{r}
+Create a Q-Q plot for the short eruptions:
+```{r, echo=FALSE}
 qqnorm(faithful_short$waiting)
 qqline(faithful_short$waiting)
 ```
 
-Q-Q plot for the long eruptions:
-```{r}
+Create a Q-Q plot for the long eruptions:
+```{r, echo=FALSE}
 qqnorm(faithful_long$waiting)
 qqline(faithful_long$waiting)
 ```
 
-This shows that if we split the data into two clusters, then data in those clusters seems to be normally distributed.
-
-#### Using Q-Q plots on other real-world data sets
-
-If you type `help(package="datasets")` into the RStudio Console you'll see a list of other data sets which are included with R.  You can experiment with these just as we did with the `faithful` data set to see if this data is normally distributed as well.
-
-### Exercises
-
-**TODO** throw in a different (real world example), could also just keep binomial example here
-
-(use binomial for exercise - if go to large n for binomial, get normal distribution (?)  try for different values of n)  if n is much bigger than the number of trials, then approaches a normal distribution
-
-data size of 10, then 5 trials
-
-successes are x, trials are n (in lecture notes)
-
-size=50 
-n = 1000
-
-also try size=500
-
-```{r}
-x<- rbinom(n=1000, size=500, prob=0.9); qqnorm(x);qqline(x)
-```
-
+If we split the data into two clusters, do they seem to be normally distributed?
 
 ## Exercises
 
 Try what you have learned above on the examples discussed in the lecture.  Using R, you should arrive at the same numbers that were presented in class.
 
-### Example 2
+### Exercise 1
 
 The government says that 26% of the populations smoke.  You want to test this by asking 30 of your friends. 
 
@@ -881,7 +853,7 @@ The government says that 26% of the populations smoke.  You want to test this by
 * Because of the small sample you decide that if 6, 7, 8, or 9 smoke, you believe the government, otherwise you reject – is this a good choice?
 * What about trusting the government if 4 – 11 people in the sample smoke
 
-### Example 3
+### Exercise 2
 
 A large detector is set up to detect neutrinos. It usually counts 2/day. 
 
