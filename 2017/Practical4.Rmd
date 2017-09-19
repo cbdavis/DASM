@@ -378,7 +378,7 @@ As mentioned in the lectures, we know that a t-test can be used:
 
 ### Example
 
-*This example can be found in Lecture 5*
+*This example can be found in Lecture 4*
 
 Do marijuana smokers score less points on short term memory test? A study took two sets of people randomly selected from a population of smokers and non-smokers.  Their scores are on the test are the following:
 
@@ -420,9 +420,9 @@ qqnorm(non_smoke)
 qqline(non_smoke)
 ```
 
-## One sample t-test
+### One sample t-test
 
-### t-test with only smokers
+#### t-test with only smokers
 
 The syntax of the t-test is `t.test`, type in the RStudio console `?t.test` to see all options.  In the help window, you should see something like this: 
 
@@ -497,7 +497,7 @@ ggplot(dist, aes(x,y)) +
 
 If you have a sample mean that is lower than your hypothesized mean, you should never do the upper tail test, only do the lower-tail or two-sided test.  The reverse is true if you have a sample mean that is larger than your hypothesis.  Therefore, the two-sided test is a good choice since you can't go wrong in this way, but it's not as powerful as the one-sided test.  As you saw in the previous example, with the one-sided test you got a significant result, but could not reject the null hypothesis with the two-sided test.
 
-## Two sided t-test
+### Two sided t-test
 
 Now on your own, try to do a two-sided test using `t.test`.  You should see the following:
 
@@ -505,6 +505,8 @@ Now on your own, try to do a two-sided test using `t.test`.  You should see the 
 res = t.test(smoke, alternative = "two.sided", mu=20, conf.level = 0.95)
 res
 ```
+
+## Two sample t-test
 
 ### Two sample t-test - equal or unequal variances
 
@@ -555,7 +557,7 @@ t.test(non_smoke, smoke, alternative = "greater", var.equal = FALSE, conf.level 
 t.test(non_smoke, smoke, alternative = "greater", var.equal = TRUE, conf.level = 0.95)
 ```
 
-### two sample t-test - paired
+### Two sample t-test - paired
 
 In this example, the `paired` parameter for the `t.test` function is important.
 
