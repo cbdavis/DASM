@@ -14,7 +14,7 @@ number_sections: false
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## The test for equality in variance
+## Chi-square test for tabular data
 
 ### Getting started
 
@@ -23,80 +23,6 @@ Make sure to load the `tidyverse` library so we can do plotting later on.
 library(tidyverse)
 ```
 
-### Review from lecture
-
-A test of s in two different populations with size  $n_1$, $n_2$ involves the following:
-
-1) A confidence level 1-$\alpha$
-2) Two independent, random samples of normal distributions
-3) Null hypothesis, $H_0$: $s_1 \le s_2$, or $s_1 \ge s_2$, or $s_1 = s_2$
-4) Alternative hypothesis, $H_a$: 
-    + $s_1 \gt s_2$     (upper tail alternative)
-    + $s_1 \lt s_2$     (lower tail alternative)
-    + $s_1 \ne s_2$     (two tailed)
-5) Test statistic: $F = \frac{{s_{1}}^2}{{s_{2}}^2}$
-
-
-### Syntax of `var.test`
-
-```{r, eval=FALSE}
-var.test(x, y, ratio = 1, 
-         alternative = c("two.sided", "less", "greater"),
-         conf.level = 0.95, ...)
-```
-
-Relevant arguments for this practical:
-
-* `x, y` - numeric vectors of data values
-* `ratio`	- the hypothesized ratio of the population variances of x and y.
-* `alternative` - a character string specifying the alternative hypothesis, must be one of "two.sided" (default), "greater" or "less". You can specify just the initial letter.
-* `conf.level` - confidence level for the returned confidence interval.
-
-### Example 
-
-Take 100 samples from two normal distributions with different mean, but the same variance.  Will the test recognize that we should not reject the null hypothesis?
-
-```{r}
-x <- rnorm(100, mean=0)  # if you don’t specify the variance it is set to 1 by default
-y <- rnorm(100, mean=1)
-```
-
-F test to compare two variances:
-```{r}
-var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)      
-```
-
-### Exercise
-
-Take 100 random samples from normal distributions with a different variance e.g., `mean = 0`, `sd = 1` and `sd = 1.2` 
- 
-```{r, echo=FALSE} 
-x <- rnorm(100, mean=0, sd=1)  
-y <- rnorm(100, mean=0, sd=1.2)
-```
- 
-Run the `var.test` again.  You should see:
-```{r, echo=FALSE}
-var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
-```
-
-Try both of the examples above again with n = 10
-
-For different means, same variance you should see:
-```{r, echo=FALSE}
-x <- rnorm(10, mean=0)  # if you don’t specify the variance it is set to 1 by default
-y <- rnorm(10, mean=1)
-var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
-```
-
-For same mean, different variance you should see:
-```{r, echo=FALSE}
-x <- rnorm(10, mean=0, sd=1)  # if you don’t specify the variance it is set to 1 by default
-y <- rnorm(10, mean=0, sd=1.2)
-var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
-```
-
-## Chi-square test for tabular data
 
 ### Preliminaries 
 
@@ -119,7 +45,9 @@ Extracting columns with the $ command
 iris$Sepal.Length
 ```
 
-#### Syntax of the `table` command
+## Cross Tabulation
+
+### Syntax of the `table` command
 
 By typing `?table` in the console, you see:  `table` uses the cross-classifying factors to build a contingency table of the counts at each combination of factor levels.
 
@@ -136,7 +64,7 @@ The relevant argument for this practical is:
 
 In the examples below you'll see that `...` takes the form of one or two variables which we use to construct the contingency table.
 
-#### Construct a table from one or two variables 
+### Construct a table from one or two variables 
 
 Here we create a table from the `cyl` (number of cylinders) column of the `mtcars` data set:
 ```{r}
@@ -153,7 +81,7 @@ table(mtcars$cyl, mtcars$gear)
 
 With the `table` function, the first value you enter (`mtcars$cyl`) will show up on the rows, and the second (`mtcars$gear`) will show up in the columns.  For example, from the table we can see that there are 12 cars with 8 cylinders and 3 gears, while there are 0 cars with 4 gears and eight cylinders.
 
-#### Exercise
+### Exercise
 
 Load in data on heart attack victims.  With R you can download a file directly from the Internet.  Note that `sep="\t"` means that the file is tab delimited
 ```{r}
@@ -166,9 +94,9 @@ Now construct a two way table from the categorical variables `SEX` and `DIED`.  
 table(df$SEX, df$DIED)
 ```
 
-### Chi-square test for goodness of fit
+## Chi-square test for goodness of fit
 
-#### Review from lecture
+### Review from lecture
 
 Hypothesis: n events that occur with probabilities $p_i$
 
@@ -180,7 +108,7 @@ $\chi^{2} = \sum{}\frac{(observed - expected)^{2}}{expected} = \sum_{i=1}^{k} \f
 
 with $E_i = n * p_i$
 
-#### Syntax of chi-square test for goodness of fit
+### Syntax of chi-square test for goodness of fit
 
 For the chi-square test for goodness of fit, you only need to have two arguments specified:
 
@@ -195,7 +123,7 @@ Arguments:
 
 If `p` is not specified, then `chisq.test` automatically assumes equal probabilities. 
 
-#### Example 
+### Example 
 This is the dice example mentioned in lecture 6.
 
 You roll a die 100 times, and these are the number of counts associated with each value of the die that was observed.
@@ -205,7 +133,7 @@ die = c(1,2,3,4,5,6)
 count = c(11,16,25,13,21,14)
 ```
 
-##### For a fair dice: what would be the expected probabilities?
+#### For a fair dice: what would be the expected probabilities?
 
 We would expect $p_i = \frac{1}{6}$ for each value of $i$
 
@@ -215,7 +143,7 @@ exp = rep(1/6, 6) * 100
 exp
 ```
 
-##### Question: Is the die fair at 95% confidence level?
+#### Question: Is the die fair at 95% confidence level?
 
 * $H_0$: the probability of throwing each number is equal = $\frac{1}{6}$ 
     * i.e. $p_i = \frac{1}{6}$ for all $i$ 
@@ -250,7 +178,7 @@ ggplot(df, aes(x,y)) + geom_line() +
 
 ```
 
-#### Exercise
+### Exercise
 This is the example of murder cases from the lecture 
 
 | Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | 
@@ -416,7 +344,7 @@ The formula we will use is `cal~month` (calories grouped by month).  Both `cal` 
 
 ### Example
 
-This is the example on number of calories consumed by month (page 37 of Lecture 6).  
+This is the example on number of calories consumed by month (page 37 of Lecture 6).  **check lecture reference**
 
 Fifteen subjects were randomly assigned to three time groups, and their amount of daily calories consumed was recorded (`may`, `sep`, `dec`).
 
@@ -470,3 +398,128 @@ The values for each group are:
 * ctr.8w: `13.25 11.50 12.00 13.50 11.50`
 
 Using what you learned above, first put the data into a format that can be used with the one way test, and conduct the test.  Create a box plot or a normal probability plot (`qqnorm` and `qqline` from the previous practical) to see if the data are roughly normally distributed.
+
+
+
+
+## Monte Carlo simulation 
+
+### Quick review
+
+We have a function $x = f(u,v)$ where:
+
+* $u$ has uncertainty $s_u$
+* $v$ has uncertainty $s_v$
+
+We then:
+
+* Construct a normal distribution $f_{n,u}$ using the mean found for $u$ and a standard deviation $s_u$ 
+* Construct a normal distribution $f_{n,v}$ using the mean found for $v$ and a standard deviation $s_v$
+* Take a random value $u_1$ from  fn,u and $v_1$ from fn,v  and calculate $x_1 = f(u_1, v_1)$
+* Repeat n times
+* Take average (or median) of all $x_i$ for (i = 1, ... n) 
+
+### Example
+
+Assume that for a research project you are told to calculate the uncertainty for the following formula:
+
+$$f(p,q) = \frac{p \cdot q}{p + q}$$
+
+For both $p$ and $q$ we have evidence of the following means and standard deviations:
+
+* $p$: $\mu = 2$ and $\sigma = 0.5$
+* $q$: $\mu = 5$ and $\sigma = 1$
+
+We assume that the uncertainties for $p$ and $q$ follow normal distributions
+
+```{r}
+# take n samples
+n <- 1000
+# take n samples from normal distributions with different means and standard deviations
+p <- rnorm(n, mean = 2, sd = 0.5)
+q <- rnorm(n, mean = 5, sd = 1)
+```
+
+Calculate values for $f(p,q) = \frac{p \cdot q}{p + q}$
+```{r}
+f <- p*q/(p+q)
+```
+
+Plot the histogram, using 100 bins (use `breaks=100`)
+```{r}
+hist(f, breaks=100)
+```
+
+We now calculate the mean:
+```{r}
+f_bar <- mean(f)
+f_bar
+```
+
+and then calculate the standard deviation:
+```{r}
+sig <- sd(f)
+sig
+```
+
+Below we can see how both the mean and the standard deviation converge on a single value as we increase the number of samples from the distributions we defined for $p$ and $q$ (see page 33,34 of Lecture 7 for more explanation).  Note the log scale for the x axis.
+
+```{r, echo=FALSE}
+numSamples = 3000
+f_bars = c()
+sds = c()
+for (n in seq(numSamples)){
+  set.seed(1234)
+  p <- rnorm(n, mean = 2, sd = 0.5)
+  q <- rnorm(n, mean = 5, sd = 1)
+  f <- p*q/(p+q)
+  f_bars = c(f_bars, mean(f))
+  sds = c(sds, sd(f))
+}
+
+df = data.frame(x=c(c(1:numSamples), c(1:numSamples)),
+                y = f_bars, sds, 
+                type = c(rep("Mean", numSamples), 
+                         rep("Standard Deviation", numSamples)))
+
+ggplot(df, aes(x, y)) + geom_line() + facet_wrap(~type) + 
+  xlab("sample") + ylab("value") + 
+  ggtitle("Values for Mean and SD with Increasing Numbers of Samples") + scale_x_log10()
+```
+
+
+### Exercise
+
+Now you've been given a different formula: 
+
+$$f(u,v) = u^2 + u + v$$
+
+...and you've been told to perform a monte carlo simulation with 10000 samples this time.  We again assume that the variables `u` and `v` are normally distributed with the following means and standard deviations:
+
+* $u$: $\mu = 1.2$ and $\sigma = 3$
+* $v$: $\mu = 5$ and $\sigma = 1.7$
+
+Now try to recreate the following results on your own.
+ 
+Plot the histogram of $x = f(u,v) = u^2 + u + v$
+
+```{r, echo=FALSE}
+n <- 10000
+# take n samples from normal distributions with different means and standard deviations
+u <- rnorm(n, mean = 1.2, sd = 3)
+v <- rnorm(n, mean = 5, sd = 1.7)
+# calculate f(p,q)
+f <- (u^2 + u + v)
+hist(f, breaks=100)
+```
+
+Calculate mean(x) and std(x) for $x = f(u,v)$
+
+```{r, echo=FALSE}
+# calculate the mean
+f_bar <- mean(f)
+f_bar
+# calculate the standard deviation
+sig <- sd(f)
+sig
+```

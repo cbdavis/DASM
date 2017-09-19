@@ -195,3 +195,312 @@ ggplot(data, aes(x=iteration, y=percent)) + geom_point() + geom_line() +
 ```
 
 This shows that there is a lot of variation at first, but as expected, with more samples, we settle into the 95% range.
+
+
+## Q-Q Plots
+
+### Overview
+
+A [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) (or Quantile-Quantile plot) can be used to see if the values in a sample are normally distributed.  
+
+Suppose you have a sample of values from an unknown population.  In the example below, we're actually sampling from a normal distribution, but pretend for now that we don't know where the data is from.  
+
+```{r}
+x = rnorm(50)
+x
+```
+
+First you order the sample values from the lowest to the highest values.  We can use the `sort()` function for this:
+```{r}
+x = sort(x)
+x
+```
+
+You can assign a "cumulative probability" $P_i$ to each measurement with $P_i = \frac{(i - 0.5)}{n}$.  
+
+```{r}
+i = seq_along(x)   # creates a sequence of 1, 2, ... up to the length of x (50 in this example)
+P = (i - 0.5) / length(x)  # vector of values for each P_i
+P
+```
+
+$x_i$ has then at least a fraction of $P_i$ data values smaller than $x_i$.
+
+$x_i(P_i)$  is the $P_{i}$-th quantile of the sample.
+
+As an example of this, our 10th element is:
+```{r}
+x[10]
+```
+
+and at the 10th location, our value for P is 
+```{r}
+P[10]
+```
+
+This means that at least `r P[10]*100`% of the values in the data set are smaller than `r x[10]`
+
+We then create a new variable `z` where we find the locations of the quantiles specified in `P`
+```{r}
+z = qnorm(P, mean = mean(x), sd=sd(x))
+```
+
+We then plot `z` versus `x`.  If the line is straight, then the data appears to be normally distributed
+```{r}
+plot(z,x)
+```
+
+In R we can automatically perform all these steps just by using `qqnorm()` and `qqline()`.  
+
+The function `qqnorm()` draws the points in the scatter plot, and `qqline()` draws the line showing where we would expect the points to lie if they are normally distributed.
+```{r}
+qqnorm(x)
+qqline(x)   
+```
+
+Even with a low number of samples, many of the points are on the diagonal line, which indicates that our data (which is actually sampled from a normal distribution) looks like it could be normally distributed.
+
+What is we try 500 samples instead of just 50?
+
+```{r}
+x <- rnorm(500)
+qqnorm(x)
+qqline(x)
+```
+
+What about 10000 samples?
+
+```{r}
+x <- rnorm(10000)
+qqnorm(x)
+qqline(x)
+```
+
+How does a uniform distribution look?
+
+```{r}
+x <- runif(100) # 100 samples from a uniform distribution
+qqnorm(x)
+qqline(x)
+```
+
+#### Using Q-Q plots on a binomial distribution
+
+Type `?rbinom` into the console will bring up a page showing the following parameters that need to be specified to generate random numbers from a binomial distribution:
+
+* `n`: number of observations
+* `size`: number of trials
+* `prob`: probability of success on each trial
+
+In the code below, `n=1000` means that we have 1000 observations.  During each observation we do 50 trials (`size=50`) where the probability of a success is defined by `prob=0.5`.
+
+```{r}
+x <- rbinom(n=1000, size=50, prob=0.5)
+```
+
+We can use `range` to see the minimum and maximum values:
+```{r}
+range(x)
+```
+
+In other words, there exists at least one observation where there were `r min(x)` successes and at least one observation where there were `r max(x)` successes.
+
+We use `+ xlim(c(0,50))` to show the x axis for values from 0 to 50.
+
+```{r}
+# Create a data frame for the values of x
+# This results in a data frame with one column: data$x
+data = as.data.frame(x)
+ggplot(data, aes(x=x)) +  geom_histogram(binwidth = 1) + xlim(c(0,50))
+```
+
+Create a Q-Q plot for the data.  Note that the horizontal lines are because the samples from the binomial distribution are integer values.
+
+```{r}
+qqnorm(x)
+qqline(x)
+```
+
+If we try a more skewed distribution with `prob=0.9`, we get:
+```{r}
+x <- rbinom(n=1000, size=50, prob=0.9)
+data = as.data.frame(x)
+ggplot(data, aes(x=x)) +  geom_histogram(binwidth = 1) + xlim(c(0,50))
+
+qqnorm(x)
+qqline(x)
+```
+
+## Q-Q Plots Exercise
+
+We next use the `faithful` data set which is included with R.  You can type `?faithful` in the RStudio console to get more information on it.  This data is about the [Old Faithful geyser](https://en.wikipedia.org/wiki/Old_Faithful) in Yellowstone National Park in the US.  This geyser is famous for erupting on a very regular schedule and the data set has information on how long the eruptions are (`faithful$eruptions`) and the amount of time until the next eruption (`faithful$waiting`).
+
+Make a Q-Q plot of the waiting times (`faithful$waiting`):
+
+```{r, echo=FALSE}
+x = faithful$waiting
+qqnorm(x)
+qqline(x)
+```
+
+This tells us that the eruptions are clearly not normally distributed.  To investigate further, create a histogram of the values:
+
+```{r, echo=FALSE}
+ggplot(faithful, aes(x=waiting)) + geom_histogram(binwidth=2)
+```
+
+From the histogram, we see from this is that it's clearly bi-modal as there are two distinct peaks.
+
+To investigate further, create a scatter plot showing how the waiting time might be related to the length of the eruption.
+
+```{r, echo=FALSE}
+ggplot(faithful, aes(x=eruptions, y=waiting)) + geom_point() + 
+  xlab("Length of eruption (minutes)") + 
+  ylab("Waiting time until next eruption (minutes)")
+```
+
+We see a few things here:
+
+* The longer the eruption, the longer we will have to wait until the next one.  
+* There seem to be two distinct clusters.  It's not clear what is causing this, and since the data doesn't mention the date of the eruption, we don't know it randomly switches between short and long eruptions, or if for years there were long eruptions, but now there are only short eruptions due to factors such as earthquakes changing the water supply to the geyser.
+
+We should split up the data into two sets, where one lists all the eruptions that lasted less than three minutes, and the other one contains those which are longer.
+
+Now create two separate data frames from the `faithful` data frame, where `faithful_short` has eruptions < 3 and `faithful_long` has eruptions >= 3
+
+```{r, echo=FALSE}
+faithful_short = faithful %>% filter(eruptions < 3)
+faithful_long = faithful %>% filter(eruptions >= 3)
+```
+
+Create a Q-Q plot for the short eruptions:
+```{r, echo=FALSE}
+qqnorm(faithful_short$waiting)
+qqline(faithful_short$waiting)
+```
+
+Create a Q-Q plot for the long eruptions:
+```{r, echo=FALSE}
+qqnorm(faithful_long$waiting)
+qqline(faithful_long$waiting)
+```
+
+If we split the data into two clusters, do they seem to be normally distributed?
+
+## Exercises
+
+Try what you have learned above on the examples discussed in the lecture.  Using R, you should arrive at the same numbers that were presented in class.
+
+### Exercise 1
+
+The government says that 26% of the populations smoke.  You want to test this by asking 30 of your friends. 
+
+* If this sample is a good representation of the population, how many do you expect to smoke if the government says the truth?
+* Because of the small sample you decide that if 6, 7, 8, or 9 smoke, you believe the government, otherwise you reject – is this a good choice?
+* What about trusting the government if 4 – 11 people in the sample smoke
+
+### Exercise 2
+
+A large detector is set up to detect neutrinos. It usually counts 2/day. 
+
+* What is the distribution you would use to estimate the probability of counting x neutrinos in a given day?
+* What is the probability of detecting 8/day? Are scientists justified in calling this a special event?
+* What if it counts 4/day?
+
+
+## Power of the test 
+You can perform power calculations for t tests via the `power.t.test` function.  If you type `?power.t.test` into the console you should see the following usage documentation:
+
+```{r, eval=FALSE}
+power.t.test(n = NULL, delta = NULL, sd = 1, sig.level = 0.05,
+             power = NULL,
+             type = c("two.sample", "one.sample", "paired"),
+             alternative = c("two.sided", "one.sided"),
+             strict = FALSE, tol = .Machine$double.eps^0.25)
+
+```
+To explain the parameters:
+
+* `delta` parameter is the true difference between the null hypothesis and the alternative hypothesis.
+* `n` is the sample size
+* `sd` is the estimated standard deviation of the population
+* `sig.level` is the significance level that you choose, e.g. 0.05, (Type I error probability)
+* `power` is the power of test (1 - Type II error probability)
+* `alternative` - `two.sided` or `one.sided`
+* `type` we will only do this for the `one.sample`
+
+We can now explore the different alternative hypotheses using this function.  Make sure to always fill in the `sig.level` and `sd`.  For `n`, `delta` and `power`, you have to fill in two of them and the test will calculate the remaining one.  If you know sample size (`n`), and the `sig.level`, it will give you the `power` of your test.  If know the `power` you want, then this will give you the sample size to achieve this power.
+
+### Exercise
+From previous research we know that the average life span of a certain species of parrot in their native habitat is 28.0 years, with a standard deviation of 5 years.  
+ 
+A researcher studies a sample of 20 parrots in a new habitat. Assuming the standard deviation does not change, what is the chance that we can detect an increase in lifetime of 2 years compared to the old habitat at the 95% confidence level? 
+
+On your own, explore different hypotheses where the alternative mean is from 29 to 33, then plot the power of the test as a function as each alternative hypothesis.
+
+You should see:
+
+```{r, echo=FALSE}
+x0 = 28
+xa = seq(28.5, 33, by = 0.5)
+n = 20
+
+sigma = 5
+alpha = 0.05
+
+# calculate difference between the means
+diff = xa - x0
+
+delta = abs(x0-xa)/sigma*sqrt(n)
+
+res = power.t.test(delta = diff, sd = sigma, sig.level = alpha, n = n, 
+                   type = "one.sample", alt = "one.sided")
+
+beta1 = 1 - res$power
+
+# create a data frame showing for different values of xa the power of the t test
+df = data.frame(xa, power = res$power)
+
+ggplot(df, aes(x=xa, y=power)) + 
+  geom_point() + 
+  ggtitle("n = 20")
+
+```
+
+Now, assuming that mu_a is 30, we can show the power as a function of sample size:
+
+```{r}
+xa = 30
+diff = xa - x0
+n = c(2:100)
+res = power.t.test(delta = diff, sd = sigma, sig.level = alpha, n = n, 
+                   type = "one.sample", alt = "one.sided")
+
+beta1 = 1 - res$power
+
+# create a data frame showing for different values of xa the power of the t test
+df = data.frame(n, power = res$power)
+
+ggplot(df, aes(x=n, y=power)) + 
+  geom_point() + 
+  ggtitle("Power vs. Sample Size")
+
+```
+
+
+### Exercise
+Now assuming a power of 0.9 and mu_a = 30, then find the sample size to achieve this power of the test.
+
+You should get:
+
+```{r, echo=FALSE}
+xa = 30
+diff = xa - x0
+power = 0.9
+n = 20
+res = power.t.test(delta = diff, sd = sigma, sig.level = alpha, power=power, 
+                   type = "one.sample", alt = "one.sided")
+res
+```
+
+
