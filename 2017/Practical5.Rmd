@@ -23,7 +23,6 @@ Make sure to load the `tidyverse` library so we can do plotting later on.
 library(tidyverse)
 ```
 
-
 ### Preliminaries 
 
 Before we begin constructing tables from categorical data, we should review a few useful functions for working with tabular data.

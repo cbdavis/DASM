@@ -205,7 +205,7 @@ Below you can see how these letters are combined with the names of the distribut
 
 Type `?Distributions` into the RStudio Console in order to see documentation on all of the distributions
 
-#### Understanding the Documentation for Functions
+### Understanding the Documentation for Functions
 
 If you type `?pnorm` in the console, you'll bring up the documentation for this function.  You'll see the following description of the function:
 
@@ -237,7 +237,44 @@ These two examples are the same as the three above, except that we've changed th
 
 ### Examples
 
-##### Plot a normal distribution and its cumulative distribution
+#### Find the probability density of a normal distribution at a value of 8, with mean of 10, and standard deviation of 3.
+
+By typing `?dnorm` in the console, we see that we need to use the following syntax:
+
+`dnorm(x, mean = 0, sd = 1, log = FALSE)`
+
+```{r}
+dnorm(x=8, mean=10, sd=3, log=FALSE)
+```
+
+Since `log=FALSE` is specified to be a default value, we can shorten this to just:
+```{r, eval=FALSE}
+dnorm(x=8, mean=10, sd=3)
+```
+
+Also, since our quantile, mean, and standard deviation are in the order expected by the function, we can shorten this further to just: 
+```{r}
+dnorm(8, 10, 3)
+```
+
+However, if we change the order or argument, R will assume that we want a mean of 3 and a standard deviation of 10, and we will get a different answer than what we want.
+```{r}
+dnorm(8, 3, 10)
+```
+
+We can also use a vector with these functions to evaluate a range of values.  For example, here we calculate the probability density at values of 1, 2, ..., 20:
+```{r}
+dnorm(1:20, 10, 3)
+```
+
+If we plot these values, we can see the distribution:
+```{r}
+x = 1:20
+y = dnorm(x, 10, 3)
+plot(x, y)
+```
+
+#### Plot a normal distribution and its cumulative distribution with mean of 0 and standard deviation of 1
 
 ```{r}
 # create a series of x values
@@ -247,8 +284,8 @@ xvals = seq(-3, 3, 0.01)
 # each value of xvals) and the cumulative distribution sampled at the same values
 
 dist_data = data.frame(x=xvals, 
-                       dist = dnorm(xvals),
-                       cumulative_dist = pnorm(xvals))
+                       dist = dnorm(xvals, mean=0, sd=1),
+                       cumulative_dist = pnorm(xvals, mean=0, sd=1))
 
 # take a look at the first few rows of the data frame
 head(dist_data)
@@ -282,7 +319,7 @@ ggplot(data=dist_data, aes(x=x)) +
   geom_line(aes(y=cumulative_dist))
 ```
 
-##### Find the probability that x > x0 or x < x0
+#### Find the probability that x > x0 or x < x0
 
 Type `?pnorm` to bring up documentation for the probability distribution of the normal distribution.  For this example, you need to note that for `lower.tail` that "*if TRUE (default), probabilities are P[X ≤ x] otherwise, P[X > x]*".  This applies for the other distributions as well.
 
@@ -298,7 +335,7 @@ pnorm(x0, lower.tail=TRUE)
 1 - pnorm(x0, lower.tail=FALSE)
 ```
 
-##### Use the distributions to find quantiles
+#### Use the distributions to find quantiles
 
 You can see the output of several example quantiles, which shows which value is greater than 80% (`p=0.8`) of all the values in the distribution.
 
