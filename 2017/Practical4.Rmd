@@ -310,22 +310,77 @@ Using the `t.test()` function, we do a two-sided test as follows:
 
 ```{r}
 res = t.test(smoke, alternative = "two.sided", mu=20, conf.level = 0.95)
-res
+print(res)
 ```
 
-We can get the value for the t-statistic like this:
+As you can see, if we print out the results of the t-test, it shows a lot of information.  If we want to simply get the value for the t-statistic, we can just use `res$statistic`:
 ```{r}
 res$statistic
 ```
 
 You can see which other variables are available by typing `res$` and then typing on the Tab key.  This will bring up a menu showing what is available.
 
-(put plots here that show where the numbers come from, use the plot from much further below in this tab)
+```{r}
+n = length(smoke)    # number of samples
+
+x = seq(-3, 3, 0.1) # sequence from -3 to 3 in increments of 0.1
+y = dt(x, df=n-1)   # probability density of the t distribution
+
+df = data.frame(x=x,
+                y=y)
+
+alpha = 0.05
+t_alpha_div_2 = qt(alpha/2, df = n-1)
+t_1_minus_alpha_div_2 = qt(1 - alpha/2, df = n-1)
+t = res$statistic
+
+ggplot(df, aes(x,y)) + geom_line() + 
+  # vertical line and label for t_alpha_div_2
+  geom_vline(xintercept = t_alpha_div_2, linetype = "dashed") + 
+  annotate("label", x = t_alpha_div_2, y=0.25, label="t[(alpha/2)]", parse=TRUE) + 
+  # vertical line and label for t_1_minus_alpha_div_2
+  geom_vline(xintercept = t_1_minus_alpha_div_2, linetype = "dashed") + 
+  annotate("label", x = t_1_minus_alpha_div_2, y=0.25, label = "t[(1 - alpha/2)]", parse=TRUE) + 
+  # vertical line and label for t (from the t.test function called above)
+  geom_vline(xintercept = t, linetype = "dashed") + 
+  annotate("label", x = t, y=0.25, label = "t", parse=FALSE)
+```
+
 
 #### Exercise 1
 
-(two-sided)
-(try exactly the same thing, but with a different hypothesis to see what happens when you adjust value for mu)
+
+Try a two-sided test for a value of $mu=17$ (you should see the results below).  Also try with different values of $mu$.
+
+```{r}
+res = t.test(smoke, alternative = "two.sided", mu=17, conf.level = 0.95)
+n = length(smoke)    # number of samples
+
+x = seq(-3, 3, 0.1) # sequence from -3 to 3 in increments of 0.1
+y = dt(x, df=n-1)   # probability density of the t distribution
+
+df = data.frame(x=x,
+                y=y)
+
+alpha = 0.05
+t_alpha_div_2 = qt(alpha/2, df = n-1)
+t_1_minus_alpha_div_2 = qt(1 - alpha/2, df = n-1)
+t = res$statistic
+
+ggplot(df, aes(x,y)) + geom_line() + 
+  # vertical line and label for t_alpha_div_2
+  geom_vline(xintercept = t_alpha_div_2, linetype = "dashed") + 
+  annotate("label", x = t_alpha_div_2, y=0.25, label="t[(alpha/2)]", parse=TRUE) + 
+  # vertical line and label for t_1_minus_alpha_div_2
+  geom_vline(xintercept = t_1_minus_alpha_div_2, linetype = "dashed") + 
+  annotate("label", x = t_1_minus_alpha_div_2, y=0.25, label = "t[(1 - alpha/2)]", parse=TRUE) + 
+  # vertical line and label for t (from the t.test function called above)
+  geom_vline(xintercept = t, linetype = "dashed") + 
+  annotate("label", x = t, y=0.25, label = "t", parse=FALSE)
+
+```
+
+
 
 #### Exercise 2
 
