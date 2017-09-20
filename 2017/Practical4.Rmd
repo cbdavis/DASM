@@ -3,9 +3,9 @@ title: "DASM Practical 4"
 author: "Chris Davis"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: 
-html_document:
-toc: false
-number_sections: false
+  html_document:
+    toc: false
+    number_sections: false
 ---
 
 # {.tabset .tabset-fade .tabset-pills}
@@ -13,7 +13,6 @@ number_sections: false
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
 
 ## Hypothesis Testing
 
@@ -28,7 +27,10 @@ library(tidyverse)
 
 *This example can be found in slide 27/48 of Lecture 4.*
 
-From previous research we know that the average life span of a certain species of parrot in their native habitat is 28.0 years. We assume that the life span follows a normal distribution.  A researcher studies a sample of 20 parrots in a new habitat and finds an average life span of 30.2 years with a standard deviation of 5.0 years.  *Can he say with 95% certainty that they live longer in the new habitat?*
+* From previous research we know that the average life span of a certain species of parrot in their native habitat is 28.0 years. 
+* We assume that the life span follows a normal distribution.  
+* A researcher studies a sample of 20 parrots in a new habitat and finds an average life span of 30.2 years with a standard deviation of 5.0 years.  
+* *Can he say with 95% certainty that they live longer in the new habitat?*
 
 Given the problem statement, we start assigning variables:
 ```{r}
@@ -37,14 +39,19 @@ s = 5.0      # standard deviation
 x_bar = 30.2 # sample average
 ```
 
-1. We have two hypotheses: 
-+ $H_{0}: \mu_{0} = 28$
-+ $H_{a}: \mu_{a} > 28$
+**We have two hypotheses:**
+
++ $H_{0}: \mu_{0} = 28$ - parrots have the same average lifespan as in their native habitat
++ $H_{a}: \mu_{a} > 28$ - parrots have a longer average lifespan than in their native habitat
+
 ```{r}
 mu_0 = 28
 ```
-2. Because we want 95% certainty, we use $\alpha = 0.05$ with a one sided test for the upper tail
-3. Find rejection region
+
+Because we want 95% certainty, we use $\alpha = 0.05$ with a one sided test for the upper tail
+
+**Now we find the rejection region:**
+
 + Statistic to use: t-statistics (sample < 30, from a normal distribution)
 + Calculate $t_{(1-\alpha)}$ from table : $t_{(1-\alpha)}$ = 1.73 or via R:
 ```{r}
@@ -53,13 +60,97 @@ mu_0 = 28
 t_1_minus_alpha = qt(0.95, df=n-1, lower.tail=TRUE)
 t_1_minus_alpha
 ```
-+ Calculate the t-statistic: $t = \frac{\bar{x} - \mu_{0}}{s/\sqrt{n}}$  
+
+
+To visualize this, we can plot the t distribution and add a line indicating the location of $t_{(1-\alpha)}$.  
+
+First we create a data frame, where `x` contains a sequence of values along the x axis, and `y` contains the probability density of the t-test distribution.
+
+```{r}
+x = seq(-3,3,0.01)
+y = dt(x,df=n-1)    # y is equal to the t-test distribution sampled at values of x
+
+# create data frame to hold x and y values
+dist = data.frame(x = x, 
+                  y = y) 
+```
+
+We want to make a plot that contains three different elements:
+
+* the t-test distribution
+* a vertical line at the value of `t_1_minus_alpha`
+* a text label showing $t_{1-\alpha}$ at the value of `t_1_minus_alpha`
+
+Below we'll show how to make the plot step by step.  Each of the examples below builds on the previous examples, where we add one of the elements in each step.
+
+First plot the distribution:
+
+```{r}
+ggplot(dist, aes(x,y)) + 
+  geom_line()
+```
+
+Same plot as above, but add a vertical dashed line (`geom_vline`) at the location of `t_1_minus_alpha`
+
+```{r}
+ggplot(dist, aes(x,y)) + 
+  geom_line() +             # this plots the distribution as a line
+  geom_vline(xintercept = t_1_minus_alpha,   # plot a vertical line at t_1_minus_alpha
+             linetype="dashed")              # make this a dashed line
+```
+
+Same plot as the previous one, but now add a label at the x value of `t_1_minus_alpha`, with a `y` value of 0.35.  You can adjust the `y` value to move the label up and down on the plot.
+
+```{r}
+ggplot(dist, aes(x,y)) + 
+  geom_line() +             # this plots the distribution
+  geom_vline(xintercept = t_1_minus_alpha,   # plot a vertical line at t_1_minus_alpha
+             linetype="dashed") +            # make this a dashed line
+    annotate(geom = "label",          # add a label for t_1_minus_alpha.  
+                                      # Don't change geom = "label", it needs to be exactly this
+             x = t_1_minus_alpha,     # x position for the label
+             y = 0.35,                # y position for the label
+             label = "t[(1-alpha)]",    # this is the text that will be displayed
+             parse = TRUE)
+```
+
+**Calculate the t-statistic:** 
+
+Use the formula $t = \frac{\bar{x} - \mu_{0}}{s/\sqrt{n}}$  
+
 ```{r}
 t = (x_bar - mu_0)/(s/sqrt(n))
 t
 ```
-4. Because $t > t_{(1-\alpha)}$ (`r t` > `r t_1_minus_alpha`) we reject $H_{0}$, the null hypothesis.
-5. Calculate the p-value: 
+
+Below we plot what this looks like.  Note that the plotting code is the same as above, except that at the very end we add one more `geom_vline` statement along with another `annotate` statement so that we can visualize where the value of `t` is located.
+```{r}
+ggplot(dist, aes(x,y)) + 
+  # this plots the distribution
+  geom_line() +                     
+  # plot a vertical line at t_1_minus_alpha
+  geom_vline(xintercept = t_1_minus_alpha,   
+             linetype="dashed") +            # make this a dashed line
+  # add a label for t_1_minus_alpha.  
+  annotate(geom = "label",          # Don't change geom = "label", it needs to be exactly this
+           x = t_1_minus_alpha,     # x position for the label
+           y = 0.35,                # y position for the label
+           label = "t[(1-alpha)]",    # this is the text that will be displayed
+           parse = TRUE) +          # use parse = TRUE if you're displaying symbols like alpha
+  # plot a vertical line at t
+  geom_vline(xintercept = t,        
+             linetype="dashed") +   # make this a dashed line
+  # add a label for the value of t
+  annotate(geom = "label",          
+           x = t,
+           y = 0.35,                
+           label = "t",    
+           parse = FALSE)           # can set parse = FALSE, just showing a "t", not symbols like alpha
+```
+
+Because $t > t_{(1-\alpha)}$ (`r round(t,2)` > `r round(t_1_minus_alpha,2)`), we reject $H_{0}$, the null hypothesis.
+
+**Calculate the p-value:**
 
 ```{r}
 # pt is the cumulative distribution of the t distribution
@@ -74,34 +165,43 @@ p_value = pt(t, df=n-1, lower.tail=FALSE)
 p_value
 ```
 
-### Exercise
-
-Plot the t distribution and add vertical lines to indicate where your t-values are and where the rejection regions start.
-
-Hint: to add lines with text, you can use the add statements such as the following when creating a plot:
-```{r, eval=FALSE}
-+ geom_vline(xintercept = t, linetype="dashed") # add a vertical dashed line at x=t
-+ annotate("label", x=t, y=0.3, label="put your text here") # add a label at the stated x and y coordinates
-```
+If we visualize the cumulative distribution (starting from the right side), we can see that `p_value` is the value of the cumulative distribution at the value of `t`
 
 ```{r, echo=FALSE}
-# generate a sequence from -3 to 3 in steps of 0.01
+
 x = seq(-3,3,0.01)
+y = 1-pt(x,df=n-1)    # y is equal to the t-test distribution sampled at values of x
 
 # create data frame to hold x and y values
-dist = data.frame(x=x, 
-                  y = dt(x,df=19)) # y is equal to the t-test distribution sampled at values of x
+cumulative_dist = data.frame(x = x, 
+                      y = y) 
 
-# plot the t-test distribution 
-# and show the location of t and t_1_minus_alpha
+ggplot(cumulative_dist, aes(x,y)) + 
+  geom_line() + 
+  geom_vline(xintercept = t_1_minus_alpha,   # plot a vertical line at t_1_minus_alpha
+             linetype="dashed") +            # make this a dashed line
+  annotate(geom = "label",          # add a label for t_1_minus_alpha.  
+                                    # Don't change geom = "label", it needs to be exactly this
+           x = t_1_minus_alpha,     # x position for the label
+           y = 0.35,                # y position for the label
+           label = "t[(1-alpha)]",    # this is the text that will be displayed
+           parse = TRUE) + 
+  geom_vline(xintercept = t,        # plot a vertical line at t
+             linetype="dashed") +   # make this a dashed line
+  annotate(geom = "label",          # add a label for the value of t
+           x = t,
+           y = 0.35,                
+           label = "t",    
+           parse = FALSE) + 
+  geom_hline(yintercept = p_value, 
+             linetype="dashed") + 
+  annotate(geom = "label",
+           x = 0.3,
+           y = p_value,
+           label = "p value", 
+           parse = FALSE) + 
+  geom_point(data=NULL, aes(x=t, y=p_value), colour="red", size=3)
 
-ggplot(dist, aes(x,y)) + geom_line() + 
-  # show line and text annotation for t
-  geom_vline(xintercept = t, linetype="dashed") + 
-  annotate("label", x=t, y=0.3, label="t") + 
-  # show line and text annotation for t_1_minus_alpha
-  geom_vline(xintercept = t_1_minus_alpha, linetype="dashed") + 
-  annotate("label", x=t_1_minus_alpha, y=0.35, label="t[1-alpha]", parse=TRUE)
 
 ```
 
@@ -126,7 +226,7 @@ The value for $t_{(1-\alpha/2)}$ should be:
 t_1_minus_alpha_div_2
 ```
 
-You should be able to create a plot like the following.  You don't have to create the filled red regions, you can just add the vertical lines.
+You should be able to create a plot like the following.  
 ```{r, echo=FALSE}
 # generate a sequence from -3 to 3 in steps of 0.01
 x = seq(-3,3,0.01)
@@ -146,24 +246,16 @@ ggplot(dist, aes(x,y)) + geom_line() +
   annotate("label", x=t, y=0.2, label="t") + 
   # show line and text annotation for t_1_minus_alpha_div_2
   geom_vline(xintercept = t_1_minus_alpha_div_2, linetype="dashed") + 
-  annotate("label", x=t_1_minus_alpha_div_2, y=0.25, label="t[1-alpha/2]", parse=TRUE) + 
+  annotate("label", x=t_1_minus_alpha_div_2, y=0.25, label="t[(1-alpha/2)]", parse=TRUE) + 
   geom_vline(xintercept = -t_1_minus_alpha_div_2, linetype="dashed") + 
-  annotate("label", x = -t_1_minus_alpha_div_2, y=0.25, label="t[alpha/2]", parse=TRUE) + 
-  geom_polygon(data = data.frame(x = c(left_tail_x, rev(left_tail_x)), 
-                                 y = c(dt(left_tail_x, df=n-1), 
-                                       rep(0, length(left_tail_x)))), 
-               fill="red", alpha=0.5) + 
-  geom_polygon(data = data.frame(x = c(right_tail_x, rev(right_tail_x)), 
-                                 y = c(dt(right_tail_x, df=n-1), 
-                                       rep(0, length(right_tail_x)))), 
-               fill="red", alpha=0.5)
+  annotate("label", x = -t_1_minus_alpha_div_2, y=0.25, label="t[(alpha/2)]", parse=TRUE)
 
 # critical region will be different and may also have to reject it.
 ```
 
-
-
 ## One sample t-test
+
+### Example
 
 *This example can be found in Lecture 4*, and we will use in throughout this section.
 
@@ -187,9 +279,13 @@ t.test(x, y = NULL,
        conf.level = 0.95)
 ```
 
+#### Setting the `alternative` argument
+
 Whenever you see something like `alternative = c("two.sided", "less", "greater")` that means that you should choose one of the values and the correct syntax for the function would be something like `alternative = "two.sided"`.  
 
 If you try something like `alternative = c("two.sided", "less")` it won't work and you'll see an error like `Error in match.arg(alternative) : 'arg' must be of length 1`
+
+#### Example problem for `t.test`
 
 One question that we can ask with the t.test is if the marijuana smokers score less than the national average.  For this t-test, we examine the smokers only.  We know that in the general population people on average score 20 on the test.  For our values we use:
 
@@ -203,14 +299,14 @@ The first thing we will try is a two sided t-test.
 
 ### Two sided t-test
 
-Now we look at the two sided t-test for one sample...
+We will now do a two sided t-test for one sample.
 
-Our null hypothesis is that smokers also score 20 on the test.  Our alternative hypothesis is that they score differently. 
+* $H_0 = 20$ - our null hypothesis is that smokers also score 20 on the test.
+* $H_a \neq 20$ - our alternative hypothesis is that they score differently.
 
-Now we need to do a t-test to see if we can reject the null hypothesis that the smokers also score 20 (or even more)
+Here we do a t-test to see if we can reject the null hypothesis, $H_0$, that the smokers also score 20
 
-Now we do a two-sided test using `t.test`.  
-
+Using the `t.test()` function, we do a two-sided test as follows:
 
 ```{r}
 res = t.test(smoke, alternative = "two.sided", mu=20, conf.level = 0.95)
@@ -437,4 +533,3 @@ var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)
 ### Exercise 
 
 Test if variance between smokers and non-smokers is the same
-
