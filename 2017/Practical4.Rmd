@@ -279,9 +279,10 @@ t.test(x, y = NULL,
 
 #### Setting the `alternative` argument
 
-Whenever you see something like `alternative = c("two.sided", "less", "greater")` that means that you should choose one of the values and the correct syntax for the function would be something like `alternative = "two.sided"`.  
-
-If you try something like `alternative = c("two.sided", "less")` it won't work and you'll see an error like `Error in match.arg(alternative) : 'arg' must be of length 1`
+* Whenever you see something like `alternative = c("two.sided", "less", "greater")` that means that you should **choose only one of the values**
+    * The correct syntax for the function would be something like `alternative = "two.sided"`.  
+* If you try something like `alternative = c("two.sided", "less")` it won't work. 
+    * You'll get an error like `Error in match.arg(alternative) : 'arg' must be of length 1`
 
 ### Example problem for `t.test`
 
@@ -318,12 +319,16 @@ res$statistic
 
 You can see which other variables are available by typing `res$` and then typing on the Tab key.  This will bring up a menu showing what is available.
 
+The results we just found can be visualized in the plot below.
 
-**TODO** need segway to plot below
+* Plot a range of values in the t-distribution
+* Mark the 95% confidence interval (the region corresponding to $\alpha=0.05$)
+* Mark the value for t (`res$statistic`) from above
+
 ```{r}
 n = length(smoke)    # number of samples
 
-x = seq(-3, 3, 0.1) # sequence from -3 to 3 in increments of 0.1
+x = seq(-4, 4, 0.1) # sequence from -3 to 3 in increments of 0.1
 y = dt(x, df=n-1)   # probability density of the t distribution
 
 df = data.frame(x=x,
@@ -345,7 +350,6 @@ ggplot(df, aes(x,y)) + geom_line() +
   geom_vline(xintercept = t, linetype = "dashed") + 
   annotate("label", x = t, y=0.25, label = "t", parse=FALSE)
 ```
-
 
 #### Exercise 1
 
