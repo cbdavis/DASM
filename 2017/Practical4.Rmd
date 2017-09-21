@@ -318,6 +318,8 @@ res$statistic
 
 You can see which other variables are available by typing `res$` and then typing on the Tab key.  This will bring up a menu showing what is available.
 
+
+**TODO** need segway to plot below
 ```{r}
 n = length(smoke)    # number of samples
 
@@ -350,65 +352,17 @@ ggplot(df, aes(x,y)) + geom_line() +
 Try a two-sided test for a value of $mu=17$ (you should see the results below).  Also try with different values of $mu$.
 
 ```{r, echo=FALSE}
-res = t.test(smoke, alternative = "two.sided", mu=17, conf.level = 0.95)
-n = length(smoke)    # number of samples
-
-x = seq(-3, 3, 0.1) # sequence from -3 to 3 in increments of 0.1
-y = dt(x, df=n-1)   # probability density of the t distribution
-
-df = data.frame(x=x,
-                y=y)
-
-alpha = 0.05
-t_alpha_div_2 = qt(alpha/2, df = n-1)
-t_1_minus_alpha_div_2 = qt(1 - alpha/2, df = n-1)
-t = res$statistic
-
-ggplot(df, aes(x,y)) + geom_line() + 
-  # vertical line and label for t_alpha_div_2
-  geom_vline(xintercept = t_alpha_div_2, linetype = "dashed") + 
-  annotate("label", x = t_alpha_div_2, y=0.25, label="t[(alpha/2)]", parse=TRUE) + 
-  # vertical line and label for t_1_minus_alpha_div_2
-  geom_vline(xintercept = t_1_minus_alpha_div_2, linetype = "dashed") + 
-  annotate("label", x = t_1_minus_alpha_div_2, y=0.25, label = "t[(1 - alpha/2)]", parse=TRUE) + 
-  # vertical line and label for t (from the t.test function called above)
-  geom_vline(xintercept = t, linetype = "dashed") + 
-  annotate("label", x = t, y=0.25, label = "t", parse=FALSE)
-
+t.test(smoke, alternative = "two.sided", mu=17, conf.level = 0.95)
 ```
 
 #### Exercise 2
 
-If instead of typing the command `res = t.test(smoke, alternative = "two.sided", mu=17, conf.level = 0.95)`, you just typed `res = t.test(smoke)`, you would get the plot below, which doesn't seem to be correct.  
+If instead of typing the command `res = t.test(smoke, alternative = "two.sided", mu=17, conf.level = 0.95)`, you just typed `res = t.test(smoke)`, you would get the results below, which doesn't seem to be correct.  
 
 **What are the default values that are being used by `res = t.test(smoke)`, according to the documentation at `?t.test`?**
 
 ```{r, echo=FALSE}
-res = t.test(smoke)
-n = length(smoke)    # number of samples
-
-x = seq(-3, 3, 0.1) # sequence from -3 to 3 in increments of 0.1
-y = dt(x, df=n-1)   # probability density of the t distribution
-
-df = data.frame(x=x,
-                y=y)
-
-alpha = 0.05
-t_alpha_div_2 = qt(alpha/2, df = n-1)
-t_1_minus_alpha_div_2 = qt(1 - alpha/2, df = n-1)
-t = res$statistic
-
-ggplot(df, aes(x,y)) + geom_line() + 
-  # vertical line and label for t_alpha_div_2
-  geom_vline(xintercept = t_alpha_div_2, linetype = "dashed") + 
-  annotate("label", x = t_alpha_div_2, y=0.25, label="t[(alpha/2)]", parse=TRUE) + 
-  # vertical line and label for t_1_minus_alpha_div_2
-  geom_vline(xintercept = t_1_minus_alpha_div_2, linetype = "dashed") + 
-  annotate("label", x = t_1_minus_alpha_div_2, y=0.25, label = "t[(1 - alpha/2)]", parse=TRUE) + 
-  # vertical line and label for t (from the t.test function called above)
-  geom_vline(xintercept = t, linetype = "dashed") + 
-  annotate("label", x = t, y=0.25, label = "t", parse=FALSE)
-
+t.test(smoke)
 ```
 
 ### One sided t-test
@@ -443,34 +397,10 @@ However, the sample average is actually less than the hypothesized mean ($\mu$).
 
 To reiterate, if you have a sample mean that is lower than your hypothesized mean, you should never do the upper tail test, only do the lower-tail or two-sided test.  The reverse is true if you have a sample mean that is larger than your hypothesis.  Therefore, the two-sided test is a good choice since you can't go wrong in this way, but it's not as powerful as the one-sided test.  As you saw in the previous example, with the one-sided test you got a significant result, but could not reject the null hypothesis with the two-sided test.
 
-**TODO** - rework this?  Needs to be better tied into the text
-
-Now we plot the t-distribution with alpha = 0.05 and degrees of freedom is 9 (since n-1).  For the upper tail t-test, your t value is negative since it's on the left side of the distribution.  The upper tail t-test calculates the probability of greater than this t-value:
-
-```{r, echo=TRUE}
-x = seq(-3,20,0.01)
-n = 10
-dist = data.frame(x=x, 
-                  y = dt(x, df=n-1)) # y is equal to the t-test distribution sampled at values of x
-
-t_1_minus_alpha = qt(1 - (0.05), df=n-1, lower.tail=TRUE)
-
-right_tail_x = seq(t_1_minus_alpha, 3, 0.01)
-
-ggplot(dist, aes(x,y)) + 
-  geom_line() + 
-  geom_vline(xintercept = res$statistic, linetype="dashed") + 
-  annotate("label", x = res$statistic, y=0.25, label="t") + 
-  geom_vline(xintercept = t_1_minus_alpha, linetype="dashed") + 
-  annotate("label", x = t_1_minus_alpha, y=0.25, label="t[1-alpha]", parse=TRUE) + 
-  geom_polygon(data = data.frame(x = c(right_tail_x, rev(right_tail_x)), 
-                                 y = c(dt(right_tail_x, df=n-1), 
-                                       rep(0, length(right_tail_x)))), 
-               fill="red", alpha=0.5)
-
-```
-
 #### Exercise
+
+(have the students do the t.test in the correct way)
+
 play around with different alternatives and see what you get (don't do two sided here)  Now try on your own a one-sided test if you choose the alternative is greater, even though your sample average is smaller than your hypothesis average.  You should see the following:
 
 try mu which is greater, and mu which is lesser than the sample mean
@@ -520,6 +450,8 @@ This test then calculates the difference in the means = mean of first sample ($\
 
 You need to pay attention to order of x and y, and what `alternative` you choose.
 
+**TODO**  this syntax will not work if you copy/paste
+
 Again, note the syntax for the `t.test` function:
 ```{r, eval=FALSE}
 t.test(x, y = NULL,
@@ -560,7 +492,7 @@ t.test(non_smoke, smoke, alternative = "greater", var.equal = FALSE, conf.level 
 t.test(non_smoke, smoke, alternative = "less", var.equal = FALSE, conf.level = 0.95)
 ```
 
-### Two sample t-test - paired
+### Exercise - Two sample t-test - paired
 
 In this example, the `paired` parameter for the `t.test` function is important.
 
@@ -572,6 +504,8 @@ What people often do is have the same people in the test - first people take tes
 
 Mention variances TRUE/FALSE and paired TRUE/FALSE are shown below, (this is an example of what is discussed in the sentences above)
 
+**TODO** hide code
+
 ```{r}
 # test values both before and after smoking:
 pre_test = c(77, 56, 64, 60, 57, 53, 72, 62, 65, 66)
@@ -580,6 +514,7 @@ post_test = c(88, 74, 83, 68, 58, 50, 67, 64 ,74 ,60)
 t.test(pre_test, post_test, alternative = "less", var.equal = FALSE, paired = TRUE, conf.level = 0.95)
 t.test(pre_test, post_test, alternative = "less", var.equal = TRUE, conf.level = 0.95)
 ```
+
 
 ## The test for equality in variance
 
