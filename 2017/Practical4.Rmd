@@ -25,7 +25,7 @@ library(tidyverse)
 
 ### Example
 
-*This example can be found in slide 27/48 of Lecture 4.*
+*This example can be found in slide 27 of Lecture 4.*
 
 * From previous research we know that the average life span of a certain species of parrot in their native habitat is 28.0 years. 
 * We assume that the life span follows a normal distribution.  
@@ -41,8 +41,8 @@ x_bar = 30.2 # sample average
 
 **We have two hypotheses:**
 
-+ $H_{0}: \mu_{0} = 28$ - parrots have the same average lifespan as in their native habitat
-+ $H_{a}: \mu_{a} > 28$ - parrots have a longer average lifespan than in their native habitat
++ $H_{0}: \mu_{0} = 28$, parrots have the same average lifespan as in their native habitat
++ $H_{a}: \mu_{a} > 28$, parrots have a longer average lifespan than in their native habitat
 
 ```{r}
 mu_0 = 28
@@ -61,6 +61,7 @@ t_1_minus_alpha = qt(0.95, df=n-1, lower.tail=TRUE)
 t_1_minus_alpha
 ```
 
+**Visualizing the rejection region**
 
 To visualize this, we can plot the t distribution and add a line indicating the location of $t_{(1-\alpha)}$.  
 
@@ -77,7 +78,7 @@ dist = data.frame(x = x,
 
 We want to make a plot that contains three different elements:
 
-* the t-test distribution
+* the t-test distribution (calculated above using the `dt()` function)
 * a vertical line at the value of `t_1_minus_alpha`
 * a text label showing $t_{1-\alpha}$ at the value of `t_1_minus_alpha`
 
@@ -214,19 +215,19 @@ We have two hypotheses:
 * $H_{0}: \mu_{0} = 28$
 * $H_{a}: \mu_{a} \neq 28$
 
-You should be able to create the following:
+
 ```{r, echo=FALSE}
 # tails are now alpha/2
 t_1_minus_alpha_div_2 = qt(1 - (0.05/2), df=n-1, lower.tail=TRUE)
 ```
 
-The value for $t_{(1-\alpha/2)}$ should be:
+The value you find for $t_{(1-\alpha/2)}$ should be:
 
-```{r}
+```{r, echo=FALSE}
 t_1_minus_alpha_div_2
 ```
 
-You should be able to create a plot like the following.  
+Create a plot to visualize the values for the t-statistic and the confidence interval.
 ```{r, echo=FALSE}
 # generate a sequence from -3 to 3 in steps of 0.01
 x = seq(-3,3,0.01)
@@ -253,11 +254,13 @@ ggplot(dist, aes(x,y)) + geom_line() +
 # critical region will be different and may also have to reject it.
 ```
 
+*Note that with the one-sided test we were able to reject the null hypothesis, but with the two sided test, you are not able to reject it.*
+
 ## One sample t-test
 
 ### Example
 
-*This example can be found in Lecture 4*, and we will use in throughout this practical.
+*This example can be found in Lecture 4 and will be used throughout this practical.*
 
 Do marijuana smokers score less points on short term memory test? A study took two sets of people randomly selected from a population of smokers and non-smokers.  Their scores are on the test are the following:
 
@@ -319,16 +322,18 @@ res$statistic
 
 You can see which other variables are available by typing `res$` and then typing on the Tab key.  This will bring up a menu showing what is available.
 
-The results we just found can be visualized in the plot below.
+**Visualizing the two-sided t-test results**
 
-* Plot a range of values in the t-distribution
+The results we just found can be visualized in the plot below.  As you can see, to create this plot we do three things:
+
+* Plot a range of values in the t-distribution (where values in the distribution are determined using the function `dt()`)
 * Mark the 95% confidence interval (the region corresponding to $\alpha=0.05$)
 * Mark the value for t (`res$statistic`) from above
 
 ```{r}
 n = length(smoke)    # number of samples
 
-x = seq(-4, 4, 0.1) # sequence from -3 to 3 in increments of 0.1
+x = seq(-4, 4, 0.1) # sequence from -4 to 4 in increments of 0.1
 y = dt(x, df=n-1)   # probability density of the t distribution
 
 df = data.frame(x=x,
@@ -353,7 +358,7 @@ ggplot(df, aes(x,y)) + geom_line() +
 
 #### Exercise 1
 
-Try a two-sided test for a value of $mu=17$ (you should see the results below).  Also try with different values of $mu$ and see how that changes the results.
+Try a two-sided test for a value of `mu = 17` (you should see the results below).  Also try with different values of `mu` and see how that changes the results.
 
 ```{r, echo=FALSE}
 t.test(smoke, alternative = "two.sided", mu=17, conf.level = 0.95)
@@ -388,8 +393,8 @@ t.test(smoke, alternative = "greater", mu=20, conf.level = 0.95)
 
 What this is telling us is that these are the hypotheses being tested:
 
-* $H_0: \mu = 20$ 
-* $H_a: \mu > 20$ - `alternative hypothesis: true mean is greater than 20`
+* $H_0: \mu = 20$ (since we specify `mu=20` in `t.test()`) 
+* $H_a: \mu > 20$, `alternative hypothesis: true mean is greater than 20`
 
 You'll note that we have a negative t value (`t = -2.6769`).  The alternative hypothesis is that the true mean is greater than 20, therefore R calculates the p-value as the probability of t > -2.6769, and this probability is large!
 
@@ -397,7 +402,7 @@ We also see that `p-value = 0.9873`, because we picked the wrong the sidedness o
 
 However, the sample average is actually less than the hypothesized mean ($\mu$).  We've calculated the p-value of the upper side, when what we want is actually the p-value of the lower side.
 
-To reiterate, if you have a sample mean that is lower than your hypothesized mean, you should never do the upper tail test, only do the lower-tail or two-sided test.  The reverse is true if you have a sample mean that is larger than your hypothesis.  Therefore, the two-sided test is a good choice since you can't go wrong in this way, but it's not as powerful as the one-sided test.  As you saw in the previous example, with the one-sided test you got a significant result, but could not reject the null hypothesis with the two-sided test.
+To reiterate, if you have a sample mean that is lower than your hypothesized mean, you should never do the upper tail test, only do the lower-tail or two-sided test.  The reverse is true if you have a sample mean that is larger than your hypothesis.  Therefore, the two-sided test is a good choice since you can't go wrong in this way, but it's not as powerful as the one-sided test.  As you saw in the previous example (with the parrots), with the one-sided test you got a significant result, but could not reject the null hypothesis with the two-sided test.
 
 #### Exercise
 
@@ -509,11 +514,11 @@ t.test(non_smoke, smoke, alternative = "greater", var.equal = FALSE, conf.level 
 
 #### Exercise 3 - two sample t-test - paired
 
-Lecture 4, Slide 44 covers in more detail the approach shown here.
+*Lecture 4, Slide 44 covers in more detail the approach shown here.*
 
-The previous unpaired test with the smokers may not give correct results since it doesn't assume the same individuals are included before and after in the samples.  If we didn't carefully pick the people for the `non_smoke` and `smoke` groups, then there may be other variables that would cause their scores to differ.  
+The previous unpaired test with the smokers may not give correct results since the smokers and non-smokers are completely different sets of people, and there's a danger that there may be other variables that would cause their scores to differ, aside from the fact that one group smokes and the other doesn't.  A better approach would be to examine everyone's scores before smoking, and then the scores for those same exact people afterwards.
 
-Our results would be much more convincing if we could show that people got lower (or higher) scores after smoking.  If we have data about people's scores before and after smoking, then we can use a paired t-test.  To do this, we will have to specify `paired = TRUE` within the `t.test` function.  (Note that `paired = FALSE` by default, and that this is the option that will be used if you do not specify anything.)
+If we have data about people's scores before and after smoking, then we can use a paired t-test.  To do this, we will have to specify `paired = TRUE` within the `t.test` function.  (Note that `paired = FALSE` by default, and that this is the option that will be used if you do not specify anything.)
 
 Here we have the test values for individuals both before and after smoking.  Note that the locations in the vectors correspond to specific individuals.
 ```{r}
