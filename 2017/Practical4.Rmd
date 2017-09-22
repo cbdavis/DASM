@@ -257,7 +257,7 @@ ggplot(dist, aes(x,y)) + geom_line() +
 
 ### Example
 
-*This example can be found in Lecture 4*, and we will use in throughout this section.
+*This example can be found in Lecture 4*, and we will use in throughout this practical.
 
 Do marijuana smokers score less points on short term memory test? A study took two sets of people randomly selected from a population of smokers and non-smokers.  Their scores are on the test are the following:
 
@@ -300,8 +300,8 @@ The first thing we will try is a two sided t-test.
 
 We will now do a two sided t-test for one sample.
 
-* $H_0 = 20$ - our null hypothesis is that smokers also score 20 on the test.
-* $H_a \neq 20$ - our alternative hypothesis is that they score differently.
+* $H_0: \mu = 20$ - our null hypothesis is that smokers also score 20 on the test.
+* $H_a: \mu \neq 20$ - our alternative hypothesis is that they score differently.
 
 Here we do a t-test to see if we can reject the null hypothesis, $H_0$, that the smokers also score 20
 
@@ -353,7 +353,7 @@ ggplot(df, aes(x,y)) + geom_line() +
 
 #### Exercise 1
 
-Try a two-sided test for a value of $mu=17$ (you should see the results below).  Also try with different values of $mu$.
+Try a two-sided test for a value of $mu=17$ (you should see the results below).  Also try with different values of $mu$ and see how that changes the results.
 
 ```{r, echo=FALSE}
 t.test(smoke, alternative = "two.sided", mu=17, conf.level = 0.95)
@@ -373,8 +373,6 @@ t.test(smoke)
 
 When performing a one-sided t-test, we need to figure out which value for `alternative` that we need to use.  Which one we choose will be based on the values for $\mu$ and the sample mean.
 
-**TODO** check this 
-
 * if sample mean > $\mu$, then use `alternative = greater`
 * if sample mean < $\mu$, then use `alternative = less`
 
@@ -390,8 +388,8 @@ t.test(smoke, alternative = "greater", mu=20, conf.level = 0.95)
 
 What this is telling us is that these are the hypotheses being tested:
 
-* $H_0$ - $\mu = 20$ 
-* $H_a$ - $\mu > 20$ - `alternative hypothesis: true mean is greater than 20`
+* $H_0: \mu = 20$ 
+* $H_a: \mu > 20$ - `alternative hypothesis: true mean is greater than 20`
 
 You'll note that we have a negative t value (`t = -2.6769`).  The alternative hypothesis is that the true mean is greater than 20, therefore R calculates the p-value as the probability of t > -2.6769, and this probability is large!
 
@@ -403,11 +401,13 @@ To reiterate, if you have a sample mean that is lower than your hypothesized mea
 
 #### Exercise
 
-(have the students do the t.test in the correct way)
+Do the one-sided t-test shown above, except choose the correct option for `alternative`.  
 
-play around with different alternatives and see what you get (don't do two sided here)  Now try on your own a one-sided test if you choose the alternative is greater, even though your sample average is smaller than your hypothesis average.  You should see the following:
+```{r, echo=FALSE}
+t.test(smoke, alternative = "greater", mu=20, conf.level = 0.95)
+```
 
-try mu which is greater, and mu which is lesser than the sample mean
+Additionally, try different values for `mu` (pick values above and below the sample mean) and `alternative` to see how these change the results.
 
 ## Two sample t-test
 
@@ -418,43 +418,49 @@ As mentioned in the lectures, we know that a t-test can be used in these particu
 * If the sample size >~ 30 (distribution does not matter)
 * If the sample size <~ 30, only if distribution is normal 
 
-### Example
+### mean and sd for `smoke` and `non_smoke`
 
-We now calculate the sample means for both the smoker and non-smoker scores:
+Further below we'll do t-tests that examine the means and the variances of the populations represented by `smoke` and `non_smoke`.  
+
+As a first step, we calculate the sample means for both the `smoke` ($\bar{x}_1$) and `non_smoke` scores ($\bar{x}_2$):
 
 ```{r}
-x_bar1 = mean(non_smoke)
-x_bar2 = mean(smoke)
+x_bar1 = mean(smoke)
+x_bar2 = mean(non_smoke)
 print(x_bar1)
 print(x_bar2)
 ```
 
 and do the same for the standard deviations:
 ```{r}
-s1 = sd(non_smoke)
-s2 = sd(smoke)
+s1 = sd(smoke)
+s2 = sd(non_smoke)
 print(s1)
 print(s2)
 ```
 
 What we see from this is that both the means and the standard deviations are different.  Already we see that the average score for the non smokers is higher than that for the smokers.
 
-
 ### Two sample t-test - equal or unequal variances
 
-**TODO** update lecture references
+The approach shown here is described in more detail in Lecture 5, Sections 3.1 & 3.2.
 
-Instead of comparing this set of smokers to the general population, we want to do a more detailed test (see Lecture 5, section 2.1 & 2.2).  
+Now we want to do a more detailed test where we compare the scores of the smokers to the scores of the non-smokers.
 
-The null hypothesis goes for the difference in the means, so mu=0 means no difference in the means.  We will still test if `alternative` is greater, lesser or two-sided.  Setting `alternative` to `greater`/`lesser` corresponds to difference in the mean.  
+For this t-test, the difference in the means is calculated by ($\bar{x}_1 - \bar{x}_2$), or in other words, the mean of first sample minus the mean of the second sample.
 
-This test then calculates the difference in the means = mean of first sample ($\bar{x}1$) minus the mean of the second sample ($\bar{x}2$).
+Our null hypothesis will be that there is no difference in the means:
 
-(add text about if if x_bar_1 > x_bar_2, then use `greater`, otherwise use `lesser` if x_bar_1 < x_bar_2, this is because you're checking if the two means are equal or not)
+* $H_0: \mu_1 - \mu_2 = 0$
 
-You need to pay attention to order of x and y, and what `alternative` you choose.
 
-**TODO**  this syntax will not work if you copy/paste
+Using different values for `alternative` will give you the following alternative hypotheses.  Make sure to pay attention to the values for $\bar{x}_1$ and $\bar{x}_2$ when picking which alternative to use.
+
+* $H_a: \mu_1 - \mu_2 > 0$ `alternative = "greater"`
+    * use this if $\bar{x}_1$ > $\bar{x}_2$
+* $H_a: \mu_1 - \mu_2 < 0$ `alternative = "less"`
+    * use this if $\bar{x}_1$ < $\bar{x}_2$
+* $H_a: \mu_1 - \mu_2 \neq 0$ `alternative = "two.sided"`
 
 Again, note the syntax for the `t.test` function:
 ```{r, eval=FALSE}
@@ -464,67 +470,72 @@ t.test(x, y = NULL,
        conf.level = 0.95)
 ```
 
-In this example we are dealing with equal or unequal variances, which means that the parameter `var.equal` is now important when using the `t.test` function.
+#### Setting `var.equal`
 
-`var.equal` specifies if both samples have the same variance.  You should only use this if you think they come from distributions with the same variance.  If you don't know, then it's better to fill it in as `FALSE`.  If they are the same, then your test is a bit less efficient, but if the variances are different and you fill in `TRUE` then you will get not good results.
+Here we are showing how to analyze samples that may have equal or unequal variances.  To specify which of these situations is the case, we need to use the `var.equal` parameter for the `t.test` function.
 
+The main advice is:
 
-For this example, we do not need to specify a value of `mu`, but you need to specify the second set of data values (i.e. `y`).
+* Use `var.equal = TRUE` if both samples have the same variance.  
+    * Only use this if you think they come from distributions with the same variance.  
+* If you don't know if the samples actual have the same variance, then it's better to use `var.equal = FALSE`.  
+    * If the variances are actually the same and you use `var.equal = FALSE`, then your test is a bit less efficient
+    * If the variances are actually different and you use `var.equal = TRUE` then you will get not good results.
 
-With `var.equal=TRUE` you should get:
+#### Example
+
+For this example, we do not need to specify a value of `mu`, but you need to specify the second set of data values (i.e. a value for `y` as specified in the syntax above).  Making sure to set `var.equal=TRUE` we get:
+
 ```{r}
 t.test(smoke, non_smoke, alternative = "two.sided", conf.level = 0.95, var.equal = TRUE)
 ```
 
-#### Exercise 1
+#### Exercise 1 - non-equal variances
 
-(students try to put this into a t-test - see what happens with equal and non-equal variances - see what happens to the p-value so see that they're slightly different)
+Try a two-sided test for the same data, but with the assumption of non-equal variances.  Compare the p-value to that of the same t-test which assumes equal variances.
 
-On your own, try with `var.equal=FALSE` and `alternative = "two.sided"` you should get:
 ```{r, echo=FALSE}
 t.test(smoke, non_smoke, alternative = "two.sided", conf.level = 0.95, var.equal = FALSE)
 ```
 
-#### Exercise 2
+#### Exercise 2 - one-sided test
 
-Here we try the one-sided tests and figure out which alternative you should take
+Now try a one-sided test, paying attention to which value for `alternative` you should use.  
 
-(only leave code for the correct test, and hide the code, only show the results)
-
-```{r}
+```{r, echo=FALSE}
 t.test(non_smoke, smoke, alternative = "greater", var.equal = FALSE, conf.level = 0.95)
-t.test(non_smoke, smoke, alternative = "less", var.equal = FALSE, conf.level = 0.95)
+#t.test(non_smoke, smoke, alternative = "less", var.equal = FALSE, conf.level = 0.95)
 ```
 
-### Exercise - Two sample t-test - paired
+#### Exercise 3 - two sample t-test - paired
 
-In this example, the `paired` parameter for the `t.test` function is important.
+Lecture 4, Slide 44 covers in more detail the approach shown here.
 
-The previous unpaired test with the smokers may not give correct results since it doesn't assume the same individuals are included before and after in the samples.
+The previous unpaired test with the smokers may not give correct results since it doesn't assume the same individuals are included before and after in the samples.  If we didn't carefully pick the people for the `non_smoke` and `smoke` groups, then there may be other variables that would cause their scores to differ.  
 
-(rewrite, merge sentences together, update lecture reference)
+Our results would be much more convincing if we could show that people got lower (or higher) scores after smoking.  If we have data about people's scores before and after smoking, then we can use a paired t-test.  To do this, we will have to specify `paired = TRUE` within the `t.test` function.  (Note that `paired = FALSE` by default, and that this is the option that will be used if you do not specify anything.)
 
-What people often do is have the same people in the test - first people take test before they smoke, and then take the test again after they smoked.  If we assume that these values are measured on the same individual, then we have to choose these paired alternatives (this will be explained more in Lecture 5, section 2.3)
-
-Mention variances TRUE/FALSE and paired TRUE/FALSE are shown below, (this is an example of what is discussed in the sentences above)
-
-**TODO** hide code
-
+Here we have the test values for individuals both before and after smoking.  Note that the locations in the vectors correspond to specific individuals.
 ```{r}
-# test values both before and after smoking:
-pre_test = c(77, 56, 64, 60, 57, 53, 72, 62, 65, 66)
-post_test = c(88, 74, 83, 68, 58, 50, 67, 64 ,74 ,60)
+# score_person_1_before, score_person_2_before, ...
+pre_test = c(77, 56, 64, 60, 57, 53, 72, 62, 65, 66) 
 
-t.test(pre_test, post_test, alternative = "less", var.equal = FALSE, paired = TRUE, conf.level = 0.95)
-t.test(pre_test, post_test, alternative = "less", var.equal = TRUE, conf.level = 0.95)
+# score_person_1_after, score_person_2_after, ...
+post_test = c(88, 74, 83, 68, 58, 50, 67, 64 ,74 ,60) 
 ```
 
+Try a paired t-test on these values, and then a t-test that is not paired.  Note how this gives you different results.  Make sure to consider which values you should use for `alternative` and `var.equal`, based on `pre_test` and `post_test`.
+
+```{r, echo=FALSE}
+t.test(pre_test, post_test, alternative = "less", var.equal = FALSE, paired = TRUE, conf.level = 0.95)
+t.test(pre_test, post_test, alternative = "less", var.equal = FALSE, conf.level = 0.95)
+```
 
 ## The test for equality in variance
 
 ### Review from lecture
 
-A test of s in two different populations with size  $n_1$, $n_2$ involves the following:
+A test of $s$ in two different populations with size $n_1$, $n_2$ involves the following:
 
 1) A confidence level 1-$\alpha$
 2) Two independent, random samples of normal distributions
@@ -534,7 +545,6 @@ A test of s in two different populations with size  $n_1$, $n_2$ involves the fo
     + $s_1 \lt s_2$     (lower tail alternative)
     + $s_1 \ne s_2$     (two tailed)
 5) Test statistic: $F = \frac{{s_{1}}^2}{{s_{2}}^2}$
-
 
 ### Syntax of `var.test`
 
@@ -548,7 +558,7 @@ Relevant arguments for this practical:
 
 * `x, y` - numeric vectors of data values
 * `ratio`	- the hypothesized ratio of the population variances of x and y.
-* `alternative` - a character string specifying the alternative hypothesis, must be one of "two.sided" (default), "greater" or "less". You can specify just the initial letter.
+* `alternative` - a character string specifying the alternative hypothesis, must be one of `"two.sided"` (default), `"greater"` or `"less"`. You can specify just the initial letter.
 * `conf.level` - confidence level for the returned confidence interval.
 
 ### Example 
@@ -570,12 +580,11 @@ f_test_results = var.test(x, y, ratio = 1, alternative = "two.sided", conf.level
 var.test(x, y, ratio = 1, alternative = "two.sided", conf.level = 0.95)      
 ```
 
-Since our p-value is `r round(f_test_results$p.value, 3)`, we can't reject the null hypothesis that the ratio of the variances is equal to one.
+Since our p-value is `r round(f_test_results$p.value, 4)`, we can't reject the null hypothesis that the ratio of the variances is equal to one.
 
 ### Exercise 
 
 Test if variance between smokers and non-smokers is the same
-
 
 ```{r, echo=FALSE}
 var.test(smoke, non_smoke, ratio = 1, alternative = "two.sided", conf.level = 0.95)
