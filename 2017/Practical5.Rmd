@@ -521,9 +521,50 @@ The values for each group are:
 * **none**: `11.50 12.00  9.00 11.50 13.25 13.00`
 * **ctr.8w**: `13.25 11.50 12.00 13.50 11.50`
 
-Using what you learned above, first put the data into a format that can be used with the one way test, and conduct the test.  Create a box plot or a normal probability plot (`qqnorm` and `qqline` from the previous practical) to see if the data are roughly normally distributed.
+Using what you learned above, first put the data into a format that can be used with the one way test, and conduct the test.  Create a normal probability plot (`qqnorm` and `qqline`) to see if the data are roughly normally distributed.
 
 **TODO** make answer
+
+```{r, warning=FALSE}
+infants = bind_rows(data.frame(group = "active", 
+                               walking_age_months = c(9.00, 9.50, 9.75, 10.00, 13.00, 9.50)), 
+                    data.frame(group = "passive", 
+                               walking_age_months = c(11.00, 10.00, 10.00, 11.75, 10.50, 15.00)),
+                    data.frame(group = "none", 
+                               walking_age_months = c(11.50, 12.00,  9.00, 11.50, 13.25, 13.00)),
+                    data.frame(group = "ctr.8w", 
+                               walking_age_months = c(13.25, 11.50, 12.00, 13.50, 11.50)))
+
+oneway.test(walking_age_months~group, infants)
+
+ggplot(infants, aes(x=group, y=walking_age_months)) + geom_boxplot()
+#ggplot(infants, aes(sample=walking_age_months)) + stat_qq() + facet_wrap(~group)
+
+```
+
+#### group = active
+```{r}
+qqnorm(infants %>% filter(group=="active") %>% select(walking_age_months) %>% unlist())
+qqline(infants %>% filter(group=="active") %>% select(walking_age_months) %>% unlist())
+```
+
+#### group = passive
+```{r}
+qqnorm(infants %>% filter(group=="passive") %>% select(walking_age_months) %>% unlist())
+qqline(infants %>% filter(group=="passive") %>% select(walking_age_months) %>% unlist())
+```
+
+#### group = none
+```{r}
+qqnorm(infants %>% filter(group=="none") %>% select(walking_age_months) %>% unlist())
+qqline(infants %>% filter(group=="none") %>% select(walking_age_months) %>% unlist())
+```
+
+#### group = ctr.8w
+```{r}
+qqnorm(infants %>% filter(group=="ctr.8w") %>% select(walking_age_months) %>% unlist())
+qqline(infants %>% filter(group=="ctr.8w") %>% select(walking_age_months) %>% unlist())
+```
 
 ## Monte Carlo simulation 
 
