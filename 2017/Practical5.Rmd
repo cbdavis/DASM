@@ -14,7 +14,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Chi-square test for tabular data
+## Tabular Data
 
 ### Getting started
 
@@ -23,11 +23,9 @@ Make sure to load the `tidyverse` library so we can do plotting later on.
 library(tidyverse)
 ```
 
-### Preliminaries 
+### Working with data frame columns (review)
 
-Before we begin constructing tables from categorical data, we should review a few useful functions for working with tabular data.
-
-#### Working with table columns
+One of the tasks we'll show in this practical relates to constructing tables from categorical data.  Before doing this, we should first review a few useful functions for working with tabular data in data frames.
 
 Get a list of columns in a data frame:
 ```{r}
@@ -39,14 +37,18 @@ Summarize a data frame, showing the columns and statistical information about th
 summary(iris)
 ```
 
-Extracting columns with the $ command 
+Extracting columns with the `$` symbol.  Note that if you type `iris$` and then press the tab key, you will get a list of suggestions for all of the column names.
 ```{r}
 iris$Sepal.Length
 ```
 
-## Cross Tabulation
+### Cross Tabulation
 
-### Syntax of the `table` command
+[Cross-tabulation](https://en.wikipedia.org/wiki/Contingency_table), or a contingency table, is a technique that counts the number of observations at permutations of variable values.  As an example, if you collected data on people's hair color and eye color, a contingency table could be used to analyze the data and say how many people have particular combinations of hair color and eye color.  Using this you could see how many people have both brown hair and green eyes, how many people have both blond hair and blue eyes, etc.
+
+Cross tabulation can be performed in R using the `table()` function.
+
+#### Syntax of the `table()` function
 
 By typing `?table` in the console, you see:  `table` uses the cross-classifying factors to build a contingency table of the counts at each combination of factor levels.
 
@@ -63,14 +65,20 @@ The relevant argument for this practical is:
 
 In the examples below you'll see that `...` takes the form of one or two variables which we use to construct the contingency table.
 
-### Construct a table from one or two variables 
+Whenever you see `...` in documentation for R, it generally means that multiple objects can be passed to the function.
+
+#### Construct a table from one or two variables 
 
 Here we create a table from the `cyl` (number of cylinders) column of the `mtcars` data set:
 ```{r}
 table(mtcars$cyl)
 ```
 
-Reading across, we see that there are 11 cars with 4 cylinders, 7 with 6 cylinders, and 14 with 8 cylinders.
+Reading across (bottom left -> top left, bottom center -> top center, etc), we see that there are:
+
+* 11 cars with 4 cylinders
+* 7 cars with 6 cylinders
+* 14 cars with 8 cylinders
 
 Next we create a table from the `cyl` and `gear` (number of forward gears) columns of the `mtcars` data set:
 
@@ -80,7 +88,7 @@ table(mtcars$cyl, mtcars$gear)
 
 With the `table` function, the first value you enter (`mtcars$cyl`) will show up on the rows, and the second (`mtcars$gear`) will show up in the columns.  For example, from the table we can see that there are 12 cars with 8 cylinders and 3 gears, while there are 0 cars with 4 gears and eight cylinders.
 
-### Exercise
+#### Exercise
 
 Load in data on heart attack victims.  With R you can download a file directly from the Internet.  Note that `sep="\t"` means that the file is tab delimited
 ```{r}
@@ -123,7 +131,10 @@ Arguments:
 If `p` is not specified, then `chisq.test` automatically assumes equal probabilities. 
 
 ### Example 
-This is the dice example mentioned in lecture 6.
+
+**TODO** check lecture reference
+
+This is the dice example mentioned in Lecture 6.
 
 You roll a die 100 times, and these are the number of counts associated with each value of the die that was observed.
 
@@ -313,6 +324,8 @@ Create the above table in R and perform the `chisq.test` on it.  Is there a stat
 
 ## One-way ANOVA test
 
+**TODO** should try to explain this in more detail
+
 ### Review from lecture
 
 For this, we want to test if any of several means are different.  We want to compare the within group variance (${SSD}_{W}$) to the between group variance (${SSD}_{B}$).  If the means are all equal (i.e. the data are all from the same distribution) then the statistic $F$ follows an F-distribution with $(k-1)$, $(n-k)$ degrees of freedom ($F_{k-1,n-k}$).
@@ -384,22 +397,21 @@ Based on these values, we cannot reject $H_0$, i.e. the results do not support t
 
 A set of four groups of infants were observed and data was compiled on their age at walking (in months).  The four groups are defined as follows:
 
-* active - test group receiving active training; these children had their walking and placing reflexes trained during four three-minute sessions that took place every day from their second to their eighth week of life.
-* passive - passive training group; these children received the same types of social and gross motor stimulation, but did not have their specific walking and placing reflexes trained.
-* none - no training; these children had no special training, but were tested along with the children who underwent active or passive training.
-* ctr.8w - eighth-week controls; these children had no training and were only tested at the age of 8 weeks.
+* **active** - test group receiving active training; these children had their walking and placing reflexes trained during four three-minute sessions that took place every day from their second to their eighth week of life.
+* **passive** - passive training group; these children received the same types of social and gross motor stimulation, but did not have their specific walking and placing reflexes trained.
+* **none** - no training; these children had no special training, but were tested along with the children who underwent active or passive training.
+* **ctr.8w** - eighth-week controls; these children had no training and were only tested at the age of 8 weeks.
 
 The values for each group are:
 
-* active: `9.00  9.50  9.75 10.00 13.00 9.50`
-* passive: `11.00 10.00 10.00 11.75 10.50 15.00`
-* none: `11.50 12.00  9.00 11.50 13.25 13.00`
-* ctr.8w: `13.25 11.50 12.00 13.50 11.50`
+* **active**: `9.00  9.50  9.75 10.00 13.00 9.50`
+* **passive**: `11.00 10.00 10.00 11.75 10.50 15.00`
+* **none**: `11.50 12.00  9.00 11.50 13.25 13.00`
+* **ctr.8w**: `13.25 11.50 12.00 13.50 11.50`
+
+**TODO** `qqnorm` and `qqline` haven't been covered yet
 
 Using what you learned above, first put the data into a format that can be used with the one way test, and conduct the test.  Create a box plot or a normal probability plot (`qqnorm` and `qqline` from the previous practical) to see if the data are roughly normally distributed.
-
-
-
 
 ## Monte Carlo simulation 
 
