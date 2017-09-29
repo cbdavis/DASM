@@ -27,6 +27,8 @@ library(tidyverse)
 
 One of the tasks we'll show in this practical relates to constructing tables from categorical data.  Before doing this, we should first review a few useful functions for working with tabular data in data frames.
 
+The `iris` data frame is an example data set that is included with R, just like the `mtcars` data we worked with in previous practicals.
+
 Get a list of columns in a data frame:
 ```{r}
 colnames(iris)
@@ -50,7 +52,9 @@ Cross tabulation can be performed in R using the `table()` function.
 
 #### Syntax of the `table()` function
 
-By typing `?table` in the console, you see:  `table` uses the cross-classifying factors to build a contingency table of the counts at each combination of factor levels.
+By typing `?table` in the console, you see:  *table uses the cross-classifying factors to build a contingency table of the counts at each combination of factor levels.*
+
+By "factor levels", this just means the distinct values for the factors.  Factors are the same thing as the categories or categorical data that was mentioned in the lecture.
 
 ```{r, eval=FALSE}
 table(...,
@@ -61,7 +65,7 @@ table(...,
 
 The relevant argument for this practical is:
 
-* `...` - one or more objects which can be interpreted as factors (including character strings), or a list (or data frame) whose components can be so interpreted. (For as.table, arguments passed to specific methods; for as.data.frame, unused.)
+* `...` - *one or more objects which can be interpreted as factors (including character strings), or a list (or data frame) whose components can be so interpreted. (For as.table, arguments passed to specific methods; for as.data.frame, unused.)*
 
 In the examples below you'll see that `...` takes the form of one or two variables which we use to construct the contingency table.
 
@@ -125,16 +129,14 @@ chisq.test(x, p)
 
 Arguments:
 
-* `x`	- a numeric vector or matrix. `x` can also be a vector of factors.
-* `p` - a vector of probabilities of the same length of `x`. An error is given if any entry of `p` is negative.
+* `x`	- *a numeric vector or matrix. x can also be a vector of factors.*
+* `p` - *a vector of probabilities of the same length of x. An error is given if any entry of p is negative.*
 
 If `p` is not specified, then `chisq.test` automatically assumes equal probabilities. 
 
 ### Example 
 
-**TODO** check lecture reference
-
-This is the dice example mentioned in Lecture 6.
+This is the dice example mentioned in Lecture 6, Slide 5.
 
 You roll a die 100 times, and these are the number of counts associated with each value of the die that was observed.
 
@@ -166,13 +168,12 @@ Use the `chisq.test` function to see the same results:
 chisq.test(count, p=rep(1/6, 6))
 ```
 
-The peak should mean that we have the highest probability of getting a $\chi^2$ value of 3 with a fair die.  
+The peak should mean that we have the highest probability of getting a $\chi^2$ value of 3 with a fair die:
 
 ```{r, echo=FALSE}
 # manuals for adding math symbols to plots is at:
 # https://stat.ethz.ch/R-manual/R-patched/library/grDevices/html/plotmath.html
 # http://vis.supstat.com/2013/04/mathematical-annotation-in-r/
-library(ggplot2)
 chi_squared = chisq.test(count, p=rep(1/6, 6))
 x = seq(0,20,0.01)
 y = dchisq(x, df=5)
@@ -185,7 +186,6 @@ ggplot(df, aes(x,y)) + geom_line() +
   geom_vline(xintercept = qchisq(0.95, 5), linetype="dashed") + 
   annotate("label", x = qchisq(0.95, 5), y=0.05, label="chi[list(0.95,5)]^{2}", parse=TRUE) + 
   ylab("probability") + xlab(expression(chi^{2}))
-
 ```
 
 ### Exercise
@@ -230,7 +230,7 @@ $\chi^2 = \sum_{i=1}^{k}\sum_{j=1}^{l} \frac{(n_{ij}-n_{i\cdot}*n_{\cdot j}/n)^2
 
 ### Syntax
 
-The syntax for performing a `chisq.test` for a two way table is very simple - in this case x is the matrix containing the data for the two way table:
+The syntax for performing a `chisq.test` for a two way table is very simple - in this case `x` is the matrix containing the data for the two way table:
 ```{r, eval=FALSE}
 chisq.test(x) 
 ```
@@ -253,25 +253,26 @@ We use the following hypotheses and confidence level:
 * $H_a$: the variables are dependent
 * $\alpha=0.05$
 
-**TODO** just show how to use chi-squared test directly, don't show how to do this by hand
-still show how to do rowsums and column sums
-
 We now need to create expected matrix which would show what the expected values would be if the variables are independent.  For this we need to find  $p(A \cap B) = p(A)p(B)$
 
 ```{r}
 # calculate sums over the rows and columns
-parent = rowSums(seatbelt)
-child = colSums(seatbelt)
-
+parent = rowSums(seatbelt) / sum(seatbelt)
 parent
+child = colSums(seatbelt) / sum(seatbelt)
 child
+
+probabilities = parent %*% t(child)
+# add back in the row names and column names
+colnames(probabilities) = c("child_buckled", "child_unbuckled")
+rownames(probabilities) = c("parent_buckled", "parent_unbuckled")
+probabilities
+
+expected_matrix = probabilities * sum(seatbelt)
+expected_matrix
 ```
 
-**TODO** clean up/transition text
-
-we learned how to do this stuff step-by-step in the lecture, here we learn how to just do it in R
-
-We can also do this directly via the `chisq.test` function.  Make sure to specify `correct=FALSE`, as by default the `chisq.test` function applies a correction if some counts in the table are low.  If you leave the value empty or specify `correct=TRUE` you'll get a slightly deviating value.
+While the lecure showed how to do the chi-squared test by hand, here we will show how to do it in R by using the `chisq.test()` function.  Make sure to specify `correct=FALSE`, as by default the `chisq.test` function applies a correction if some counts in the table are low.  If you leave the value empty or specify `correct=TRUE` you'll get a slightly deviating value.
 
 ```{r}
 chisq.test(seatbelt, correct=FALSE)
@@ -468,7 +469,7 @@ The formula we will use is `cal~month` (calories grouped by month).  Both `cal` 
 
 ### Example
 
-This is the example on number of calories consumed by month (page 37 of Lecture 6).  **check lecture reference**
+This is the example on number of calories consumed by month (Lecture 6, slide 43).
 
 Fifteen subjects were randomly assigned to three time groups, and their amount of daily calories consumed was recorded (`may`, `sep`, `dec`).
 
@@ -516,16 +517,14 @@ A set of four groups of infants were observed and data was compiled on their age
 
 The values for each group are:
 
-* **active**: `9.00  9.50  9.75 10.00 13.00 9.50`
-* **passive**: `11.00 10.00 10.00 11.75 10.50 15.00`
-* **none**: `11.50 12.00  9.00 11.50 13.25 13.00`
-* **ctr.8w**: `13.25 11.50 12.00 13.50 11.50`
+* **active**: `c(9.00, 9.50, 9.75, 10.00, 13.00, 9.50)`
+* **passive**: `c(11.00, 10.00, 10.00, 11.75, 10.50, 15.00)`
+* **none**: `c(11.50, 12.00,  9.00, 11.50, 13.25, 13.00)`
+* **ctr.8w**: `c(13.25, 11.50, 12.00, 13.50, 11.50)`
 
 Using what you learned above, first put the data into a format that can be used with the one way test, and conduct the test.  Create a normal probability plot (`qqnorm` and `qqline`) to see if the data are roughly normally distributed.
 
-**TODO** make answer
-
-```{r, warning=FALSE}
+```{r, warning=FALSE, echo=FALSE}
 infants = bind_rows(data.frame(group = "active", 
                                walking_age_months = c(9.00, 9.50, 9.75, 10.00, 13.00, 9.50)), 
                     data.frame(group = "passive", 
@@ -538,37 +537,35 @@ infants = bind_rows(data.frame(group = "active",
 oneway.test(walking_age_months~group, infants)
 
 ggplot(infants, aes(x=group, y=walking_age_months)) + geom_boxplot()
-#ggplot(infants, aes(sample=walking_age_months)) + stat_qq() + facet_wrap(~group)
-
 ```
 
-#### group = active
-```{r}
+#### Q-Q plot: group = `active`
+```{r, echo=FALSE}
 qqnorm(infants %>% filter(group=="active") %>% select(walking_age_months) %>% unlist())
 qqline(infants %>% filter(group=="active") %>% select(walking_age_months) %>% unlist())
 ```
 
-#### group = passive
-```{r}
+#### Q-Q plot: group = `passive`
+```{r, echo=FALSE}
 qqnorm(infants %>% filter(group=="passive") %>% select(walking_age_months) %>% unlist())
 qqline(infants %>% filter(group=="passive") %>% select(walking_age_months) %>% unlist())
 ```
 
-#### group = none
-```{r}
+#### Q-Q plot: group = `none`
+```{r, echo=FALSE}
 qqnorm(infants %>% filter(group=="none") %>% select(walking_age_months) %>% unlist())
 qqline(infants %>% filter(group=="none") %>% select(walking_age_months) %>% unlist())
 ```
 
-#### group = ctr.8w
-```{r}
+#### Q-Q plot: group = `ctr.8w`
+```{r, echo=FALSE}
 qqnorm(infants %>% filter(group=="ctr.8w") %>% select(walking_age_months) %>% unlist())
 qqline(infants %>% filter(group=="ctr.8w") %>% select(walking_age_months) %>% unlist())
 ```
 
-## Monte Carlo simulation 
+## Monte Carlo Simulation 
 
-### Quick review
+### Quick Review
 
 We have a function $x = f(u,v)$ where:
 
@@ -626,7 +623,7 @@ sig <- sd(f)
 sig
 ```
 
-Below we can see how both the mean and the standard deviation converge on a single value as we increase the number of samples from the distributions we defined for $p$ and $q$ (see page 33,34 of Lecture 7 for more explanation).  Note the log scale for the x axis.
+Below we can see how both the mean and the standard deviation converge on a single value as we increase the number of samples from the distributions we defined for $p$ and $q$ (see page 31,32 of Lecture 7 for more explanation).  Note the log scale for the x axis.
 
 ```{r, echo=FALSE}
 numSamples = 3000
