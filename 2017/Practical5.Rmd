@@ -289,6 +289,12 @@ Using the example from question 10.60 in the book (page 556):  A study of potent
 
 Create the above table in R and perform the `chisq.test` on it.  Is there a statistically significant relation between age and promotions?
 
+```{r, echo=FALSE}
+vals = rbind(c(9, 29, 32, 10), c(41, 41, 48, 40))
+colnames(vals) = c("under_30", "30_39", "40_49", "50_over")
+rownames(vals) = c("promoted", "not_promoted")
+chisq.test(vals, correct=FALSE)
+```
 
 ## Q-Q Plots
 
