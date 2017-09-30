@@ -440,9 +440,6 @@ qqline(faithful_long$waiting)
 
 If we split the data into two clusters, do they seem to be normally distributed?
 
-
-
-
 ## One-way ANOVA test
 
 ### Review from lecture
@@ -528,7 +525,7 @@ The values for each group are:
 * **none**: `c(11.50, 12.00,  9.00, 11.50, 13.25, 13.00)`
 * **ctr.8w**: `c(13.25, 11.50, 12.00, 13.50, 11.50)`
 
-Using what you learned above, first put the data into a format that can be used with the one way test, and conduct the test.  Create a normal probability plot (`qqnorm` and `qqline`) to see if the data are roughly normally distributed.
+Using what you learned above, first put the data into a format that can be used with the one way test, and conduct the test.  
 
 ```{r, warning=FALSE, echo=FALSE}
 infants = bind_rows(data.frame(group = "active", 
@@ -541,32 +538,6 @@ infants = bind_rows(data.frame(group = "active",
                                walking_age_months = c(13.25, 11.50, 12.00, 13.50, 11.50)))
 
 oneway.test(walking_age_months~group, infants)
-
-ggplot(infants, aes(x=group, y=walking_age_months)) + geom_boxplot()
-```
-
-#### Q-Q plot: group = `active`
-```{r, echo=FALSE}
-qqnorm(infants %>% filter(group=="active") %>% select(walking_age_months) %>% unlist())
-qqline(infants %>% filter(group=="active") %>% select(walking_age_months) %>% unlist())
-```
-
-#### Q-Q plot: group = `passive`
-```{r, echo=FALSE}
-qqnorm(infants %>% filter(group=="passive") %>% select(walking_age_months) %>% unlist())
-qqline(infants %>% filter(group=="passive") %>% select(walking_age_months) %>% unlist())
-```
-
-#### Q-Q plot: group = `none`
-```{r, echo=FALSE}
-qqnorm(infants %>% filter(group=="none") %>% select(walking_age_months) %>% unlist())
-qqline(infants %>% filter(group=="none") %>% select(walking_age_months) %>% unlist())
-```
-
-#### Q-Q plot: group = `ctr.8w`
-```{r, echo=FALSE}
-qqnorm(infants %>% filter(group=="ctr.8w") %>% select(walking_age_months) %>% unlist())
-qqline(infants %>% filter(group=="ctr.8w") %>% select(walking_age_months) %>% unlist())
 ```
 
 ## Monte Carlo Simulation 
