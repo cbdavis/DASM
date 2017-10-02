@@ -138,60 +138,11 @@ a
 
 This shows that we have 10 observations for small cities.
 
-##### Creating subsets of data frames
-
-Next we want to see the actual data points in the small cities only.  To do this, we'll use the **[dplyr package](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)**.  The dplyr library takes a very similar approach to what we saw with `ggplot`.  We start off with data in a data frame, and then we perform a series of operations or data transformations which are connected together via the `%>%` symbol which acts as a sort of "pipe" through which data flows.  
-
-In very general terms, with the dplyr library we can create a series of statements that look like:
-
-some data frame `%>%` operation 1 `%>%` operation 2
-
-First we need to install and load the `dplyr` package
-```{r, eval=FALSE}
-install.packages("dplyr")
-library(dplyr)
-```
-
-In the following example, we take a subset of the `mtcars` data set.  We first keep a selection of rows by using `filter`, and then use `select` to keep certain columns.  
-
-```{r, eval=FALSE}
-mtcars %>% 
-  filter(hp >= 250 | hp < 100) %>% 
-  select(mpg, cyl)
-```
-
-In other words:
-
-* `filter(hp >= 250 | hp < 100)` - keep all rows where `hp` is greater than or equal to 250 or is less than 100.  
-    * Note that the `|` symbol specifies a logical "or".  This just means that you want to find values matching `hp >= 250` or `hp < 100`
-    * The `&` symbol is a logical "and".  You could modify the statement above to use `hp >= 250 & hp < 100`, although this would return no rows since a value can't be both greater than 250 and less than 100.
-* `select(mpg, cyl)` - keep only the `mpg` and `cyl` columns.
-* The command above is basically of the form: `mtcars` `%>%` "keep these rows" `%>%` "keep these columns"
-
-We can also filter on multiple columns by adding commas in the `filter` function.
-```{r}
-mtcars %>% 
-  filter((hp >= 250 | hp < 100), 
-         cyl == 4, 
-         mpg > 30) %>% 
-  select(mpg, cyl)
-```
-
-A few notes:
-
-* The `==` symbol in `cyl == 4` means that we check if the value is equal to 4.
-* We use parentheses in `(hp >= 250 | hp < 100)` to group these two conditions together, as we want to match either of these conditions.
-* In the `filter` function, each of these statements should be set up so that it returns `TRUE` or `FALSE`, as shown in the examples below.  Only rows with `TRUE` for all of the tests specified in `filter` will be returned.
+Now we use dplyr to make subsets of `data1`
 
 ```{r}
-## set the value for a variable
-hp_val = 300
-## is this bigger than or equal to 250?
-hp_val >= 250
-## is this bigger than or equal to 250 or less than 100?
-(hp_val >= 250 | hp_val < 100)
-## is it equal to 300?
-hp_val == 300
+small_data <- data1 %>% filter(MainCity ==  "1:Sm") %>% select(Crime_prop)
+print(small_data)
 ```
 
 Regarding `NA` values:
@@ -199,12 +150,6 @@ Regarding `NA` values:
 * If you are doing a numeric comparisons (i.e. `hp >= 250`) using the `filter` function, then `NA` values will be filtered out.  
 * If you want to do a numeric comparison and also keep `NA` values, then you need to specify something like `hp >= 250 | is.na(hp)`.  The function `is.na()` will return `TRUE` for any `NA` values.
 
-Now we use dplyr to make subsets of `data1`
-
-```{r}
-small_data <- data1 %>% filter(MainCity ==  "1:Sm") %>% select(Crime_prop)
-print(small_data)
-```
 
 #### Filter outliers and make a boxplot of crime vs city size
 
@@ -449,7 +394,7 @@ df[df == -999] <-NA
 For this exercise, download the [Carbon.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Carbon.csv) data into R as a data frame called `input1`.
 
 ```{r, echo=FALSE}
-input1 = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/data/Carbon.csv")
+input1 = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Carbon.csv")
 ```
 
 After loading in the csv file into R, try to replace the -999 values with `NA`.  If you run `summary` before the replacement you should see:
