@@ -194,6 +194,8 @@ Note that we can't access columns via `$` anymore.  In other words, we can't do 
 
 #### Make a table of city size vs region
 
+**TODO** this was covered in the previous practical
+
 ```{r}
 tab = table(data1$MainCity, data1$Region)
 tab
