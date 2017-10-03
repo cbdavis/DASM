@@ -194,6 +194,12 @@ $(document).ready(function () {
 ##  3rd Qu.: 6816   3rd Qu.:444.4  
 ##  Max.   :10000   Max.   :989.9  
 ## </code></pre>
+<p>This data set contains statistics about French cities. As you can see, there are several different types of columns:</p>
+<ul>
+<li>A few categories: <code>Region</code>, <code>Main_city</code></li>
+<li>A few numerical variables: e.g., <code>Crime_pers</code>, <code>Distance</code></li>
+<li>A few rank variables: <code>Donation_clergy</code>, etc. These show which city is 1st, 2nd, etc.</li>
+</ul>
 <p>If we take a closer look at the results, we see that the <code>dept</code> column is numeric since <code>summary</code> displays information about the minimum, median, mean, max and quantiles.</p>
 <pre><code>      dept    
  Min.   :  1.00
@@ -210,30 +216,12 @@ N   :17
 S   :17
 W   :17
 NA's: 1</code></pre>
-<p>We can find the number of variables (columns)</p>
-<pre class="r"><code>length(data1)</code></pre>
-<pre><code>## [1] 23</code></pre>
-<p>or by:</p>
-<pre class="r"><code>ncol(data1)</code></pre>
-<pre><code>## [1] 23</code></pre>
-<p>Similarly, the number of rows can be found via:</p>
-<pre class="r"><code>nrow(data1)</code></pre>
-<pre><code>## [1] 86</code></pre>
-<p>And we can find the dimension of the data frame (i.e. the number of rows and columns) via:</p>
-<pre class="r"><code>dim(data1)</code></pre>
-<pre><code>## [1] 86 23</code></pre>
 <p>The data you have just loaded in is from the Guerry R package, so to get an idea about the variables we need to install the package:</p>
 <pre class="r"><code>install.packages(&quot;Guerry&quot;)</code></pre>
 <p>Load the library:</p>
 <pre class="r"><code>library(Guerry)</code></pre>
 <p>and then bring up the help information that relates to this specific data frame which is included in the package:</p>
 <pre class="r"><code>help(Guerry)</code></pre>
-<p>This data set contains statistics about French cities. As you can see, there are several different types of columns:</p>
-<ul>
-<li>A few categories: <code>Region</code>, <code>Main_city</code></li>
-<li>A few numerical variables: e.g., <code>Crime_pers</code>, <code>Distance</code></li>
-<li>A few rank variables: <code>Donation_clergy</code>, etc. These show which city is 1st, 2nd, etc.</li>
-</ul>
 <div id="select-a-numerical-variable-and-plot-a-histogram" class="section level4">
 <h4>Select a numerical variable and plot a histogram</h4>
 <pre class="r"><code>ggplot(data1, aes(x=Infants)) + geom_histogram(bins=50)</code></pre>
@@ -268,6 +256,7 @@ print(small_data)</code></pre>
 ## 8        9539
 ## 9        7770
 ## 10       7566</code></pre>
+<p><strong>TODO</strong> find a home for this section</p>
 <p>Regarding <code>NA</code> values:</p>
 <ul>
 <li>If you are doing a numeric comparisons (i.e. <code>hp &gt;= 250</code>) using the <code>filter</code> function, then <code>NA</code> values will be filtered out.<br />
@@ -292,6 +281,7 @@ print(small_data)</code></pre>
 </div>
 <div id="select-any-row-and-column-by-indices" class="section level4">
 <h4>Select any row and column by indices</h4>
+<p><strong>TODO</strong> do we need this section?</p>
 <p>You can also create subsets of data frames by using numeric indices that indicate the row and column numbers. This technique will work with matrices as well. Note in the examples below that in some cases you’re specifying a sequence of numbers (<code>5:9</code> = 5,6,7,8,9), while in other cases, you are specifying a set of numbers (<code>c(1,5,9)</code> is just the numbers 1, 5 and 9). You can also mix in the names of the columns with numeric indices as well.</p>
 <pre class="r"><code>b &lt;- data1[1:3, 5:9]
 b</code></pre>
@@ -338,11 +328,13 @@ tab</code></pre>
 </div>
 <div id="dates-and-times" class="section level2">
 <h2>Dates and Times</h2>
-<p>Useful resources:</p>
+<div id="useful-resources" class="section level3">
+<h3>Useful resources:</h3>
 <ul>
 <li><a href="http://faculty.washington.edu/ezivot/econ424/Working%20with%20Time%20Series%20Data%20in%20R.pdf">Working with Time Series Data in R</a></li>
 <li><a href="http://blog.yhat.com/static/pdf/R_date_cheat_sheet.pdf">R cheat sheet</a>. The columns for <code>Date</code> and <code>POSIXct</code> are relevant for this practical. We don’t use the <code>lubridate</code> library for this example, although it does similar things.</li>
 </ul>
+</div>
 <div id="integers-to-dates" class="section level3">
 <h3>Integers to Dates</h3>
 <p>Dates, not involving times of the day, are natively stored on your computer as integer numbers with 1 Jan 1970 = 0 and 1 corresponding to 1 day. Due to this, you need to specify <code>origin=&quot;1970-01-01&quot;</code> in the example below.</p>
@@ -383,10 +375,6 @@ t</code></pre>
 ## [56] &quot;2006-06-25&quot; &quot;2006-07-02&quot; &quot;2006-07-09&quot; &quot;2006-07-16&quot; &quot;2006-07-23&quot;
 ## [61] &quot;2006-07-30&quot; &quot;2006-08-06&quot; &quot;2006-08-13&quot; &quot;2006-08-20&quot;</code></pre>
 <p>In general, you can treat date &amp; time vectors as normal vectors, which means that you can use them in plots, add and subtract them, etc.</p>
-</div>
-</div>
-<div id="dates-and-times-1" class="section level2">
-<h2>Dates and Times</h2>
 <p><code>POSIXct</code> does more or less the same as <code>Date</code>, but it stores the time variable as numbers of seconds since midnight GMT 1970-01-01. As a result, this allows us to store data which expresses the time on a specific date.</p>
 <pre class="r"><code>t.str = &quot;2013-12-19 10:17:07&quot;    # default format
 t.obj = as.POSIXct(t.str) 
@@ -525,6 +513,7 @@ t.obj1</code></pre>
 </tr>
 </tbody>
 </table>
+</div>
 <div id="changing-format-of-date" class="section level3">
 <h3>Changing format of date</h3>
 <p>You can change the format of the output date using the codes mentioned above.</p>
@@ -583,12 +572,15 @@ t.obj2 = as.POSIXct(t.str2)</code></pre>
 </div>
 <div id="managing-issues-in-real-data" class="section level2">
 <h2>Managing issues in real data</h2>
+<div id="common-issues" class="section level3">
+<h3>Common Issues</h3>
 <p>When dealing with real data sets, you will commonly run into several issues. You will often find yourself:</p>
 <ul>
 <li>dealing with NA values</li>
 <li>dealing with strange/unwieldy/messy column names</li>
 <li>dealing with dates</li>
 </ul>
+</div>
 <div id="inconvenient-column-names" class="section level3">
 <h3>Inconvenient column names</h3>
 <p>You may find that the column names for a data frame are excessively long, or may contain extra spaces or strange characters. You can fix this by using the <code>colnames</code> command.</p>
@@ -708,12 +700,6 @@ x1[input1$y&gt;=3] &lt;- &quot;high&quot;</code></pre>
 <p>Now add the vector of months and the vector of seasons to your data frame.</p>
 </div>
 </div>
-</div>
-<div id="resources" class="section level2">
-<h2>Resources</h2>
-<ul>
-<li><a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf">Data Wrangling with dplyr and tidyr Cheat Sheet</a> - this shows how you can use <code>dplyr</code> for reshaping, combining, grouping, and summarizing data frames.</li>
-</ul>
 </div>
 </div>
 

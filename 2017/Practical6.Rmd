@@ -49,6 +49,12 @@ As mentioned in the previous practicals, we use `summary` to get an idea about w
 summary(data1)
 ```
 
+This data set contains statistics about French cities.  As you can see, there are several different types of columns:
+
+* A few categories: `Region`, `Main_city`
+* A few numerical variables: e.g., `Crime_pers`, `Distance`
+* A few rank variables: `Donation_clergy`, etc.  These show which city is 1st, 2nd, etc.
+
 If we take a closer look at the results, we see that the `dept` column is numeric since `summary` displays information about the minimum, median, mean, max and quantiles.
 ```
       dept    
@@ -71,27 +77,6 @@ S   :17
 W   :17
 NA's: 1
 ```
-
-We can find the number of variables (columns)
-```{r}
-length(data1)
-```
-
-or by:
-```{r}
-ncol(data1)
-```
-
-Similarly, the number of rows can be found via:
-```{r}
-nrow(data1)
-```
-
-And we can find the dimension of the data frame (i.e. the number of rows and columns) via:
-```{r}
-dim(data1)
-```
-
 The data you have just loaded in is from the Guerry R package, so to get an idea about the variables we need to install the package:
 ```{r, eval=FALSE}
 install.packages("Guerry")
@@ -106,12 +91,6 @@ and then bring up the help information that relates to this specific data frame 
 ```{r}
 help(Guerry)
 ```
-
-This data set contains statistics about French cities.  As you can see, there are several different types of columns:
-
-* A few categories: `Region`, `Main_city`
-* A few numerical variables: e.g., `Crime_pers`, `Distance`
-* A few rank variables: `Donation_clergy`, etc.  These show which city is 1st, 2nd, etc.
 
 #### Select a numerical variable and plot a histogram
 
@@ -145,6 +124,8 @@ small_data <- data1 %>% filter(MainCity ==  "1:Sm") %>% select(Crime_prop)
 print(small_data)
 ```
 
+**TODO** find a home for this section
+
 Regarding `NA` values:
 
 * If you are doing a numeric comparisons (i.e. `hp >= 250`) using the `filter` function, then `NA` values will be filtered out.  
@@ -173,6 +154,8 @@ ggplot(data2, aes(x=MainCity, y=Crime_prop)) + geom_boxplot()
 ```
 
 #### Select any row and column by indices
+
+**TODO** do we need this section?
 
 You can also create subsets of data frames by using numeric indices that indicate the row and column numbers.  This technique will work with matrices as well.  Note in the examples below that in some cases you're specifying a sequence of numbers (`5:9` = 5,6,7,8,9), while in other cases, you are specifying a set of numbers (`c(1,5,9)` is just the numbers 1, 5 and 9).  You can also mix in the names of the columns with numeric indices as well.
 
@@ -218,7 +201,7 @@ tab
 
 ## Dates and Times
 
-Useful resources: 
+### Useful resources: 
 
 * [Working with Time Series Data in R ](http://faculty.washington.edu/ezivot/econ424/Working%20with%20Time%20Series%20Data%20in%20R.pdf)
 * [R cheat sheet](http://blog.yhat.com/static/pdf/R_date_cheat_sheet.pdf). The columns for `Date` and `POSIXct` are relevant for this practical.  We don't use the `lubridate` library for this example, although it does similar things.  
@@ -255,8 +238,6 @@ t
 ```
 
 In general, you can treat date & time vectors as normal vectors, which means that you can use them in plots, add and subtract them, etc.
-
-## Dates and Times
 
 `POSIXct` does more or less the same as `Date`, but it stores the time variable as numbers of seconds since midnight GMT 1970-01-01.  As a result, this allows us to store data which expresses the time on a specific date.
 
@@ -349,6 +330,8 @@ ggplot(pr, aes(x=t, y=x)) + geom_line()
 ```
 
 ## Managing issues in real data
+
+### Common Issues
 
 When dealing with real data sets, you will commonly run into several issues.  You will often find yourself:
 
@@ -456,8 +439,3 @@ x1[input1$y %in% c("big", "large", "enormous")] <- "huge"
 #### Exercise 4
 
 Now add the vector of months and the vector of seasons to your data frame.
-
-## Resources
-
-* [Data Wrangling with dplyr and tidyr Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) - this shows how you can use `dplyr` for reshaping, combining, grouping, and summarizing data frames. 
-
