@@ -9,360 +9,759 @@ output:
 ---
   
 # {.tabset .tabset-fade .tabset-pills}
-  
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+## Basic linear fitting with and without weights 
+
+
+For this practical, we will need the `GGally` and the `lmodel2` libraries.  Make sure that they are both installed:
+```{r, eval=FALSE}
+install.packages("GGally")
+install.packages("lmodel2")
 ```
 
-## Working with Real Data Sets
-
-### Getting started
-
-Make sure to load the `tidyverse` library so we can do plotting later on.
+Now load required libraries:
 ```{r, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(GGally)
+library(ggplot2)
+library(lmodel2)
+library(dplyr)
 ```
 
+
+
+### Reminder of the lecture
+We have data (x, y), where x is a deterministic variable and y is a random variable that is dependent on x. 
+We fit a linear regression line to the data with slope $\beta_1$ and intercept $\beta_0$ by finding the minimum of the RSS:
+
+$RSS(\beta_0, \beta_1) = \sum_{i=1}^{n} (y_{i} - \beta_0 - \beta_1 x_i)^2$
+
+which is calculated using:
+
+* $\hat{\beta}_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i-\bar{x})^2}$
+* $\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$
+
+This equation requires that the variance in y is the same for all $x_i$
+
+If this is not the case, then we apply weighted regression, by minimizing:
+
+$RSS(\beta_0, \beta_1) = \sum_{i=1}^{n} w_i (y_{i} - \beta_0 - \beta_1 x_i)^2$
+
+with $w_i = 1 / \sigma_i^2$
+
+### Syntax
+
+In R, the slope and intercept can be calculated by the command:
+
+```{r, eval=FALSE}
+b1 = cov(x,y)/var(x)
+b0 = mean(y) – b1*mean(x)
+```
+
+For the general linear regression, we use the `lm()` command.  The syntax you will need to use looks like:
+
+```{r, eval=FALSE}
+z = lm(formula, data, weights)
+```
+
+A summary of what you see when typing `?lm` into the console is:
+
+* `formula` - a symbolic description of the model to be fitted
+    * A typical model has the form `response ~ terms` where response is the (numeric) response vector and terms is a series of terms which specifies a linear predictor for response.
+    * A terms specification of the form `first + second` indicates all the terms in first together with all the terms in second with duplicates removed.
+* `data` - the data frame used as input.  The names you specify in `formula` will correspond to the column names in this data frame.
+* `weights` - an optional vector of weights to be used in the fitting process.
+   
 ### Example
 
-For this example, you'll need a csv file.  To get it, **right click** on this link: [Guerry.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Guerry.csv) and select **"Save Target As"** or **"Save Link As"** cdto save it to your computer.
+#### Anscombe's Quartet
 
-Internet Explorer might try to save this as "Guerry.**txt**", make sure to save this as "Guerry.**csv**" or adjust your code so that it knows to read the correct file.
+Throughout this practical, we'll use a data frame containing [Anscombe's Quartet](https://en.wikipedia.org/wiki/Anscombe%27s_quartet) as an example.  The data consists of four hypothetical collections of data that each have x and y values.  The data frame `anscombe` has eight columns which represent all four of these data sets.  For example, the first data set uses the columns `x1` and `y1`, the second uses `x2` and `y2`, etc.  You can type `?anscombe` into the console to find out more about this.
 
-One thing you need to check is your working directory. This is the directory where R looks for any files.  You can set this in RStudio `Session` -> `Set Working Directory` -> `Choose Directory`
+We'll first look at some basic statistical properties.  In the examples below, we use `c()` to group together the results into a vector so that they're easier to see all in a row instead of being printed out on separate lines.  
 
-<center><img src="./images/RStudioSetWorkingDirectory.png" style="border:2px solid black"></center>
-
-Once you've done all this, you can now read in the data file: 
-```{r, eval=FALSE}
-data1 <- read.csv(file ="Guerry.csv")
+As you can see, the mean of x values for all the data sets are the same:
+```{r}
+c(mean(anscombe$x1), mean(anscombe$x2), mean(anscombe$x3), mean(anscombe$x4))
 ```
+
+As is the variance of x values:
+```{r}
+c(var(anscombe$x1), var(anscombe$x2), var(anscombe$x3), var(anscombe$x4))
+```
+
+The mean of y values is the same to several decimal places:
+```{r}
+c(mean(anscombe$y1), mean(anscombe$y2), mean(anscombe$y3), mean(anscombe$y4))
+```
+
+The variance of y values is also very similar:
+```{r}
+c(var(anscombe$y1), var(anscombe$y2), var(anscombe$y3), var(anscombe$y4))
+```
+
+However, when we plot the different data sets, we see that they all look quite different:
+```{r, echo=FALSE}
+anscombe_2cols = data.frame(x = c(anscombe$x1, anscombe$x2, anscombe$x3, anscombe$x4),
+                            y = c(anscombe$y1, anscombe$y2, anscombe$y3, anscombe$y4),
+                            series = c(rep("Data 1", 11), rep("Data 2", 11), rep("Data 3", 11), rep("Data 4", 11)))
+
+ggplot(anscombe_2cols, aes(x=x,y=y)) + geom_point() + facet_wrap(~series)
+```
+
+For the example below, we'll use the x and y values from the first data set in Anscombe's Quartet.
+
+```{r}
+anscombe1 = data.frame(x = anscombe$x1, 
+                       y = anscombe$y1)
+```
+
+#### Perform a linear regression
+Now we perform a linear regression on the data:
+```{r}
+z = lm(y~x, data=anscombe1)
+```
+
+* `data=anscombe1` means that we want to use the `anscombe1` data frame that we just created
+* `y~x` says that we're trying to predict a response (the value `y`) given the value of a term (`x`).  Here `x` and `y` correspond to the actual column names of the data frame.  If we were to us a different data frame (like `mtcars`) we would update the formula (for example to predict miles per gallon given horse power, we would use `mpg~hp`).
+
+#### Basic regression output 
+Using `summary` we can get an overview of the results of the regression
+```{r}
+summary(z)
+```
+
+#### Error bar plots in ggplot
+
+For some data sets, you will also have information available on the error for particular values.  Anscombe's quartet doesn't contain this information, but for the sake of demonstrating the R syntax to create a plot with error bars, we add a `y_error` column using random values.
+
+```{r}
+anscombe1$y_error = runif(nrow(anscombe1))
+```
+
+Now we perform a scatter plot using `geom_point`, but now we also add `geom_errorbar` to add error bars on top of those points.  The code `ymin = y - y_error` and `ymax = y + y_error` shows how we use the values from the `y` and `y_error` columns to calculate the top and bottom of the error bars.  
+
+```{r}
+ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + 
+ geom_errorbar(aes(ymin = y - y_error,
+                   ymax = y + y_error,
+                   width=0.3)) # width changes the width of the horizontal bar at the top of the error bar
+```
+
+In this example, the error bars are "mirrored" around the value of `y`.  Since we specify the value of `ymin` independently of `ymax`, then it's possible that you could use a different formula and/or column so that the observed value of `y` does not lie directly in the middle of the error bars but is skewed to one side.
+
+#### Add a regression line to the error bar plot 
+
+We will reuse the same code from above, but will now add in a regression line.  To do this, we need to use the coefficients that were found from the linear regression.
+```{r}
+z$coefficients
+```
+
+As you can see, the first value is the intercept.  The second value is labelled `x` although this refers to the slope of the regression line.  We will use these values directly in the `geom_abline` command:
+
+```{r}
+ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + 
+  geom_errorbar(aes(ymin=y - y_error,
+                    ymax=y + y_error,
+                    width=0.3)) + 
+  geom_abline(intercept = z$coefficients[1], 
+              slope = z$coefficients[2])
+```
+
+Alternatively, we can also use `geom_smooth` to perform a linear regression, although for the examples in this practical, we'll use `geom_abline`.  Using `geom_smooth` is a good idea when you have to create a plot with multiple linear regressions that are done on subsets of the data.
+
+```{r}
+ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + 
+  geom_errorbar(aes(ymin=y - y_error,
+                    ymax=y + y_error,
+                    width=0.3)) + 
+  geom_smooth(aes(x=x, y=y), method="lm", formula=y~x, se=FALSE)
+```
+
+One thing which we'll come back to later is that the linear regressions for the four data sets in Anscombe's Quartet are nearly identical, even though visually they look quite different:
+```{r, echo=FALSE}
+ggplot(anscombe_2cols, aes(x=x,y=y)) + 
+  geom_point() + 
+  geom_smooth(aes(x=x, y=y), 
+               method="lm", formula=y~x, 
+              se=FALSE, fullrange=TRUE) + 
+  facet_wrap(~series)
+```
+
+### Exercise
+
+For this exercise, download the data [Practical6_Data.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical6_Data.txt) and load it into R.
+
+#### Make an error bar plot
+
+You should see:
 
 ```{r, echo=FALSE}
-data1 <- read.csv(file ="./data/Guerry.csv")
+data1 <- read.csv("./data/Practical6_Data.txt")
+
+ggplot(data1, aes(x=x_values, y_values)) + geom_point() + 
+ geom_errorbar(aes(ymin=y_values - y_errors,
+                   ymax=y_values + y_errors,
+                   width=0.005)) # width changes the width of the horizontal bar at the top of the error bar
 ```
 
-Note that every time you read in a .csv file you will have a data frame, even if there is only a single column present.
+#### Perform a linear regression
+Using `summary` on the results, you should see:
 
-As mentioned in the previous practicals, we use `summary` to get an idea about what is in the data frame:
+```{r, echo=FALSE}
+##fit a "normal" fit
+model5 <-lm(y_values~x_values, data1)
+##abline(model5) 
+
+##to get the information about the fit
+summary(model5)
+```
+
+#### Add the regression line to the error bar plot
+```{r, echo=FALSE}
+ggplot(data1, aes(x=x_values, y_values)) + geom_point() + 
+  geom_errorbar(aes(ymin=y_values - y_errors,
+                    ymax=y_values + y_errors,
+                    width=0.005)) + 
+  geom_abline(intercept = model5$coefficients[1], 
+              slope = model5$coefficients[2])
+```
+
+#### Perform a linear regression with weights specified
+
+For the linear regression, we need to specify the weights as `1/(data1$y_errors^2)`
+
+The summary of the linear regression results should show:
+```{r, echo=FALSE}
+## take into account the error bars
+model6 <-lm(y_values~x_values, data = data1, 
+            weights = 1/(data1$y_errors^2))
+
+## to get information about the fit
+summary(model6)
+```
+
+
+#### Plot both linear regressions (with and without weights)
+Remember that with ggplot, you can append commands like `+ geom_abline(..., color="blue") + geom_abline(..., color="red")`
+
+```{r, echo=FALSE}
+ggplot(data1, aes(x=x_values, y_values)) + geom_point() + 
+ geom_errorbar(aes(ymin=y_values - y_errors,
+                   ymax=y_values + y_errors,
+                   width=0.005)) + # width changes the width of the horizontal bar at the top of the error bar
+ geom_abline(aes(slope = model5$coefficients[2], intercept=model5$coefficients[1]), color="red") +
+ geom_abline(aes(slope = model6$coefficients[2], intercept=model6$coefficients[1]), color="blue")
+```
+
+## Regression diagnostic
+
+### Residuals ($\epsilon_i$)
+
+#### Reminder from the lecture
+
+* $E(\epsilon_i|X_i) = 0$ (residuals should have mean 0 for all $X_i$ )
+* $\epsilon_i$ is normally distributed (residuals are normally distributed with mean = 0 and variance $Var(\epsilon_i) = s_2$, for all $\epsilon_i$
+
+#### Syntax
+
+For plotting residuals against fitted values, we'll again use the `anscombe1` data frame that we created above, using the same code for the linear regression:
+
 ```{r}
-summary(data1)
+z = lm(y~x, anscombe1)
 ```
 
-This data set contains statistics about French cities.  As you can see, there are several different types of columns:
-
-* A few categories: `Region`, `Main_city`
-* A few numerical variables: e.g., `Crime_pers`, `Distance`
-* A few rank variables: `Donation_clergy`, etc.  These show which city is 1st, 2nd, etc.
-
-If we take a closer look at the results, we see that the `dept` column is numeric since `summary` displays information about the minimum, median, mean, max and quantiles.
-```
-      dept    
- Min.   :  1.00
- 1st Qu.: 24.25
- Median : 45.50
- Mean   : 46.88
- 3rd Qu.: 66.75
- Max.   :200.00
+Now we get the fitted values corresponding to each value of x:
+```{r}
+fit <- fitted(z)
+print(fit)
 ```
 
-However, for `Region`, we don't see quantiles, etc but we are looking at counts of values, as this column contains factors indicating the particular region (`C`, `E`, `N`, `S` or `W`).  Also note that `NA's: 1` tells us that we have one `NA` which indicates a missing value (Not Available).  We'll discuss later in more detail how these can be dealt with in R.
+We then get the residuals:
+```{r}
+res <- residuals(z)
+print(res)
+```
+
+Add in columns to the `anscombe1` data frame for the fit and res values
+```{r}
+anscombe1$fit = fit
+anscombe1$res = res
+```
+
+We can see that the fitted values follow the regression line:
+
+```{r}
+ggplot(anscombe1) + 
+  geom_point(aes(x=x, y=y, color="original value"), size=3) + 
+  geom_point(aes(x=x, y=fit, color="fitted value"), size=3) + 
+  geom_abline(intercept = z$coefficients[1], slope=z$coefficients[2])
+```
+
+In the code above, we have the statements `color="original value"` and `color="fitted value"`.  When ggplot sees statements like these withing `aes(...)` it will automatically assign a color to each of these text values.  What is happening is the same as what you would get when using something like `aes(..., color=some_column_name)`.  In this case, every distinct value of `some_column_name` will be assigned a unique color.
+
+Show the residuals that were calculated:
+```{r}
+ggplot(anscombe1) + 
+  geom_point(aes(x=x, y=res))
+```
+
+Putting this all together we can see how subtracting the residual from the original `y` values gives us the fitted values in `fit`.  Note that `geom_segment` allows us to draw line segments from the points defined at `x`,`y` to the point at `xend`,`yend`
+
+```{r}
+ggplot(anscombe1) + 
+  geom_point(aes(x=x, y=y, color="original value"), size=3) + 
+  geom_point(aes(x=x, y=fit, color="fitted value"), size=3) + 
+  geom_segment(aes(x=x, xend=x, y=y, yend=y-res)) + 
+  geom_abline(intercept = z$coefficients[1], slope=z$coefficients[2])
+```
+
+Plot residual against fitted values:
+```{r}
+ggplot(anscombe1, aes(x=fit, y=res)) + geom_point() + ggtitle("residual vs. fitted values")
+```
+
+Perform a qqnorm plot of residuals to see if they are normally distributed:
+```{r}
+qqnorm(res)
+qqline(res)
+```
+
+#### Exercise
+
+Make the plots of fitted values vs residuals for the data from `Practical6_Data.txt `
+
+Perform a linear regression without weights:
+
+```{r, echo=FALSE}
+data1 <- read.csv("./data/Practical6_Data.txt")
+
+model5 <-lm(y_values~x_values, data1)
+
+##get the fitted values
+fitted5 <- fitted(model5)
+##get the residuals
+res5 <- residuals(model5)
+
+data1$res5 = res5
+data1$fitted5 = fitted5
+
+## plot residual against fitted values
+ggplot(data1, aes(x=fitted5, y=res5)) + geom_point()
+```
+
+Make a qnorm plot of the residuals:
+
+```{r, echo=FALSE}
+qqnorm(res5)
+qqline(res5)
+```
+
+Linear regression with weights (performed same as earlier in the practical):
+
+```{r, echo=FALSE}
+model6 <-lm(y_values~x_values, data = data1, 
+            weights = 1/(data1$y_errors^2))
+
+##get the fitted values
+fitted6 <- fitted(model6)
+##get the residuals
+res6 <- residuals(model6)
+
+data1$res6 = res6
+data1$fitted6 = fitted6
+
+## plot residual against fitted values
+ggplot(data1, aes(x=fitted6, y=res6)) + geom_point()
+```
+
+Make a qnorm plot of the residuals (using the weighted model):
+```{r, echo=FALSE}
+qqnorm(res6)
+qqline(res6)
+```
+
+
+### Cook's distance
+
+#### Reminder of the lecture
+
+The cook’s distance of point $X_i$ is a measure of the difference in regression parameters when the point is included or omitted. If omitting a point changes the regression parameters strongly, this point has a large Cook’s distance.
+
+To see quantitatively if the Cook's distance of a data point is too large and it has an undue influence on the fit you need to compare it with a theoretical cut-off.  This cutoff value can be calculated with the F-statistic using `qf(0.5, p, n-p, lower.tail = FALSE)` where:
+
+* `p` - fitted parameters (=2 with simple linear regression)
+* `n` - number of data points 
+
+
+#### Syntax
+
+Below we use the `anscombe1` data frame again.
+
+```{r}
+##Cook's distance
+
+z = lm(y~x, data=anscombe1)
+cook <- cooks.distance(z)
+
+## put the fitted values and Cook's distance into a data frame
+data = data.frame(fit = fitted(z),
+                  cooks_distance = cook)
+
+##cut-off value
+cut <- qf(0.5, 2, length(data$fit)-2, lower.tail = FALSE)
+
+ggplot(data, aes(x=fit, y=cooks_distance)) + geom_point() + geom_hline(yintercept=cut)
+```
+
+If we look at all four data sets in Anscombe's Quartet, there are quite different outcomes when plotting the Cook's distance for each.
+
+```{r, echo=FALSE, warning=FALSE}
+cook1 = cooks.distance(lm(y~x, anscombe_2cols %>% filter(series == "Data 1")))
+cook2 = cooks.distance(lm(y~x, anscombe_2cols %>% filter(series == "Data 2")))
+cook3 = cooks.distance(lm(y~x, anscombe_2cols %>% filter(series == "Data 3")))
+cook4 = cooks.distance(lm(y~x, anscombe_2cols %>% filter(series == "Data 4")))
+
+cut <- qf(0.5, 2, 11-2)
+
+anscombe_2cols$cooks_distance = c(cook1, cook2, cook3, cook4)
+
+ggplot(anscombe_2cols, aes(x=x, y=cooks_distance)) + 
+  geom_point() + 
+  facet_wrap(~series) + geom_hline(yintercept = cut)
+```
+
+#### Exercise
+
+For the unweighted and weighted fit, compare the cooks distance 
+
+Unweighted fit:
+
+```{r, echo=FALSE}
+dat = data.frame(fit = fitted(model5), 
+                 cooks_distance = cooks.distance(model5))
+
+cut5 <- qf(0.5, 2, length(dat$fit)-2, lower.tail = FALSE)
+
+ggplot(dat, aes(x=fit, y=cooks_distance)) + 
+  geom_point() + geom_hline(yintercept = cut5)
+```
+
+Weighted fit:
+
+```{r, echo=FALSE}
+##Cooks distance
+dat = data.frame(fit = fitted(model6), 
+                 cooks_distance = cooks.distance(model6))
+cut6 <- qf(0.5, 2, length(dat$fit)-2, lower.tail = FALSE)
+ggplot(dat, aes(x=fit, y=cooks_distance)) + 
+  geom_point() + geom_hline(yintercept = cut6)
 
 ```
- Region
-C   :17
-E   :17
-N   :17
-S   :17
-W   :17
-NA's: 1
+
+### Automatic diagnostic plots
+
+We can create a series of diagnostic plots for the linear regression results by simply using `plot(z)` (where `z` is the output of a linear regression) instead of `ggplot`.  What's happening here is that R detects that `z` is the result of a linear regression, and whenever it sees this, it will create a series of four plots: 
+
+* Residuals vs. Fitted
+* Normal Q-Q
+* Scale-Location (not covered in this practical)
+* Residuals vs. Leverage (related to Cook's distance)
+
+Here we create the diagnostic plots for the linear regression of the `anscombe1` data frame:
+```{r}
+z = lm(y~x, data=anscombe1)
+plot(z)
 ```
-The data you have just loaded in is from the Guerry R package, so to get an idea about the variables we need to install the package:
+
+#### Exercise
+
+Create diagnostic plots for both the unweighted and weighted regressions that you just did.
+
+##### Diagnostic plots for unweighted fit
+```{r, echo=FALSE}
+plot(model5)
+```
+
+##### Diagnostic plots for weighted fit
+```{r, echo=FALSE}
+plot(model6)
+```
+
+## Reduced major axis regression
+
+### Reminder from the lecture 
+
+Reduced major axis regression minimizes the area of the triangles formed by the observations and the line:
+
+* $\beta_1 = s_x / s_y$
+* $\beta_0$ is calculated like in the normal regression
+
+### Syntax
+
 ```{r, eval=FALSE}
-install.packages("Guerry")
+model <-lmodel2(y~x, data = dataframe, range.y = "interval", 
+                 range.x = "interval", nperm = 100)
 ```
 
-Load the library:
+Arguments:
+
+* `formula`	- A formula specifying the bivariate model, as in lm.
+* `data` - A data frame containing the two variables specified in the formula.
+* `range.y`, `range.x` - Parameters for ranged major axis regression (RMA). If range.y = NULL and range.x = NULL, RMA will not be computed. If only one of them is NULL, the program will stop. If range.y = "relative": variable y has a true zero (relative-scale variable). If range.y = "interval": variable y possibly includes negative values (interval-scale variable). If range.x = "relative": variable x has a true zero (relative-scale variable). If range.x = "interval": variable x possibly includes negative values (interval-scale variable)
+* `nperm` - Number of permutations for the tests. If nperm = 0, tests will not be computed.
+
+Here we again use the `anscombe1` data frame:
 ```{r}
-library(Guerry)
+library(lmodel2) # make sure that this library is loaded in order to use the function below
+model <-lmodel2(y~x, data = anscombe1, range.y = "interval", 
+                 range.x = "interval", nperm = 100)
+
 ```
 
-and then bring up the help information that relates to this specific data frame which is included in the package:
+From the regression results, we want to retrieve the `Intercept` and `Slope` values for the RMA method.  Below we can see the results that we have to search through.
 ```{r}
-help(Guerry)
+model$regression.results
 ```
 
-#### Select a numerical variable and plot a histogram
-
-```{r}	
-ggplot(data1, aes(x=Infants)) + geom_histogram(bins=50)
-```
-
-#### Make a box plot of `Literacy` per city size (`MainCity`) 
-
-```{r}
-ggplot(data1, aes(x=MainCity, y=Literacy)) + geom_boxplot()
-```
-
-#### Managing outliers
-
-In the plot above, we see that the box for the small cities looks strange as it is quite skewed.  We now take a closer look 
-
-First we want to know how many variables are in the small, medium and large cities:
+There are two ways in which you can extract these values.  First, since `model$regression.results` is a data frame (which you can check by typing `class(model$regression.results)`), you can use indices to directly extract data from a cell at a specific row and column number:
 
 ```{r}
-a <- table(data1$MainCity)
-a
+intercept <- model$regression.results[4,2]
+slope <- model$regression.results[4,3]
 ```
 
-This shows that we have 10 observations for small cities.
-
-Now we use dplyr to make subsets of `data1`
+Another way is to use `dplyr` as discussed in the previous practical.  Here we `filter` the data frame `model$regression.results` for all rows where `Method == "RMA"`, and then we `select` the value in the `Intercept` column.  This will give us a data frame with only one row and one column.  Since we want the number in the data frame, and not the data frame itself, we need to add the extra step of `%>% unlist()`.  
 
 ```{r}
-small_data <- data1 %>% filter(MainCity ==  "1:Sm") %>% select(Crime_prop)
-print(small_data)
+intercept = model$regression.results %>% filter(Method == "RMA") %>% select(Intercept) %>% unlist()
+slope = model$regression.results %>% filter(Method == "RMA") %>% select(Slope) %>% unlist()
 ```
 
-**TODO** find a home for this section
+Make a summary of the regression model:
+```{r}
+summary(model)
+```
+
+Plot the results of the regression model:
+```{r}
+ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
+```
+
+### Exercise
+
+Make a reduced major axis regression for x and y in the `Practical6_data.txt` and add the regression line to the plot 
+
+```{r, echo=FALSE}
+model <-lmodel2(y_values~x_values, data = data1, range.y = "interval", 
+                 range.x = "interval", nperm = 100)
+
+intercept = model$regression.results %>% filter(Method == "RMA") %>% select(Intercept) %>% unlist()
+slope = model$regression.results %>% filter(Method == "RMA") %>% select(Slope) %>% unlist()
+
+ggplot(data1, aes(x=x_values, y=y_values)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
+
+summary(model)
+```
+
+## Multiple regression
+
+### Reminder of the lecture 9
+
+$Y_i =  \beta_0 + \beta_1*X_{1i} + \beta_2*X_{2i} +  \beta_3*X_{3i} + … +  \epsilon_i$
+
+Interpretation of the parameters:
+
+* If $\beta_j  > 0$, then $j$ stands for the average increase of the response when predictor $x_j$ increases with one unit, holding all other variables constant.
+* If $\beta_j  < 0$, then $j$ stands for the average decrease of the response when predictor $x_j$ increases with one unit, holding all other variables constant.
+
+An anova test can be done to see if the removing one variable significantly changes the fit. If p-value of the anova test <0.05, you should keep the variable (as a rule of thumb)
+ 
+### Syntax 
+
+#### Linear model as a function of several parameters
+ say you have several variables (y, x1, x2, x3, …) in the data frame `dat`
+
+```{r, eval=FALSE}
+z = lm(y~ x1 + x2 + x3 + …, data = dat) 
+```
+
+#### A pairs plot
+
+A pairs plot is useful for doing an initial exploration of how different variables (i.e. columns in a data frame) may be related to each other.  A pairs plot is presented as a matrix containing scatter plots of all the combinations of variables with each other.
+
+To be able to do this, make sure to install and load the `GGally` library as described above.
+
+```{r, eval=FALSE}
+install.packages("GGally")
+library(GGally)
+```
+
+As an example, we'll use a pairs plot on the `mtcars` dataset.  For this, we only use the `mpg`, `disp`, `hp` and `qsec` columns.  Looking at the first few rows in these columns, we see:
+
+```{r}
+head(mtcars[,c("mpg", "disp", "hp", "qsec")])
+```
+
+The pairs plot for these four columns looks like this:
+```{r}
+ggpairs(mtcars[,c("mpg", "disp", "hp", "qsec")])
+```
+
+Reading across the rows and columns we can see which variables are being plotted together.  In the first column and second row, we have the `disp` vs. the `mpg`, directly below that is the `hp` vs. the `mpg` and so on.  On the top right we can see the correlations calculated between the variables.  On the diagonal we see a density plot of the variables.  For example, most of the values for `hp` are around 100, although the distribution is skewed to one side.  
+
+Now we perform a linear regression where we try to predict `mpg` given the values for `disp`, `hp` and `qsec`
+
+```{r}
+z = lm(mpg~disp + hp + qsec, data=mtcars)
+summary(z)
+```
+
+We can also extract the $R^2$ value from the summary:
+```{r}
+summary_for_z <- summary(z)
+print(summary_for_z$r.squared)
+```
+
+Create a series of diagnostic plots:
+
+```{r}
+plot(z)
+```
+
+#### Anova test
+
+We can perform an Anova test using the following set up (assuming a data frame named `dat` with columns named `y`, `x1`, `x2`, and `x3`)
+
+* `z1 = lm(y~ x1 + x2 + x3, data = dat)`
+* `z2 = lm(y~ x1 + x2, data = dat)`
+* `anova(z1,z2)`
+
+Using the `mtcars` example, we can do:
+```{r}
+z1 = lm(mpg~disp + hp + qsec, data=mtcars)
+z2 = lm(mpg~disp + hp, data=mtcars)  # leave out `qsec`
+results = anova(z1, z2)
+print(results)
+```
+
+### Exercise
+
+For this we'll use the `stackloss` data set with was mentioned in Lecture 8.  This data frame is already pre-loaded with R, and you can get more details about it by typing `?stackloss` in the console.
+
+#### Look at a summary of the data set
+```{r, echo=FALSE}
+summary(stackloss)
+```
+
+#### Make a pairs plot
+
+```{r, echo=FALSE}
+ggpairs(stackloss)
+```
+
+#### Fit a linear model using all variables and summarize the output of the model
+For this we are trying to predict `stack.loss` given all the other variables
+
+```{r, echo=FALSE}
+mul_fit1 <- lm(stack.loss ~ Acid.Conc. + Air.Flow + Water.Temp, data = stackloss)
+
+summary(mul_fit1)
+```
+
+#### Plot the standard diagnostic plots
+
+```{r, echo=FALSE}
+plot(mul_fit1)
+```
+
+#### Make a Cook's distance plot by hand with a cutoff line
+
+```{r, echo=FALSE}
+dat = data.frame(fit = fitted(mul_fit1),
+                 cooks_distance = cooks.distance(mul_fit1))
+
+p = 4
+n = nrow(stackloss)
+cut <- qf(0.5, p, n - p, lower.tail=FALSE)
+
+ggplot(dat, aes(x=fit, y=cooks_distance)) + geom_point() + geom_hline(yintercept=cut)
+``` 
+
+#### Leave out the least important parameter Acid concentration
+```{r, echo=FALSE}
+less_fit<- lm(stack.loss~Air.Flow+Water.Temp, data = stackloss)
+summary(less_fit)
+```
+
+#### See if that made a difference for the overall model
+```{r, echo=FALSE}
+anova(mul_fit1,less_fit)
+```
+
+#### Now leave out water temp
+```{r, echo=FALSE}
+least_fit<- lm(stack.loss~Air.Flow, data = stackloss)
+summary(least_fit)
+```
+
+Perform the anova test:
+```{r, echo=FALSE}
+anova(less_fit, least_fit)
+```
+
+#### Fits of individual varaibles
+
+For this create a set of linear regressions for combinations of the individual variables
+
+##### Regression for `stack.loss~Air.Flow`
+
+Value for $R^{2}$:
+```{r, echo=FALSE}
+fit_air <- lm(stack.loss~Air.Flow, data = stackloss)
+sum_air <- summary(fit_air)
+R2_air <-sum_air$r.squared
+print(R2_air)
+
+ggplot(stackloss, aes(x=Air.Flow, y=stack.loss)) + geom_point() + 
+  geom_abline(intercept = fit_air$coefficients[1], slope=fit_air$coefficients[2])
+```
+
+##### Regression for `stack.loss~Water.Temp`
+Value for $R^{2}$:
+```{r, echo=FALSE}
+fit_temp <- lm(stack.loss~Water.Temp, data = stackloss)
+sum_temp <- summary(fit_temp)
+R2_temp <-sum_temp$r.squared
+print(R2_temp)
+
+ggplot(stackloss, aes(x=Water.Temp, y=stack.loss)) + geom_point() + 
+  geom_abline(intercept = fit_temp$coefficients[1], slope=fit_temp$coefficients[2])
+
+```
+
+##### Regression for `Air.Flow~Water.Temp`
+Value for $R^{2}$:
+```{r, echo=FALSE}
+fit_ind <- lm(Air.Flow~Water.Temp, data = stackloss)
+sum_ind <- summary(fit_ind)
+R2_ind <-sum_ind$r.squared
+print(R2_ind)
+
+ggplot(stackloss, aes(x=Water.Temp, y=Air.Flow)) + geom_point() + 
+  geom_abline(intercept = fit_ind$coefficients[1], slope=fit_ind$coefficients[2])
+
+```
+
+## Replacing values with NA 
+
+**TODO** discuss na.rm=TRUE/FALSE or na.omit, or na.action, na.fail.  By default, have na.fail - gives error
+see ?na.action, talk about what this means
 
 Regarding `NA` values:
 
 * If you are doing a numeric comparisons (i.e. `hp >= 250`) using the `filter` function, then `NA` values will be filtered out.  
 * If you want to do a numeric comparison and also keep `NA` values, then you need to specify something like `hp >= 250 | is.na(hp)`.  The function `is.na()` will return `TRUE` for any `NA` values.
 
-
-#### Filter outliers and make a boxplot of crime vs city size
-
-From above, we can see that there's a large outlier in the small cities, and this would disturb a test like ANOVA. We need to remove this.
-
-We then use the `filter` function with `dplyr` to keep all rows where we don't have a combination of a small city and a `Crime_prop` greater than 15000.
-
-```{r}
-data2 = data1 %>% filter(!(MainCity == "1:Sm" & Crime_prop > 15000))
-```
-
-You'll notice that the `filter` statement is a bit more complex this time.  Starting from the middle of the statement:
-
-* `&` is again our logical "and" which means that we're looking for situations where the conditions on either side are both true.
-* `MainCity == "1:Sm"` and `Crime_prop > 15000` show that we are trying to match rows where the values meet these conditions.
-* Most importantly is the `!` symbol on the outside of this clause, which says that we only want to keep rows that **don't** match the conditions specified in the clause `(MainCity == "1:Sm" & Crime_prop > 15000)`
- 
-Now we can see that the boxplot looks more reasonable.
-```{r}
-ggplot(data2, aes(x=MainCity, y=Crime_prop)) + geom_boxplot()
-```
-
-#### Select any row and column by indices
-
-**TODO** do we need this section?
-
-You can also create subsets of data frames by using numeric indices that indicate the row and column numbers.  This technique will work with matrices as well.  Note in the examples below that in some cases you're specifying a sequence of numbers (`5:9` = 5,6,7,8,9), while in other cases, you are specifying a set of numbers (`c(1,5,9)` is just the numbers 1, 5 and 9).  You can also mix in the names of the columns with numeric indices as well.
-
-```{r}
-b <- data1[1:3, 5:9]
-b
-c <- data1[c(1,5,9), 7]
-c
-d <- data1[c(1,5,9),c("Region", "Infants")]
-d
-```
-
-Note that both `b` and `d` are data frames, although `c` is a vector of integers.
-
-#### Select individual columns
-```{r}
-x <- data1$Crime_prop
-```
-or
-```{r}
-x <- data1$Crime_prop[1:10]  #just select the first 10 rows
-```
-
-
-#### Make the whole data frame into a matrix
-```{r}
-data1_m <- as.matrix(data1)
-```
-
-We can get the total number of all elements in the matrix:
-```{r}
-length(data1_m)
-```
-
-Note that we can't access columns via `$` anymore.  In other words, we can't do `data1_m$Crime_prop`
-
-#### Make a table of city size vs region
-
-**TODO** this was covered in the previous practical
-
-```{r}
-tab = table(data1$MainCity, data1$Region)
-tab
-```
-
-## Dates and Times
-
-### Useful resources: 
-
-* [Working with Time Series Data in R ](http://faculty.washington.edu/ezivot/econ424/Working%20with%20Time%20Series%20Data%20in%20R.pdf)
-* [R cheat sheet](http://blog.yhat.com/static/pdf/R_date_cheat_sheet.pdf). The columns for `Date` and `POSIXct` are relevant for this practical.  We don't use the `lubridate` library for this example, although it does similar things.  
-
-### Integers to Dates
-
-Dates, not involving times of the day, are natively stored on your computer as integer numbers with 1 Jan 1970  = 0 and 1 corresponding to 1 day. Due to this, you need to specify `origin="1970-01-01"` in the example below.  
-
-For example, the number 365 corresponds January 1, 1971.  To tell R that a number is a date, not just a number you use the command `as.Date`:
-```{r}
-as.Date(365, origin="1970-01-01")
-```
- 
-### Strings to Dates
-R can also convert strings to dates
-```{r}
-as.Date("1971-01-01")   # always use the order of year, month, day
-```
-
-### Vectors of Date Ranges
-You can make vectors filled with series of dates using `seq`
-```{r}
-t = seq(from = as.Date("2000-11-30"), to = as.Date("2000-12-26"), by="1 day")
-t
-```
-
-`by=` can be e.g, 1 month, 2 years, 5 days, etc...
-
-Now try to make a weekly time vector from 5 June 2005 to 20 August 2006.  You should see:
-
-```{r, echo=FALSE}
-t = seq(from = as.Date("2005-06-05"), to = as.Date("2006-08-20"), by="1 week")
-t
-```
-
-In general, you can treat date & time vectors as normal vectors, which means that you can use them in plots, add and subtract them, etc.
-
-`POSIXct` does more or less the same as `Date`, but it stores the time variable as numbers of seconds since midnight GMT 1970-01-01.  As a result, this allows us to store data which expresses the time on a specific date.
-
-```{r}
-t.str = "2013-12-19 10:17:07"    # default format
-t.obj = as.POSIXct(t.str) 
-t.obj
-```
-
-If you have any other format than default format e.g., if you need to read in data that are not in the default format, then you can give R the format the data are in:
-
-```{r}
-t.str1 = "19-12-2013 10:17:07"
-t.obj1 = as.POSIXct(t.str1, format="%d-%m-%Y %H:%M:%S")
-t.obj1
-```
-
-`"%d-%m-%Y %H:%M:%S"` says that we have a time that is specified in the form of day, month and year (separated by `-`) which is then followed by a space and the hours, minutes and seconds (separated by `:`).
-
-To get an overview of all the format types type `help(strptime)`.  Below is a table which summarizes commonly used codes.
-
-| Code | Description              | Example |
-|------|--------------------------|---------|
-| %a | Abbreviated weekday name | Mon |
-| %A | Full weekday name | Monday |
-| %b | Abbreviated month name | Jan |
-| %B | Full month name | January |
-| %c | Date and time. Locale-specific on output, "%a %b %e %H:%M:%S %Y" on input. | |
-| %d | Day of the month as decimal number (01–31) | 01 |
-| %H | Hours as decimal number (00–23) | 16 |
-| %I | Hours as decimal number (01–12) | 08 |
-| %j | Day of year as decimal number (001–366) | 234 | 
-| %m | Month as decimal number (01–12) | 07 |
-| %M | Minute as decimal number (00–59) | 12 | 
-| %p | AM/PM indicator | AM |
-| %S | Second as integer (00–59) | 35 | 
-| %U | Week of the year as decimal number (00–53) using Sunday as the first day 1 of the week (and typically with the first Sunday of the year as day 1 of week 1). The US convention. | |
-| %w | Weekday as decimal number (0–6, Sunday is 0). | 1 |
-| %W | Week of the year as decimal number (00–53) using Monday as the first day of week (and typically with the first Monday of the year as day 1 of week 1). The UK convention. | | 
-| %x | Date. Locale-specific on output, "%y/%m/%d" on input. | | 
-| %X | Time. Locale-specific on output, "%H:%M:%S" on input. | |
-| %y | Year without century (00–99) | 91 |
-| %Y | Year with century | 1991 |
-| %z | Signed offset in hours and minutes from UTC, so -0800 is 8 hours behind UTC | |
-| %Z | Time zone abbreviation as a character string | PST |
-
-### Changing format of date
-
-You can change the format of the output date using the codes mentioned above.
-
-| Code | Description              | Example |
-|------|--------------------------|---------|
-| %a | Abbreviated weekday name | Mon |
-| %d | Day of the month as decimal number (01–31) | 01 |
-| %b | Abbreviated month name | Jan |
-| %Y | Year with century | 1991 |
-
-```{r}
-t.obj1
-format(t.obj1, "%a %d %b. %Y")
-```
-
-### Adding and subtracting dates
-You can add and subtract POSIXt objects and perform logical operations on them. If you have a vector of POSIXt objects, you can use the `min()`, `max()` and `range()` functions. 
-
-```{r}
-t.str2 = "2013-12-19 18:20:07"
-t.obj2 = as.POSIXct(t.str2)
-```
-
-Subtract two date times:
-```{r}
-t.obj1 - t.obj2
-```
-
-### Exercise 1
-
-Download the [Pr_20May1.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Pr_20May1.csv) to your computer in the same way that you did for the other csv file in this practical.
-
-This data contains a time series of monthly temperature data from Jan. 1946 to Dec. 2014, however the data set you just downloaded only has a single column with the temperatures and does not have a column included which corresponds to these dates.  
-
-Fix this by making a vector with the dates corresponding to each data point, and make a plot of the temperatures over time.
-
-```{r, echo=FALSE}
-pr = read.csv("./data/Pr_20May1.csv")
-t = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by="1 month")
-pr$t = t
-library(ggplot2)
-ggplot(pr, aes(x=t, y=x)) + geom_line()
-```
-
-## Managing issues in real data
-
-### Common Issues
-
-When dealing with real data sets, you will commonly run into several issues.  You will often find yourself:
-
-* dealing with NA values
-* dealing with strange/unwieldy/messy column names
-* dealing with dates
-
-### Inconvenient column names
-
-You may find that the column names for a data frame are excessively long, or may contain extra spaces or strange characters.  You can fix this by using the `colnames` command.
-
-With a hypothetical data frame called `input1`, you can change the first and second column names by doing:
-
-```{r, eval=FALSE}	
-colnames(input1)[1] <- "x" 	# gives the first column the name "x"
-colnames(input1)[2] <- "y"		# gives the second column the name "y"
-```
-
-If there are only two columns in the entire data frame, then you could do:
-```{r, eval=FALSE}
-colnames(input1) = c("x", "y")
-```
-
-If there are more than two columns, then you have to specify the indices, otherwise you will get an error.
-```{r, eval=FALSE}
-colnames(input1)[c(1:2)] = c("x", "y")
-```
-
-### Replacing values with NA 
 
 Real data may often have missing values, which are represented in R as `NA`.  In some data sets you may see them represented in other forms like `NaN` (not a number) or by an unrealistic number (e.g., -999).  For R to handle the missing values, you have to rename them as `NA`, if they are not named like that, then R does not recognize them and will try to process them as an actual number.
 
@@ -374,9 +773,9 @@ To replace these -999 values, we use the command below which says that for all l
 df[df == -999] <-NA
 ```
 
-#### Exercise 1
+### Exercise 1
 
-For this exercise, download the [Carbon.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Carbon.csv) data into R as a data frame called `input1`.
+For this exercise, download the [Carbon.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Carbon.csv) data into R as a data frame called `input1`.
 
 ```{r, echo=FALSE}
 input1 = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Carbon.csv")
@@ -393,51 +792,3 @@ After replacing them, using `summary` you should see that several columns now ha
 input1[input1 == -999] <-NA
 summary(input1)
 ```
-
-#### Exercise 2
-
-Using the same `Carbon.csv` data set:
-
-* Make time vector of the date (the `date_start` column).  If you type `class(input1$date_start)` you'll see that it's currently represented as a factor.
-* Make a new vector that formats the date, so that it just shows the month (see examples above).  You may also have to use `as.Date()` to convert the `date_start` values from a factor to a Date object.
-
-If you do this correctly, you should see:
-```{r}
-months = format(as.Date(input1$date_start), "%B")
-months
-```
-
-We can now add this vector directly to the data frame:
-```{r}
-input1$months = months
-```
-
-### Creating Category Variables
-Sometimes real data sets don't directly contain all the information you want.  For example, you have data covering a year and you are wondering if there is a difference between summer and winter, or between day and night; but you only have a vector with date and time.  
-
-We may want to create new category variables which could be useful for ANOVA, box plots, etc.
-
-For this example, assume that `input1$y` varies between 0 and 5.  Given different ranges of `y`, we can specify categories of `"low"`, `"medium"` and `"high"`
-
-```{r, eval=FALSE}
-x1 <- c() 	# start with empty vector
-x1[input1$y < 1] <- "low"
-x1[(input1$y >=1) & (input1$y < 3)] <- "medium"
-x1[input1$y>=3] <- "high"
-```
-
-`x1` is now a vector of length `input1$y` and consists of values `"low"`, `"medium"`, `"high"`
-
-#### Exercise 3
-
-Using the `Carbon.csv` data set, make a vector that correctly assigns the seasons to your data set (use the meteorological definition of season e.g. winter is dec, jan, feb; spring is mar, apr, may, etc.)
-
-Note that you can use the syntax below for matching text values.  
-
-```{r, eval=FALSE}
-x1[input1$y %in% c("big", "large", "enormous")] <- "huge"
-```
-
-#### Exercise 4
-
-Now add the vector of months and the vector of seasons to your data frame.
