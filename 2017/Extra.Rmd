@@ -314,3 +314,82 @@ res
 ```
 
 
+
+
+
+#### Exercise 1
+
+Download the [Pr_20May1.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Pr_20May1.csv) to your computer in the same way that you did for the other csv file in this practical.
+
+This data contains a time series of monthly temperature data from Jan. 1946 to Dec. 2014, however the data set you just downloaded only has a single column with the temperatures and does not have a column included which corresponds to these dates.  
+
+Fix this by making a vector with the dates corresponding to each data point, and make a plot of the temperatures over time.
+
+```{r, echo=FALSE}
+pr = read.csv("./data/Pr_20May1.csv")
+t = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by="1 month")
+pr$t = t
+library(ggplot2)
+ggplot(pr, aes(x=t, y=x)) + geom_line()
+```
+
+**TODO** most (all) of content below is duplicated
+
+`POSIXct` does more or less the same as `Date`, but it stores the time variable as numbers of seconds since midnight GMT 1970-01-01.  As a result, this allows us to store data which expresses the time on a specific date.
+
+```{r}
+t.str = "2013-12-19 10:17:07"    # default format
+t.obj = as.POSIXct(t.str) 
+t.obj
+```
+
+If you have any other format than default format e.g., if you need to read in data that are not in the default format, then you can give R the format the data are in:
+
+```{r}
+t.str1 = "19-12-2013 10:17:07"
+t.obj1 = as.POSIXct(t.str1, format="%d-%m-%Y %H:%M:%S")
+t.obj1
+```
+
+`"%d-%m-%Y %H:%M:%S"` says that we have a time that is specified in the form of day, month and year (separated by `-`) which is then followed by a space and the hours, minutes and seconds (separated by `:`).
+
+```{r}
+t.obj1
+format(t.obj1, "%a %d %b. %Y")
+```
+
+### Adding and subtracting dates
+You can add and subtract POSIXt objects and perform logical operations on them. If you have a vector of POSIXt objects, you can use the `min()`, `max()` and `range()` functions. 
+
+```{r}
+t.str2 = "2013-12-19 18:20:07"
+t.obj2 = as.POSIXct(t.str2)
+```
+
+Subtract two date times:
+```{r}
+t.obj1 - t.obj2
+```
+
+
+
+
+##### Exercise 2
+
+**TODO** find a home for this in the date exercise
+
+Using the same `Carbon.csv` data set:
+
+* Make time vector of the date (the `date_start` column).  If you type `class(input1$date_start)` you'll see that it's currently represented as a factor.
+* Make a new vector that formats the date, so that it just shows the month (see examples above).  You may also have to use `as.Date()` to convert the `date_start` values from a factor to a Date object.
+
+If you do this correctly, you should see:
+```{r, eval=FALSE}
+months = format(as.Date(input1$date_start), "%B")
+months
+```
+
+We can now add this vector directly to the data frame:
+```{r, eval=FALSE}
+input1$months = months
+```
