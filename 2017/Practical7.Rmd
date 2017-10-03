@@ -14,8 +14,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-
 ## Dates and Times
 
 ### Load and Install Required Libraries
@@ -27,12 +25,9 @@ install.packages("forecast")
 
 Now load the required libraries for this practical:
 ```{r, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
 library(forecast)
 ```
-
-
 
 ### Useful resources: 
 
@@ -54,7 +49,7 @@ R can also convert strings to dates
 as.Date("1971-01-01")   # always use the order of year, month, day
 ```
 
-#### Vectors of Date Ranges
+### Vectors of Date Ranges
 You can make vectors filled with series of dates using `seq`
 ```{r}
 t = seq(from = as.Date("2000-11-30"), to = as.Date("2000-12-26"), by="1 day")
@@ -117,7 +112,7 @@ To get an overview of all the format types type `help(strptime)`.  Below is a ta
 | %z | Signed offset in hours and minutes from UTC, so -0800 is 8 hours behind UTC | |
 | %Z | Time zone abbreviation as a character string | PST |
 
-#### Changing format of date
+### Changing format of date
 
 You can change the format of the output date using the codes mentioned above.
 
@@ -133,7 +128,7 @@ t.obj1
 format(t.obj1, "%a %d %b. %Y")
 ```
 
-#### Adding and subtracting dates
+### Adding and subtracting dates
 You can add and subtract POSIXt objects and perform logical operations on them. If you have a vector of POSIXt objects, you can use the `min()`, `max()` and `range()` functions. 
 
 ```{r}
@@ -148,18 +143,18 @@ t.obj1 - t.obj2
 
 ### Example
 
-For this example, download the [Pr_20May1.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Pr_20May1.csv) data set and load it into R.  Once you read it in, you'll have a data frame with a single column `x` which is specified in the csv file itself.
+For this example, download the [lynx.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/lynx.csv) data set and load it into R.  Once you read it in, you'll have a data frame with a single column `x` which is specified in the csv file itself.
 ```{r, echo=FALSE}
-Tvalues = read.csv("./data/Pr_20May1.csv")
+Tvalues = read.csv("./data/lynx.csv")
 ```
 ```{r, eval=FALSE}
-Tvalues = read.csv("Pr_20May1.csv")
+Tvalues = read.csv("lynx.csv")
 ```
 
-As we showed in the previous practical, we can create a sequence of dates (using `seq`), starting at one date with a defined time interval for each step.  
+As we showed in the previous practical, we can create a sequence of dates (using `seq`), starting at one date with a defined time interval for each step.  This data set describes the number of lynx caught each year on the MacKenzie River from 1821 to 1934.
 
 ```{r}
-Tvalues$t = seq(from = as.Date("1946-01-01"), to = as.Date("2014-12-01"), by = "1 month")
+Tvalues$t = seq(from = as.Date("1821-01-01"), to = as.Date("1934-01-01"), by = "1 year")
 ```
 Now we plot the data:
 ```{r}
@@ -180,7 +175,7 @@ series2$t = seq(from = as.Date("2004-11-19"), to = as.Date("2005-01-26"), by = "
 ggplot(series2, aes(x=t, y=x)) + geom_line()
 ```
 
-## Creating Time Series Objects
+## Time Series Objects
 
 
 ### Using `ts()`
@@ -206,25 +201,28 @@ Arguments:
 
 To perform the same operation as shown in the previous example above, we can also do:
 ```{r}
-t_ser <- ts(Tvalues$x, start = c(1946, 1), freq = 12)
+t_ser <- ts(Tvalues$x, start = c(1821, 1), freq = 1)
 plot(t_ser)
 ```
 
-You can also define a time series without a start date.  Using `freqquency = 12` means that you have 12 observations per cycle, so the period of the seasonal variation is 12.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation. 
+You can also define a time series without a start date.  Using `freqquency = 1` means that you have 1 observations per cycle (i.e. per year), so the period of the seasonal variation is just 1.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation. 
 
 ```{r}
-t_ser1 <- ts(Tvalues$x, freq = 12)
+t_ser1 <- ts(Tvalues$x, freq = 1)
 plot(t_ser1)
 ```
 
 ### Exercise
 
-**TODO**
+Using the data from Practical7_time_series.txt, make a time series out of it.  Assume that the starting point is week 47.
 
-take the data from "Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) and load it into R.  This contains daily data on the internet traffic from November 20, 2004 until January 27, 2005.  " and make a time series out of it
+```{r}
+practical7_ts <- ts(series2$x, start = 47, freq = 7)
+plot(practical7_ts)
+```
 
 
-## Moving-average smoothing
+## Moving Average Smoothing
 
 We will now use the `ma` function for moving-average smoothing.  To do this, make sure to load the `forecast` library:
 
@@ -254,7 +252,7 @@ Arguments:
 
 ### Example
 
-Here we create a single moving average on the `Pr_20May1.csv` data we loaded in above.
+Here we create a single moving average on the `lynx.csv` data we loaded in above.
 
 ```{r}
 ma5 = ma(Tvalues$x, order = 5)
@@ -324,7 +322,7 @@ ggplot(series2_with_ma, aes(x=t)) +
 
 The warning messages that you see are related to `NA` values generated based on the different orders of moving averages.
 
-## Lagging time values
+## Lagging Time Values
 
 ### Example
 
@@ -417,14 +415,14 @@ Arguments:
 **TODO** use lynx data here
 **TODO** search replace Pr_20May1.csv with lynx data
 
-Using the `Pr_20May1.csv` data, we estimate the autocorrelation with a maximum lag of 64.
+Using the `lynx.csv` data, we estimate the autocorrelation with a maximum lag of 64.
 
 ```{r, eval=FALSE}
-Tvalues = read.csv("Pr_20May1.csv")
+Tvalues = read.csv("lynx.csv")
 acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
 ```
 ```{r, echo=FALSE}
-Tvalues = read.csv("./data/Pr_20May1.csv")
+Tvalues = read.csv("./data/lynx.csv")
 acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
 ```
 
@@ -458,7 +456,7 @@ decompose(x, type = c("additive", "multiplicative"), filter = NULL)
 
 By default, an additive model is performed if no value is specified for `type`.
 
-Here we use the `Pr_20May1.csv` data which we've loaded into `Tvalues` above.
+Here we use the `lynx.csv` data which we've loaded into `Tvalues` above.
 
 ### Classical
 
@@ -560,7 +558,7 @@ There is an optional outer loop, that provides robustness. This is recommended i
 
 **TODO** use the lynx data here as well
 
-We again use the `Tvalues` data which is from `Pr_20May1.csv`.  
+We again use the `Tvalues` data which is from `lynx.csv`.  
 
 ```{r}
 t_ser1 <- ts(Tvalues$x, freq = 12)

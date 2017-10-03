@@ -22,12 +22,9 @@ install.packages("lmodel2")
 Now load required libraries:
 ```{r, message=FALSE, warning=FALSE}
 library(GGally)
-library(ggplot2)
 library(lmodel2)
-library(dplyr)
+library(tidyverse)
 ```
-
-
 
 ### Reminder of the lecture
 We have data (x, y), where x is a deterministic variable and y is a random variable that is dependent on x. 
