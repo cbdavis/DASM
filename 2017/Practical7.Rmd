@@ -14,6 +14,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+
 ## Dates and Times
 
 ### Load and Install Required Libraries
@@ -411,6 +413,10 @@ Arguments:
 
 
 ### Example
+
+**TODO** use lynx data here
+**TODO** search replace Pr_20May1.csv with lynx data
+
 Using the `Pr_20May1.csv` data, we estimate the autocorrelation with a maximum lag of 64.
 
 ```{r, eval=FALSE}
@@ -457,6 +463,8 @@ Here we use the `Pr_20May1.csv` data which we've loaded into `Tvalues` above.
 ### Classical
 
 #### Example
+
+**TODO** use lynx data, also for stl example
 
 ```{r}
 ## create a time series object with frequency of 12, since we're dealing with monthly data
@@ -549,6 +557,8 @@ You can play around with these parameters, to get the trend estimate you like.
 There is an optional outer loop, that provides robustness. This is recommended if you have many outliers or not-well behaved time series.  You set this to `TRUE` or `FALSE` using the `robust` parameter in the `stl` function.
 
 ### Example
+
+**TODO** use the lynx data here as well
 
 We again use the `Tvalues` data which is from `Pr_20May1.csv`.  
 
