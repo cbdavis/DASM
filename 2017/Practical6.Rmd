@@ -27,7 +27,7 @@ library(lmodel2)
 library(tidyverse)
 ```
 
-### Reminder of the lecture
+### Reminder from the lecture
 
 * We have data (x, y), where x is a deterministic variable and y is a random variable that is dependent on x. 
 * We fit a linear regression line to the data with slope $\beta_1$ and intercept $\beta_0$ by finding the minimum of the RSS (Residual Sum of Squares)
@@ -460,7 +460,7 @@ ggplot(anscombe_2cols, aes(x=x, y=cooks_distance)) +
 
 ### Exercise
 
-For the unweighted and weighted fit, compare the cooks distance 
+For the unweighted and weighted fit you performed on `Practical6_Data.txt`, compare the Cook's distance.
 
 Unweighted fit:
 
@@ -503,7 +503,7 @@ plot(z)
 
 ### Exercise
 
-Create diagnostic plots for both the unweighted and weighted regressions that you just did.
+Create diagnostic plots for both the unweighted and weighted regressions that you just did on the data for from `Practical6_Data.txt`.
 
 #### Diagnostic plots for unweighted fit
 ```{r, echo=FALSE}
@@ -518,7 +518,7 @@ plot(model6)
 
 ## Multiple regression
 
-### Reminder of the lecture 9
+### Reminder from the lecture
 
 $Y_i =  \beta_0 + \beta_1*X_{1i} + \beta_2*X_{2i} +  \beta_3*X_{3i} + … +  \epsilon_i$
 
@@ -527,12 +527,13 @@ Interpretation of the parameters:
 * If $\beta_j  > 0$, then $j$ stands for the average increase of the response when predictor $x_j$ increases with one unit, holding all other variables constant.
 * If $\beta_j  < 0$, then $j$ stands for the average decrease of the response when predictor $x_j$ increases with one unit, holding all other variables constant.
 
-An anova test can be done to see if the removing one variable significantly changes the fit. If p-value of the anova test <0.05, you should keep the variable (as a rule of thumb)
+An ANOVA test can be done to see if the removing one variable significantly changes the fit. If p-value of the ANOVA test <0.05, you should keep the variable (as a rule of thumb)
  
 ### Syntax 
 
 #### Linear model as a function of several parameters
- say you have several variables (y, x1, x2, x3, …) in the data frame `dat`
+ 
+If you have several variables (y, x1, x2, x3, …) in the data frame `dat`, you can perform multiple regression via this syntax:
 
 ```{r, eval=FALSE}
 z = lm(y~ x1 + x2 + x3 + …, data = dat) 
@@ -549,23 +550,23 @@ install.packages("GGally")
 library(GGally)
 ```
 
-As an example, we'll use a pairs plot on the `mtcars` dataset.  For this, we only use the `mpg`, `disp`, `hp` and `qsec` columns.  Looking at the first few rows in these columns, we see:
+As an example, we'll use a pairs plot on the `mtcars` dataset.  For this, we only use the `mpg`, `disp`, `hp` and `wt` columns.  Looking at the first few rows in these columns, we see:
 
 ```{r}
-head(mtcars[,c("mpg", "disp", "hp", "qsec")])
+head(mtcars[,c("mpg", "disp", "hp", "wt")])
 ```
 
 The pairs plot for these four columns looks like this:
 ```{r}
-ggpairs(mtcars[,c("mpg", "disp", "hp", "qsec")])
+ggpairs(mtcars[,c("mpg", "disp", "hp", "wt")])
 ```
 
-Reading across the rows and columns we can see which variables are being plotted together.  In the first column and second row, we have the `disp` vs. the `mpg`, directly below that is the `hp` vs. the `mpg` and so on.  On the top right we can see the correlations calculated between the variables.  On the diagonal we see a density plot of the variables.  For example, most of the values for `hp` are around 100, although the distribution is skewed to one side.  
+Reading across the rows and columns we can see which variables are being plotted together.  In the first column and second row, we have the `disp` vs. the `mpg`, directly below that is the `hp` vs. the `mpg` and so on.  On the top right we can see the correlations calculated between the variables.  On the diagonal we see a density plot of the variables.  For example, most of the values for `hp` are around 100, although the distribution is skewed to one side.
 
-Now we perform a linear regression where we try to predict `mpg` given the values for `disp`, `hp` and `qsec`
+Now we perform a linear regression where we try to predict `mpg` given the values for `disp`, `hp` and `wt`
 
 ```{r}
-z = lm(mpg~disp + hp + qsec, data=mtcars)
+z = lm(mpg~disp + hp + wt, data=mtcars)
 summary(z)
 ```
 
@@ -581,9 +582,9 @@ Create a series of diagnostic plots:
 plot(z)
 ```
 
-#### Anova test
+#### ANOVA test
 
-We can perform an Anova test using the following set up (assuming a data frame named `dat` with columns named `y`, `x1`, `x2`, and `x3`)
+We can perform an ANOVA test using the following set up (assuming a data frame named `dat` with columns named `y`, `x1`, `x2`, and `x3`)
 
 * `z1 = lm(y~ x1 + x2 + x3, data = dat)`
 * `z2 = lm(y~ x1 + x2, data = dat)`
@@ -591,11 +592,13 @@ We can perform an Anova test using the following set up (assuming a data frame n
 
 Using the `mtcars` example, we can do:
 ```{r}
-z1 = lm(mpg~disp + hp + qsec, data=mtcars)
-z2 = lm(mpg~disp + hp, data=mtcars)  # leave out `qsec`
+z1 = lm(mpg~disp + hp + wt, data=mtcars)
+z2 = lm(mpg~disp + hp, data=mtcars)  # leave out `wt`
 results = anova(z1, z2)
 print(results)
 ```
+
+As stated above, if p-value of the anova test <0.05, you should keep the variable (as a rule of thumb).  Here it's clear that the `wt` column (weight) is quite important in predicting the fuel economy of a car.
 
 ### Exercise
 
@@ -707,15 +710,6 @@ ggplot(stackloss, aes(x=Water.Temp, y=Air.Flow)) + geom_point() +
 
 ## Replacing values with NA 
 
-**TODO** discuss na.rm=TRUE/FALSE or na.omit, or na.action, na.fail.  By default, have na.fail - gives error
-see ?na.action, talk about what this means
-
-Regarding `NA` values:
-
-* If you are doing a numeric comparisons (i.e. `hp >= 250`) using the `filter` function, then `NA` values will be filtered out.  
-* If you want to do a numeric comparison and also keep `NA` values, then you need to specify something like `hp >= 250 | is.na(hp)`.  The function `is.na()` will return `TRUE` for any `NA` values.
-
-
 Real data may often have missing values, which are represented in R as `NA`.  In some data sets you may see them represented in other forms like `NaN` (not a number) or by an unrealistic number (e.g., -999).  For R to handle the missing values, you have to rename them as `NA`, if they are not named like that, then R does not recognize them and will try to process them as an actual number.
 
 Let's say that for a data frame we have called `df`, `NA` values are currently represented as `-999`.  If we type into the console `df == -999`, we'll get a matrix of `TRUE`, `FALSE` or `NA` values (if `NA` is already present).  
@@ -726,7 +720,38 @@ To replace these -999 values, we use the command below which says that for all l
 df[df == -999] <-NA
 ```
 
-### Exercise 1
+Also be aware that many R functions have arguments that allow you to specify how they will process `NA` values.
+For example, if you type `?mean` in the R console, you'll see that the `mean()` function has a `na.rm` argument that specifies if `NA` values should be removed before computing the mean.
+
+Calculating `mean()` with `NA` values included:
+```{r}
+mean(c(3,7,3,NA,5))
+```
+
+Calculating `mean()` and removing `NA` values:
+```{r}
+mean(c(3,7,3,NA,5), na.rm=TRUE)
+```
+
+The `lm()` function has a `na.action` argument that specifies how to deal with missing values.
+```{r, error=TRUE}
+df <- data.frame(x = c(1, 2, 3), y = c(0, 10, NA))
+
+# remove rows from the data frame containing NA
+na.omit(df)
+
+lm(y~x, df, na.action=na.fail)
+lm(y~x, df, na.action=na.omit)
+lm(y~x, df, na.action=na.pass)
+```
+
+The `dplyr` library also deals with `NA` values in a specific way:
+
+* If you are doing a numeric comparisons (i.e. `hp >= 250`) using the `filter` function, then `NA` values will be filtered out.  
+* If you want to do a numeric comparison and also keep `NA` values, then you need to specify something like `hp >= 250 | is.na(hp)`.  The function `is.na()` will return `TRUE` for any `NA` values.
+
+
+### Exercise
 
 For this exercise, download the [Carbon.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Carbon.csv) data into R as a data frame called `input1`.
 
