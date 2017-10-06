@@ -14,7 +14,7 @@ output:
 
 ### Getting Started
 
-For this practical, we will need the `GGally` and the `lmodel2` libraries.  Make sure that they are both installed:
+For this practical, we will need the `GGally` and the `lmodel2` libraries.  Make sure that they are both installed.  You only have to do this once.
 ```{r, eval=FALSE}
 install.packages("GGally")
 install.packages("lmodel2")
@@ -111,15 +111,15 @@ Anscombe's work has been taken a step further by a [recent paper](https://www.au
 
 <center><img src="./images/DinoSequentialSmaller.gif"></center>
 
+#### Perform a linear regression
 
-For the example below, we'll use the x and y values from the first data set in Anscombe's Quartet.
+For this example, we'll use the x and y values from the first data set in Anscombe's Quartet.  We'll create a second data frame to avoid overwriting the original data.
 
 ```{r}
 anscombe1 = data.frame(x = anscombe$x1, 
                        y = anscombe$y1)
 ```
 
-#### Perform a linear regression
 Now we perform a linear regression on the data:
 ```{r}
 z = lm(y~x, data=anscombe1)
@@ -136,22 +136,42 @@ summary(z)
 
 #### Error bar plots in ggplot
 
-For some data sets, you will also have information available on the error for particular values.  Anscombe's quartet doesn't contain this information, but for the sake of demonstrating the R syntax to create a plot with error bars, we add a `y_error` column using random values.
+For some data sets, you will also have information available on the error for particular values.  Anscombe's quartet doesn't contain this information, but for the sake of demonstrating the R syntax to create a plot with error bars, we just add a `y_error` column using random values and pretend that this is a real error measurement.
 
 ```{r}
+# create a column with bogus error values so we can show how geom_errorbar() works
 anscombe1$y_error = runif(nrow(anscombe1))
 ```
 
 Now we perform a scatter plot using `geom_point`, but now we also add `geom_errorbar` to add error bars on top of those points.  The code `ymin = y - y_error` and `ymax = y + y_error` shows how we use the values from the `y` and `y_error` columns to calculate the top and bottom of the error bars.  
 
 ```{r}
-ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + 
- geom_errorbar(aes(ymin = y - y_error,
-                   ymax = y + y_error,
-                   width=0.3)) # width changes the width of the horizontal bar at the top of the error bar
+ggplot(anscombe1, aes(x=x, y=y)) + 
+  geom_point() + 
+  geom_errorbar(aes(ymin = y - y_error,
+                    ymax = y + y_error,
+                    width=0.3)) # width of the horizontal bar at the top of the error bar
 ```
 
 In this example, the error bars are "mirrored" around the value of `y`.  Since we specify the value of `ymin` independently of `ymax`, then it's possible that you could use a different formula and/or column so that the observed value of `y` does not lie directly in the middle of the error bars but is skewed to one side.
+
+In the example below, we create columns for `y_error_lower` and `y_error_upper`, in order to show how to create error bars where the error is not symmetrical around the data point.
+
+```{r}
+# Create columns with more bogus error values, 
+# so we can show how geom_errorbar() works for more skewed error bars
+# The values assigned here just make sure that the upper error bar 
+# is further away from the data point than the lower error bar
+anscombe1$y_error_upper = anscombe1$y + 3 * sd(anscombe1$y)/5
+anscombe1$y_error_lower = anscombe1$y - sd(anscombe1$y)/5
+
+ggplot(anscombe1, aes(x=x, y=y)) + 
+  geom_point() + 
+  geom_errorbar(aes(ymin = y_error_lower,
+                    ymax = y_error_upper,
+                    width=0.3))
+```
+
 
 #### Add a regression line to the error bar plot 
 
@@ -166,8 +186,8 @@ As you can see, the first value is the intercept.  The second value is labelled 
 ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + 
   geom_errorbar(aes(ymin=y - y_error,
                     ymax=y + y_error,
-                    width=0.3)) + 
-  geom_abline(intercept = z$coefficients[1], 
+                    width=0.3)) +             # same plotting code as above
+  geom_abline(intercept = z$coefficients[1],  # but add in the regression line
               slope = z$coefficients[2])
 ```
 
@@ -193,7 +213,7 @@ ggplot(anscombe_2cols, aes(x=x,y=y)) +
 
 ### Exercise
 
-For this exercise, download the data [Practical6_Data.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical6_Data.txt) and load it into R.
+For this exercise, download the data [Practical6_Data.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Practical6_Data.txt) and load it into R.  Assume that the error is symmetrical around the data points.
 
 #### Make an error bar plot
 
@@ -232,7 +252,7 @@ ggplot(data1, aes(x=x_values, y_values)) + geom_point() +
 
 #### Perform a linear regression with weights specified
 
-For the linear regression, we need to specify the weights as `1/(data1$y_errors^2)`
+  For the linear regression, we need to tell `lm()` that the `weights` are `1/(data1$y_errors^2)`
 
 The summary of the linear regression results should show:
 ```{r, echo=FALSE}
@@ -276,20 +296,18 @@ z = lm(y~x, anscombe1)
 
 Now we get the fitted values corresponding to each value of x:
 ```{r}
-fit <- fitted(z)
-print(fit)
+fitted(z)
 ```
 
 We then get the residuals:
 ```{r}
-res <- residuals(z)
-print(res)
+residuals(z)
 ```
 
 Add in columns to the `anscombe1` data frame for the fit and res values
 ```{r}
-anscombe1$fit = fit
-anscombe1$res = res
+anscombe1$fit = fitted(z)
+anscombe1$res = residuals(z)
 ```
 
 We can see that the fitted values follow the regression line:
@@ -312,22 +330,24 @@ ggplot(anscombe1) +
 Putting this all together we can see how subtracting the residual from the original `y` values gives us the fitted values in `fit`.  Note that `geom_segment` allows us to draw line segments from the points defined at `x`,`y` to the point at `xend`,`yend`
 
 ```{r}
-ggplot(anscombe1) + 
+ggplot(data = anscombe1) + 
   geom_point(aes(x=x, y=y, color="original value"), size=3) + 
   geom_point(aes(x=x, y=fit, color="fitted value"), size=3) + 
-  geom_segment(aes(x=x, xend=x, y=y, yend=y-res)) + 
+  geom_segment(aes(x=x, xend=x, y=y, yend=y-res), 
+               arrow = arrow(length = unit(0.3,"cm"))) + # add an arrow to this line segment
   geom_abline(intercept = z$coefficients[1], slope=z$coefficients[2])
 ```
 
-Plot residual against fitted values:
+Plot residual against fitted values.  If our original data was from a straight line, then we would just see residual values of just zero.
+
 ```{r}
 ggplot(anscombe1, aes(x=fit, y=res)) + geom_point() + ggtitle("residual vs. fitted values")
 ```
 
 Perform a qqnorm plot of residuals to see if they are normally distributed:
 ```{r}
-qqnorm(res)
-qqline(res)
+qqnorm(anscombe1$res)
+qqline(anscombe1$res)
 ```
 
 ### Exercise
@@ -387,11 +407,13 @@ qqline(res6)
 
 ## Cook's distance
 
-### Reminder of the lecture
+### Reminder from the lecture
 
-The cook’s distance of point $X_i$ is a measure of the difference in regression parameters when the point is included or omitted. If omitting a point changes the regression parameters strongly, this point has a large Cook’s distance.
+The Cook’s distance of point $X_i$ is a measure of the difference in regression parameters when the point is included or omitted. If omitting a point changes the regression parameters strongly, this point has a large Cook’s distance.
 
-To see quantitatively if the Cook's distance of a data point is too large and it has an undue influence on the fit you need to compare it with a theoretical cut-off.  This cutoff value can be calculated with the F-statistic using `qf(0.5, p, n-p, lower.tail = FALSE)` where:
+To see quantitatively if the Cook's distance of a data point is too large and it has an undue influence on the fit you need to compare it with a theoretical cut-off.  
+
+This cutoff value can be calculated with the F-statistic using `qf(0.5, p, n-p, lower.tail = FALSE)` where:
 
 * `p` - fitted parameters (=2 with simple linear regression)
 * `n` - number of data points 
@@ -414,7 +436,9 @@ data = data.frame(fit = fitted(z),
 ##cut-off value
 cut <- qf(0.5, 2, length(data$fit)-2, lower.tail = FALSE)
 
-ggplot(data, aes(x=fit, y=cooks_distance)) + geom_point() + geom_hline(yintercept=cut)
+ggplot(data, aes(x=fit, y=cooks_distance)) + 
+  geom_point() +                   # plot fitted values vs. cooks distance for each fitted values
+  geom_hline(yintercept=cut)       # add a horizontal line for the cut-off we calculated
 ```
 
 If we look at all four data sets in Anscombe's Quartet, there are quite different outcomes when plotting the Cook's distance for each.
