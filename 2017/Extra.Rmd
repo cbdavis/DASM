@@ -393,3 +393,79 @@ We can now add this vector directly to the data frame:
 ```{r, eval=FALSE}
 input1$months = months
 ```
+
+## Reduced major axis regression
+
+### Reminder from the lecture 
+
+Reduced major axis regression minimizes the area of the triangles formed by the observations and the line:
+
+* $\beta_1 = s_x / s_y$
+* $\beta_0$ is calculated like in the normal regression
+
+### Syntax
+
+```{r, eval=FALSE}
+model <-lmodel2(y~x, data = dataframe, range.y = "interval", 
+                 range.x = "interval", nperm = 100)
+```
+
+Arguments:
+
+* `formula`	- A formula specifying the bivariate model, as in lm.
+* `data` - A data frame containing the two variables specified in the formula.
+* `range.y`, `range.x` - Parameters for ranged major axis regression (RMA). If range.y = NULL and range.x = NULL, RMA will not be computed. If only one of them is NULL, the program will stop. If range.y = "relative": variable y has a true zero (relative-scale variable). If range.y = "interval": variable y possibly includes negative values (interval-scale variable). If range.x = "relative": variable x has a true zero (relative-scale variable). If range.x = "interval": variable x possibly includes negative values (interval-scale variable)
+* `nperm` - Number of permutations for the tests. If nperm = 0, tests will not be computed.
+
+Here we again use the `anscombe1` data frame:
+```{r}
+library(lmodel2) # make sure that this library is loaded in order to use the function below
+model <-lmodel2(y~x, data = anscombe1, range.y = "interval", 
+                 range.x = "interval", nperm = 100)
+
+```
+
+From the regression results, we want to retrieve the `Intercept` and `Slope` values for the RMA method.  Below we can see the results that we have to search through.
+```{r}
+model$regression.results
+```
+
+There are two ways in which you can extract these values.  First, since `model$regression.results` is a data frame (which you can check by typing `class(model$regression.results)`), you can use indices to directly extract data from a cell at a specific row and column number:
+
+```{r}
+intercept <- model$regression.results[4,2]
+slope <- model$regression.results[4,3]
+```
+
+Another way is to use `dplyr` as discussed in the previous practical.  Here we `filter` the data frame `model$regression.results` for all rows where `Method == "RMA"`, and then we `select` the value in the `Intercept` column.  This will give us a data frame with only one row and one column.  Since we want the number in the data frame, and not the data frame itself, we need to add the extra step of `%>% unlist()`.  
+
+```{r}
+intercept = model$regression.results %>% filter(Method == "RMA") %>% select(Intercept) %>% unlist()
+slope = model$regression.results %>% filter(Method == "RMA") %>% select(Slope) %>% unlist()
+```
+
+Make a summary of the regression model:
+```{r}
+summary(model)
+```
+
+Plot the results of the regression model:
+```{r}
+ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
+```
+
+### Exercise
+
+Make a reduced major axis regression for x and y in the `Practical6_data.txt` and add the regression line to the plot 
+
+```{r, echo=FALSE}
+model <-lmodel2(y_values~x_values, data = data1, range.y = "interval", 
+                 range.x = "interval", nperm = 100)
+
+intercept = model$regression.results %>% filter(Method == "RMA") %>% select(Intercept) %>% unlist()
+slope = model$regression.results %>% filter(Method == "RMA") %>% select(Slope) %>% unlist()
+
+ggplot(data1, aes(x=x_values, y=y_values)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
+
+summary(model)
+```

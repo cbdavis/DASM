@@ -12,6 +12,7 @@ output:
 
 ## Basic linear fitting with and without weights 
 
+### Getting Started
 
 For this practical, we will need the `GGally` and the `lmodel2` libraries.  Make sure that they are both installed:
 ```{r, eval=FALSE}
@@ -19,7 +20,7 @@ install.packages("GGally")
 install.packages("lmodel2")
 ```
 
-Now load required libraries:
+Now load required libraries.  
 ```{r, message=FALSE, warning=FALSE}
 library(GGally)
 library(lmodel2)
@@ -27,12 +28,13 @@ library(tidyverse)
 ```
 
 ### Reminder of the lecture
-We have data (x, y), where x is a deterministic variable and y is a random variable that is dependent on x. 
-We fit a linear regression line to the data with slope $\beta_1$ and intercept $\beta_0$ by finding the minimum of the RSS:
+
+* We have data (x, y), where x is a deterministic variable and y is a random variable that is dependent on x. 
+* We fit a linear regression line to the data with slope $\beta_1$ and intercept $\beta_0$ by finding the minimum of the RSS (Residual Sum of Squares)
 
 $RSS(\beta_0, \beta_1) = \sum_{i=1}^{n} (y_{i} - \beta_0 - \beta_1 x_i)^2$
 
-which is calculated using:
+Where $\beta_1$ and $\beta_0$ are calculated using:
 
 * $\hat{\beta}_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i-\bar{x})^2}$
 * $\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$
@@ -47,7 +49,7 @@ with $w_i = 1 / \sigma_i^2$
 
 ### Syntax
 
-In R, the slope and intercept can be calculated by the command:
+In R, the slope ($\hat{\beta}_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i-\bar{x})^2}$) and intercept ($\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$) can be calculated by these commands:
 
 ```{r, eval=FALSE}
 b1 = cov(x,y)/var(x)
@@ -104,6 +106,11 @@ anscombe_2cols = data.frame(x = c(anscombe$x1, anscombe$x2, anscombe$x3, anscomb
 
 ggplot(anscombe_2cols, aes(x=x,y=y)) + geom_point() + facet_wrap(~series)
 ```
+
+Anscombe's work has been taken a step further by a [recent paper](https://www.autodeskresearch.com/publications/samestats) that showed how to generate datasets that look different but have nearly identical statistical properties.
+
+<center><img src="./images/DinoSequentialSmaller.gif"></center>
+
 
 For the example below, we'll use the x and y values from the first data set in Anscombe's Quartet.
 
@@ -323,7 +330,7 @@ qqnorm(res)
 qqline(res)
 ```
 
-#### Exercise
+### Exercise
 
 Make the plots of fitted values vs residuals for the data from `Practical6_Data.txt `
 
@@ -378,9 +385,9 @@ qqline(res6)
 ```
 
 
-### Cook's distance
+## Cook's distance
 
-#### Reminder of the lecture
+### Reminder of the lecture
 
 The cook’s distance of point $X_i$ is a measure of the difference in regression parameters when the point is included or omitted. If omitting a point changes the regression parameters strongly, this point has a large Cook’s distance.
 
@@ -390,7 +397,7 @@ To see quantitatively if the Cook's distance of a data point is too large and it
 * `n` - number of data points 
 
 
-#### Syntax
+### Syntax
 
 Below we use the `anscombe1` data frame again.
 
@@ -427,7 +434,7 @@ ggplot(anscombe_2cols, aes(x=x, y=cooks_distance)) +
   facet_wrap(~series) + geom_hline(yintercept = cut)
 ```
 
-#### Exercise
+### Exercise
 
 For the unweighted and weighted fit, compare the cooks distance 
 
@@ -455,7 +462,7 @@ ggplot(dat, aes(x=fit, y=cooks_distance)) +
 
 ```
 
-### Automatic diagnostic plots
+## Automatic diagnostic plots
 
 We can create a series of diagnostic plots for the linear regression results by simply using `plot(z)` (where `z` is the output of a linear regression) instead of `ggplot`.  What's happening here is that R detects that `z` is the result of a linear regression, and whenever it sees this, it will create a series of four plots: 
 
@@ -470,95 +477,20 @@ z = lm(y~x, data=anscombe1)
 plot(z)
 ```
 
-#### Exercise
+### Exercise
 
 Create diagnostic plots for both the unweighted and weighted regressions that you just did.
 
-##### Diagnostic plots for unweighted fit
+#### Diagnostic plots for unweighted fit
 ```{r, echo=FALSE}
 plot(model5)
 ```
 
-##### Diagnostic plots for weighted fit
+#### Diagnostic plots for weighted fit
 ```{r, echo=FALSE}
 plot(model6)
 ```
 
-## Reduced major axis regression
-
-### Reminder from the lecture 
-
-Reduced major axis regression minimizes the area of the triangles formed by the observations and the line:
-
-* $\beta_1 = s_x / s_y$
-* $\beta_0$ is calculated like in the normal regression
-
-### Syntax
-
-```{r, eval=FALSE}
-model <-lmodel2(y~x, data = dataframe, range.y = "interval", 
-                 range.x = "interval", nperm = 100)
-```
-
-Arguments:
-
-* `formula`	- A formula specifying the bivariate model, as in lm.
-* `data` - A data frame containing the two variables specified in the formula.
-* `range.y`, `range.x` - Parameters for ranged major axis regression (RMA). If range.y = NULL and range.x = NULL, RMA will not be computed. If only one of them is NULL, the program will stop. If range.y = "relative": variable y has a true zero (relative-scale variable). If range.y = "interval": variable y possibly includes negative values (interval-scale variable). If range.x = "relative": variable x has a true zero (relative-scale variable). If range.x = "interval": variable x possibly includes negative values (interval-scale variable)
-* `nperm` - Number of permutations for the tests. If nperm = 0, tests will not be computed.
-
-Here we again use the `anscombe1` data frame:
-```{r}
-library(lmodel2) # make sure that this library is loaded in order to use the function below
-model <-lmodel2(y~x, data = anscombe1, range.y = "interval", 
-                 range.x = "interval", nperm = 100)
-
-```
-
-From the regression results, we want to retrieve the `Intercept` and `Slope` values for the RMA method.  Below we can see the results that we have to search through.
-```{r}
-model$regression.results
-```
-
-There are two ways in which you can extract these values.  First, since `model$regression.results` is a data frame (which you can check by typing `class(model$regression.results)`), you can use indices to directly extract data from a cell at a specific row and column number:
-
-```{r}
-intercept <- model$regression.results[4,2]
-slope <- model$regression.results[4,3]
-```
-
-Another way is to use `dplyr` as discussed in the previous practical.  Here we `filter` the data frame `model$regression.results` for all rows where `Method == "RMA"`, and then we `select` the value in the `Intercept` column.  This will give us a data frame with only one row and one column.  Since we want the number in the data frame, and not the data frame itself, we need to add the extra step of `%>% unlist()`.  
-
-```{r}
-intercept = model$regression.results %>% filter(Method == "RMA") %>% select(Intercept) %>% unlist()
-slope = model$regression.results %>% filter(Method == "RMA") %>% select(Slope) %>% unlist()
-```
-
-Make a summary of the regression model:
-```{r}
-summary(model)
-```
-
-Plot the results of the regression model:
-```{r}
-ggplot(anscombe1, aes(x=x, y=y)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
-```
-
-### Exercise
-
-Make a reduced major axis regression for x and y in the `Practical6_data.txt` and add the regression line to the plot 
-
-```{r, echo=FALSE}
-model <-lmodel2(y_values~x_values, data = data1, range.y = "interval", 
-                 range.x = "interval", nperm = 100)
-
-intercept = model$regression.results %>% filter(Method == "RMA") %>% select(Intercept) %>% unlist()
-slope = model$regression.results %>% filter(Method == "RMA") %>% select(Slope) %>% unlist()
-
-ggplot(data1, aes(x=x_values, y=y_values)) + geom_point() + geom_abline(slope=slope, intercept=intercept)
-
-summary(model)
-```
 
 ## Multiple regression
 
@@ -774,18 +706,18 @@ df[df == -999] <-NA
 
 For this exercise, download the [Carbon.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Carbon.csv) data into R as a data frame called `input1`.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, cache=TRUE}
 input1 = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Carbon.csv")
 ```
 
 After loading in the csv file into R, try to replace the -999 values with `NA`.  If you run `summary` before the replacement you should see:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, cache=TRUE}
 summary(input1)
 ```
 
 After replacing them, using `summary` you should see that several columns now have `NA` values:
-```{r, echo=FALSE}
+```{r, echo=FALSE, cache=TRUE}
 input1[input1 == -999] <-NA
 summary(input1)
 ```
