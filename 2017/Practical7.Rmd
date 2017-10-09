@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Load and Install Required Libraries
 
-We need to install the `forecast` package for the `ma` (moving average) function which we'll use later in this practical.
+We need to install the `forecast` package for the `ma()` (moving average) function which we'll use later in this practical.
 ```{r, eval=FALSE}
 install.packages("forecast")
 ```
@@ -58,14 +58,7 @@ t
 
 `by=` can be e.g, 1 month, 2 years, 5 days, etc...
 
-Now try to make a weekly time vector from 5 June 2005 to 20 August 2006.  You should see:
-
-```{r, echo=FALSE}
-t = seq(from = as.Date("2005-06-05"), to = as.Date("2006-08-20"), by="1 week")
-t
-```
-
-In general, you can treat date & time vectors as normal vectors, which means that you can use them in plots, add and subtract them, etc.
+In general, you can treat date and time vectors as normal vectors, which means that you can use them in plots, add and subtract them, etc.
 
 `POSIXct` does more or less the same as `Date`, but it stores the time variable as numbers of seconds since midnight GMT 1970-01-01.  As a result, this allows us to store data which expresses the time on a specific date.
 
@@ -85,7 +78,9 @@ t.obj1
 
 `"%d-%m-%Y %H:%M:%S"` says that we have a time that is specified in the form of day, month and year (separated by `-`) which is then followed by a space and the hours, minutes and seconds (separated by `:`).
 
-To get an overview of all the format types type `help(strptime)`.  Below is a table which summarizes commonly used codes.
+### Summary of Date/Time Format Codes
+
+To get an overview of all the format types type `?strptime`.  Below is a table which summarizes commonly used codes.
 
 | Code | Description              | Example |
 |------|--------------------------|---------|
@@ -116,12 +111,14 @@ To get an overview of all the format types type `help(strptime)`.  Below is a ta
 
 You can change the format of the output date using the codes mentioned above.
 
+
 | Code | Description              | Example |
 |------|--------------------------|---------|
 | %a | Abbreviated weekday name | Mon |
 | %d | Day of the month as decimal number (01–31) | 01 |
 | %b | Abbreviated month name | Jan |
 | %Y | Year with century | 1991 |
+
 
 ```{r}
 t.obj1
@@ -161,7 +158,16 @@ Now we plot the data:
 ggplot(Tvalues, aes(x=t, y=x)) + geom_line()
 ```
 
-### Exercise
+### Exercise 1
+
+Make a weekly time vector from 5 June 2005 to 20 August 2006.  You should see:
+
+```{r, echo=FALSE}
+t = seq(from = as.Date("2005-06-05"), to = as.Date("2006-08-20"), by="1 week")
+t
+```
+
+### Exercise 2
 
 Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) and load it into R.  This contains daily data on the internet traffic from November 20, 2004 until January 27, 2005.  
 
@@ -177,11 +183,9 @@ ggplot(series2, aes(x=t, y=x)) + geom_line()
 
 ## Time Series Objects
 
-
 ### Using `ts()`
 
 We can also use the `ts` function to create time series objects.  The relevant syntax is shown below and you can learn more by typing `?ts` into the console.
-
 
 ```{r, eval=FALSE}
 ts(data = NA, start = 1, end = numeric(), frequency = 1,
@@ -201,6 +205,9 @@ Arguments:
 
 To perform the same operation as shown in the previous example above, we can also do:
 ```{r}
+
+co2_vals = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/co2.csv")
+
 t_ser <- ts(Tvalues$x, start = c(1821, 1), freq = 1)
 plot(t_ser)
 ```
