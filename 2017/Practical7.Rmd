@@ -203,19 +203,23 @@ Arguments:
     * 24 - hourly measurements within a day
 * `deltat` - the fraction of the sampling period between successive observations; e.g., 1/12 for monthly data. Only one of `frequency` or `deltat` should be provided.
 
-To perform the same operation as shown in the previous example above, we can also do:
+### Example
+
+Here we use data from [co2.csv](https://github.com/cbdavis/DASM/raw/master/2017/data/co2.csv) which contains CO$_2$ measurements from the Mauna Loa observatory from January 1959 until December 1997, with values for each month.
+
+Using `freq = 12` means that you have 12 observations per cycle (i.e. per year), so the period of the seasonal variation is just 12.
+
 ```{r}
+co2_vals = read.csv("https://github.com/cbdavis/DASM/raw/master/2017/data/co2.csv")
 
-co2_vals = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/co2.csv")
-
-t_ser <- ts(Tvalues$x, start = c(1821, 1), freq = 1)
+t_ser <- ts(co2_vals$co2_ppm, start = c(1959, 1), freq = 12)
 plot(t_ser)
 ```
 
-You can also define a time series without a start date.  Using `freqquency = 1` means that you have 1 observations per cycle (i.e. per year), so the period of the seasonal variation is just 1.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation. 
+You can also define a time series without a start date.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation.  Looking at the x axis, we see that there are nearly 40 years of observations.
 
 ```{r}
-t_ser1 <- ts(Tvalues$x, freq = 1)
+t_ser1 <- ts(co2_vals$co2_ppm, freq = 12)
 plot(t_ser1)
 ```
 
@@ -223,7 +227,7 @@ plot(t_ser1)
 
 Using the data from Practical7_time_series.txt, make a time series out of it.  Assume that the starting point is week 47.
 
-```{r}
+```{r, echo=FALSE}
 practical7_ts <- ts(series2$x, start = 47, freq = 7)
 plot(practical7_ts)
 ```
@@ -241,7 +245,8 @@ library(forecast)
 
 The formula for creating a moving average is:
 
-$T_{t} = \frac{1}{m} \sum_{j=-k}^{k} x(t + j)$ with $m = 2k + 1$
+* $T_{t} = \frac{1}{m} \sum_{j=-k}^{k} x(t + j)$ 
+* Where $m = 2k + 1$
 
 The main idea is that you take a set of $m$ data points with $k$ number of points to the left and $k$ to the right of $x(t)$ and average them with $x(t)$
 
@@ -300,8 +305,8 @@ ggplot(Tvalues_with_ma, aes(x=t)) +
   geom_line(aes(y=x, color="original data"), size=2) + 
   geom_line(aes(y=ma5, color="ma5")) + 
   geom_line(aes(y=ma13, color="ma13")) + 
-  xlim(c(as.Date("1980-01-01"), 
-         as.Date("1984-01-01"))) # Just show data from 1980-1984, otherwise the plot is too cluttered
+  xlim(c(as.Date("1821-01-01"), 
+         as.Date("1860-01-01"))) # Just show data from 1821-1860, otherwise the plot is too cluttered
 
 ```
 
@@ -331,7 +336,7 @@ The warning messages that you see are related to `NA` values generated based on 
 
 ## Lagging Time Values
 
-### Example
+Sometimes you want to calculate the difference between time series values where you offset one set of values by a particular time lag.  For example, if you wanted to analyze the yearly growth of a country's population, you would take the yearly population values and subtract them from the values for the previous years.
 
 An easy way to do this is with the `lag` command and `dplyr`.  The `lag` function simply takes as input a vector and shifts its values by the number specified.  Take for example a vector containing the numbers 1, 2, ..., 10:
 
@@ -343,14 +348,14 @@ lag(a, 3)
 
 As you can see we push all the values over three places and fill in the left side with `NA`.  The values 8, 9 and 10 are discarded since they are pushed out.
 
-Here we shift the values for `x` in `Tvalues` by three months.  We use the `mutate` function to create a new column named `lag_x` in the data frame.  
+Here we shift the values for `co2_ppm` in `co2_vals` by three months.  We use the `mutate()` function to create a new column named `lag_3` in the data frame.  
 ```{r}
-Tvalues_lag3 = Tvalues %>% mutate(lag_x = lag(x, 3))
+co2_vals_lag3 = co2_vals %>% mutate(lag_3 = lag(co2_ppm, 3))
 ```
 
 Looking at the first few rows of the data frame, we can see how `NA` values are inserted at first, with the lagged values starting at row 4:
 ```{r}
-head(Tvalues_lag3)
+head(co2_vals_lag3)
 ```
 
 Below we try to visually investigate if there might be a correlation between the original data and different lag amounts.  In other words, if they are correlated, we would expect to see the points arranged in nearly a straight line.
@@ -359,23 +364,23 @@ Instead of creating a new data frame for each different lag value, we just pass 
 
 ```{r, warning=FALSE}
 ## data shifted 3 months
-ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 3)), 
-       aes(x=x, y=lag_x)) + 
+ggplot(data = co2_vals %>% mutate(lag_x = lag(co2_ppm, 3)), 
+       aes(x=co2_ppm, y=lag_x)) + 
   geom_point()
 
 ## data shifted 6 months
-ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 6)), 
-       aes(x=x, y=lag_x)) + 
+ggplot(data = co2_vals %>% mutate(lag_x = lag(co2_ppm, 6)), 
+       aes(x=co2_ppm, y=lag_x)) + 
   geom_point()
 
 ## data shifted 10 months
-ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 10)), 
-       aes(x=x, y=lag_x)) + 
+ggplot(data = co2_vals %>% mutate(lag_x = lag(co2_ppm, 10)), 
+       aes(x=co2_ppm, y=lag_x)) + 
   geom_point()
 
 ## data shifted 12 months
-ggplot(data = Tvalues %>% mutate(lag_x = lag(x, 12)), 
-       aes(x=x, y=lag_x)) + 
+ggplot(data = co2_vals %>% mutate(lag_x = lag(co2_ppm, 12)), 
+       aes(x=co2_ppm, y=lag_x)) + 
   geom_point()
 ```
  
@@ -392,7 +397,7 @@ ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)),
 
 ## Auto- and Cross- Covariance and -Correlation Function Estimation
 
-### Reminder of the lecture
+### Reminder from the lecture
 
 For a time series, a lag 1 correlation is a the correlation of the time series $x(t)$ with the time series shifted by one time unit $x(t + \Delta t)$
 
@@ -418,9 +423,6 @@ Arguments:
 
 
 ### Example
-
-**TODO** use lynx data here
-**TODO** search replace Pr_20May1.csv with lynx data
 
 Using the `lynx.csv` data, we estimate the autocorrelation with a maximum lag of 64.
 
@@ -451,6 +453,8 @@ acf.ser2<- acf(series2, type = "correlation", lag.max = 30)
 
 ## Decomposition
 
+Time series decomposition allows us to analytically split up a single time series into three different time series that represent the overall trend, a seasonal component and random noise.
+
 The basic syntax is:
 
 ```{r, eval=FALSE}
@@ -463,17 +467,13 @@ decompose(x, type = c("additive", "multiplicative"), filter = NULL)
 
 By default, an additive model is performed if no value is specified for `type`.
 
-Here we use the `lynx.csv` data which we've loaded into `Tvalues` above.
+### Example
 
-### Classical
-
-#### Example
-
-**TODO** use lynx data, also for stl example
+Here we use the `co2_ppm` data.
 
 ```{r}
-## create a time series object with frequency of 12, since we're dealing with monthly data
-t_ser1 <- ts(Tvalues$x, freq = 12)
+## create a time series object with frequency of 1, since we're dealing with yearly data
+t_ser1 <- ts(co2_vals$co2_ppm, freq = 12)
 output = decompose(t_ser1)
 plot(output)
 ```
@@ -491,17 +491,17 @@ Now deseasonalize the data.  This shows the noise (`random`) + the `trend`
 t_des <- output$x - output$seasonal
 ## plot the deseasonalized data
 plot(t_des)
-## Find the ACF of the deseasonalized time series data
-acf_des <- acf(as.numeric(t_des), type = "correlation", lag.max = 64)
+## Find the ACF of the random component of the time series data
+acf_des <- acf(as.numeric(output$random), type = "correlation", lag.max = 128, na.action=na.omit)
 ```
 
 Note that if you don't use `as.numeric` as shown above, the values on the x axis will be based on the cycle number, which for this data set represents the year.  In the plot above, the numbers correspond to the months.
 
 ```{r}
-acf_des <- acf(t_des, type = "correlation", lag.max = 64)
+acf_des <- acf(output$random, type = "correlation", lag.max = 128, na.action=na.omit)
 ```
 
-What we see above is a small coherence in the data, i.e. there is still a signal, but not very much.
+What we see above is that there is still some seasonality in the calculated random noise component, but not very much.
 
 What would happen if we analyzed a time series composed of completely random values?
 ```{r}
@@ -526,7 +526,7 @@ dec2 = decompose(series2.1, type = "additive")
 plot(dec2)
 ```
 
-## Seasonal Decomposition of Time Series by Loess (`stl`)
+## Seasonal Decomposition of Time Series by Loess (stl)
 
 ### Reminder
 
@@ -547,7 +547,7 @@ Arguments:
 * `l.window` - the span (in lags) of the loess window of the low-pass filter used for each subseries. Defaults to the smallest odd integer greater than or equal to frequency(x) which is recommended since it prevents competition between the trend and seasonal components. If not an odd integer its given value is increased to the next odd one.
 * `robust` - logical indicating if robust fitting be used in the loess procedure.
 
-How it works: 
+### Overview
 
 In the `sts` function there is an inner loop that separates the seasonal and trend component.  This works in principle similar to classical decomposition, except that it uses more sophisticated smoothing methods.  
 
@@ -563,12 +563,10 @@ There is an optional outer loop, that provides robustness. This is recommended i
 
 ### Example
 
-**TODO** use the lynx data here as well
-
-We again use the `Tvalues` data which is from `lynx.csv`.  
+We again use the `co2_vals` data.
 
 ```{r}
-t_ser1 <- ts(Tvalues$x, freq = 12)
+t_ser1 <- ts(co2_vals$co2_ppm, freq = 12)
 output1 = stl(t_ser1, s.window = 15, t.window = 12*15+1)
 plot(output1)
 ```
@@ -594,6 +592,8 @@ We now take the remainder and see the auto-correlation:
 t_rem <- output1$time.series[,"remainder"]
 acf_rem <-acf(as.numeric(t_rem), type = "correlation", lag.max = 64)
 ```
+
+**TODO** update description
 
 With this we can see some coherence, such as if one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   Part of the reason for this is that a heat wave that lasts a week or two could span the borders of two months, thus raising the average temperature for both.  It could also be that an unusually warm May will also cause a warmer June, especially in coastal areas.  This would be due to the ocean having a higher starting temperature in June when we would expect increased solar radiation due to the changing angle of the earth.
 
