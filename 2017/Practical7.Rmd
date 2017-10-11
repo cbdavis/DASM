@@ -172,7 +172,7 @@ t
 
 ### Exercise 2
 
-Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) and load it into R.  This contains daily data on the internet traffic from November 20, 2004 until January 27, 2005.  
+Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Practical7_time_series.txt) and load it into R.  This contains daily data on the internet traffic from November 20, 2004 until January 27, 2005.  
 
 * Add to the data a vector of the times corresponding to each data point
 * Create a line plot of the amount of traffic per day
@@ -209,6 +209,8 @@ Arguments:
 ### Example
 
 Again we use the internet search 
+
+**TODO** talk about using different values for freq, since we have multiple periods, give some examples
 
 Using `freq = 365` means that you have 365 observations per cycle (i.e. per year), so the period of the seasonal variation is just 365.
 
@@ -355,7 +357,7 @@ lag(a, 3)
 
 As you can see we push all the values over three places and fill in the left side with `NA`.  The values 8, 9 and 10 are discarded since they are pushed out.
 
-Here we shift the values for `co2_ppm` in `co2_vals` by seven days.  We use the `mutate()` function to create a new column named `lag_3` in the data frame.  
+Here we shift the values for `volume` in `sustainability` by seven days.  We use the `mutate()` function to create a new column named `lag_3` in the data frame.  
 ```{r}
 sustainability_search_volume_lag7 = sustainability %>% mutate(lag_7 = lag(volume, 7))
 ```
