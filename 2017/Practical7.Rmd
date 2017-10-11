@@ -140,23 +140,26 @@ t.obj1 - t.obj2
 
 ### Example
 
-For this example, download the [lynx.csv](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/lynx.csv) data set and load it into R.  Once you read it in, you'll have a data frame with a single column `x` which is specified in the csv file itself.
-```{r, echo=FALSE}
-Tvalues = read.csv("./data/lynx.csv")
-```
-```{r, eval=FALSE}
-Tvalues = read.csv("lynx.csv")
-```
-
-As we showed in the previous practical, we can create a sequence of dates (using `seq`), starting at one date with a defined time interval for each step.  This data set describes the number of lynx caught each year on the MacKenzie River from 1821 to 1934.
+The example we'll use throughout this practical is based on [Google Trends](https://trends.google.com/trends/explore) data for the number of daily searches for the term "sustainability" for the period January 1, 2014 until October 8, 2017.  Once you read it in, you'll have a data frame with a single column `volume` which is specified in the csv file itself.
 
 ```{r}
-Tvalues$t = seq(from = as.Date("1821-01-01"), to = as.Date("1934-01-01"), by = "1 year")
+sustainability = read.csv("https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/sustainability.csv")
+
+Tvalues = data.frame(volume = sustainability$volume)
 ```
+
+As we showed in the previous practical, we can create a sequence of dates (using `seq`), starting at one date with a defined time interval for each step.  
+
+```{r}
+Tvalues$t = seq(from = as.Date("2014-01-01"), to = as.Date("2017-10-08"), by = "1 day")
+```
+
 Now we plot the data:
-```{r}
-ggplot(Tvalues, aes(x=t, y=x)) + geom_line()
+```{r, fig.width=16}
+ggplot(Tvalues, aes(x=t, y=volume)) + geom_line()
 ```
+
+From this we can see that there's a weekly pattern and a seasonal pattern where we get peaks in the spring and fall.
 
 ### Exercise 1
 
@@ -205,21 +208,19 @@ Arguments:
 
 ### Example
 
-Here we use data from [co2.csv](https://github.com/cbdavis/DASM/raw/master/2017/data/co2.csv) which contains CO$_2$ measurements from the Mauna Loa observatory from January 1959 until December 1997, with values for each month.
+Again we use the internet search 
 
-Using `freq = 12` means that you have 12 observations per cycle (i.e. per year), so the period of the seasonal variation is just 12.
+Using `freq = 365` means that you have 365 observations per cycle (i.e. per year), so the period of the seasonal variation is just 365.
 
 ```{r}
-co2_vals = read.csv("https://github.com/cbdavis/DASM/raw/master/2017/data/co2.csv")
-
-t_ser <- ts(co2_vals$co2_ppm, start = c(1959, 1), freq = 12)
+t_ser <- ts(Tvalues$volume, start = c(2014, 1), freq = 365)
 plot(t_ser)
 ```
 
 You can also define a time series without a start date.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation.  Looking at the x axis, we see that there are nearly 40 years of observations.
 
 ```{r}
-t_ser1 <- ts(co2_vals$co2_ppm, freq = 12)
+t_ser1 <- ts(Tvalues$volume, freq = 365)
 plot(t_ser1)
 ```
 
@@ -264,26 +265,26 @@ Arguments:
 
 ### Example
 
-Here we create a single moving average on the `lynx.csv` data we loaded in above.
+Here we create a single moving average on the sustainability search data we loaded in above.
 
 ```{r}
-ma5 = ma(Tvalues$x, order = 5)
+ma5 = ma(Tvalues$volume, order = 5)
 ```
 
 To demonstrate what is being calculated, the third element of the moving average is the average of elements 1:5 in the original data (k=2, so we include data 2 places to the left and right).  The seventh element of the moving average is the average of elements 5:9 in the original data.  
 ```{r}
 ma5[3]
-mean(Tvalues$x[1:5])
+mean(Tvalues$volume[1:5])
 
 ma5[7]
-mean(Tvalues$x[5:9])
+mean(Tvalues$volume[5:9])
 ```
 
 Here we can create a new data frame, where we add new columns to `Tvalues` that contain two moving averages.  For this, we use the `dplyr` package along with the `mutate` function to add two new columns: `ma5` and `ma13`.
 ```{r}
 Tvalues_with_ma = Tvalues %>% 
-  mutate(ma5 = ma(x, order = 5), 
-         ma13 = ma(x, order = 13))
+  mutate(ma5 = ma(volume, order = 5), 
+         ma13 = ma(volume, order = 13))
 ```
 
 Here we use `head` with `n=10` to look at the first ten rows of the resulting data frame:
@@ -300,13 +301,19 @@ The first few values of `ma5` and `ma13` are `NA` due to this averaging on the l
 
 Now we can plot everything and see how the moving averages compare to the original data.  Note that in the `geom_line` statements, we only specify the value for `y` since the data frame and `x` have already been specified with `ggplot(Tvalues_with_ma, aes(x=t))`
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, fig.width=12}
 ggplot(Tvalues_with_ma, aes(x=t)) + 
-  geom_line(aes(y=x, color="original data"), size=2) + 
-  geom_line(aes(y=ma5, color="ma5")) + 
-  geom_line(aes(y=ma13, color="ma13")) + 
-  xlim(c(as.Date("1821-01-01"), 
-         as.Date("1860-01-01"))) # Just show data from 1821-1860, otherwise the plot is too cluttered
+  geom_line(aes(y = volume, 
+                color="original data"), 
+            size=2) + 
+  geom_line(aes(y = ma(volume, 
+                       order = 7), 
+                color="ma7")) + 
+  geom_line(aes(y = ma(volume, 
+                       order = 90), 
+                color="ma90")) + 
+  xlim(c(as.Date("2014-01-01"), 
+         as.Date("2014-06-01"))) # Just show a limited range of data, otherwise the plot is too cluttered
 
 ```
 
@@ -348,14 +355,14 @@ lag(a, 3)
 
 As you can see we push all the values over three places and fill in the left side with `NA`.  The values 8, 9 and 10 are discarded since they are pushed out.
 
-Here we shift the values for `co2_ppm` in `co2_vals` by three months.  We use the `mutate()` function to create a new column named `lag_3` in the data frame.  
+Here we shift the values for `co2_ppm` in `co2_vals` by seven days.  We use the `mutate()` function to create a new column named `lag_3` in the data frame.  
 ```{r}
-co2_vals_lag3 = co2_vals %>% mutate(lag_3 = lag(co2_ppm, 3))
+sustainability_search_volume_lag7 = sustainability %>% mutate(lag_7 = lag(volume, 7))
 ```
 
-Looking at the first few rows of the data frame, we can see how `NA` values are inserted at first, with the lagged values starting at row 4:
+Looking at the first few rows of the data frame, we can see how `NA` values are inserted at first, with the lagged values starting at row 8:
 ```{r}
-head(co2_vals_lag3)
+head(sustainability_search_volume_lag7, n=15)
 ```
 
 Below we try to visually investigate if there might be a correlation between the original data and different lag amounts.  In other words, if they are correlated, we would expect to see the points arranged in nearly a straight line.
@@ -363,33 +370,47 @@ Below we try to visually investigate if there might be a correlation between the
 Instead of creating a new data frame for each different lag value, we just pass the results directly to ggplot using `data = Tvalues %>% mutate(lag_x = lag(x, 3))`
 
 ```{r, warning=FALSE}
-## data shifted 3 months
-ggplot(data = co2_vals %>% mutate(lag_x = lag(co2_ppm, 3)), 
-       aes(x=co2_ppm, y=lag_x)) + 
+## data shifted 3 days
+ggplot(data = sustainability %>% mutate(lag_x = lag(volume, 3)), 
+       aes(x=volume, y=lag_x)) + 
   geom_point()
 
-## data shifted 6 months
-ggplot(data = co2_vals %>% mutate(lag_x = lag(co2_ppm, 6)), 
-       aes(x=co2_ppm, y=lag_x)) + 
+## data shifted 7 days
+ggplot(data = sustainability %>% mutate(lag_x = lag(volume, 7)), 
+       aes(x=volume, y=lag_x)) + 
   geom_point()
 
-## data shifted 10 months
-ggplot(data = co2_vals %>% mutate(lag_x = lag(co2_ppm, 10)), 
-       aes(x=co2_ppm, y=lag_x)) + 
+## data shifted 3 months (84 days = 7 days * 12 weeks)
+ggplot(data = sustainability %>% mutate(lag_x = lag(volume, 84)), 
+       aes(x=volume, y=lag_x)) + 
   geom_point()
 
-## data shifted 12 months
-ggplot(data = co2_vals %>% mutate(lag_x = lag(co2_ppm, 12)), 
-       aes(x=co2_ppm, y=lag_x)) + 
+## data shifted 6 months (182 days = 7 days * 26 weeks)
+ggplot(data = sustainability %>% mutate(lag_x = lag(volume, 182)), 
+       aes(x=volume, y=lag_x)) + 
+  geom_point()
+
+## data shifted 12 months (364 days)
+ggplot(data = sustainability %>% mutate(lag_x = lag(volume, 364)), 
+       aes(x=volume, y=lag_x)) + 
+  geom_point()
+```
+
+Note that changing the lag by one day (365 instead of 364) can make a big difference, depending on the nature of your time series data.  In our case, this is due to a very strong weekly pattern.
+
+```{r}
+## data shifted 12 months (365 days)
+ggplot(data = sustainability %>% mutate(lag_x = lag(volume, 365)), 
+       aes(x=volume, y=lag_x)) + 
   geom_point()
 ```
  
 ### Exercise
 
-Again use the data from [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) with the time values added in as shown above.  Using a lag of 10, show the actual correlation (scatter) plot.
+Again use the data from [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/data/Practical7_time_series.txt) with the time values added in as shown above.  Using a lag of 7, show the actual correlation (scatter) plot.
 
 ```{r, echo=FALSE, warning=FALSE}
-ggplot(data = series2 %>% mutate(lag_x = lag(x, 10)), 
+ggplot(data = series2 %>% mutate(lag_x = lag(x, 7)), 
        aes(x = x, y = lag_x)) + 
   geom_point()
 ```
@@ -424,17 +445,21 @@ Arguments:
 
 ### Example
 
-Using the `lynx.csv` data, we estimate the autocorrelation with a maximum lag of 64.
+Using the sustainability search data, we estimate the autocorrelation with a maximum lag of 30.
 
-```{r, eval=FALSE}
-Tvalues = read.csv("lynx.csv")
-acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
-```
-```{r, echo=FALSE}
-Tvalues = read.csv("./data/lynx.csv")
-acf_T = acf(Tvalues,type = "correlation", lag.max = 64)
+```{r}
+acf_T = acf(Tvalues$volume, type = "correlation", lag.max = 30)
 ```
 
+This shows that the time series data is highly correlated on a weekly basis.
+
+Now we try the same with a lag of 400:
+
+```{r}
+acf_T = acf(Tvalues$volume, type = "correlation", lag.max = 400)
+```
+
+This shows that we have a very strong repeating weekly pattern throughout the year, while there is also a correlation between the first and second halves of the year, in addition to a correlation for a yearly pattern.
 
 If you want to look at a specific value at a certain lag (say lag=10), you can use:
 ```{r}
@@ -469,11 +494,12 @@ By default, an additive model is performed if no value is specified for `type`.
 
 ### Example
 
-Here we use the `co2_ppm` data.
+Here we use the sustainability search data.
 
-```{r}
-## create a time series object with frequency of 1, since we're dealing with yearly data
-t_ser1 <- ts(co2_vals$co2_ppm, freq = 12)
+```{r, fig.width=12}
+## create a time series object with frequency of 7, since there is a strong weekly pattern in the data
+# this means that we consider a "season" or period to be 7 days.
+t_ser1 <- ts(sustainability$volume, freq = 7)
 output = decompose(t_ser1)
 plot(output)
 ```
@@ -485,23 +511,24 @@ The underlying data is available as a set of four vectors:
 * `output$trend` - the overall trend
 * `output$random` - the random noise
 
-Now deseasonalize the data.  This shows the noise (`random`) + the `trend`
-```{r}
+Now deseasonalize the data.  This shows the noise (`random`) + the `trend`.  The numbers on the `Time` axis of the plot refers to weeks, since we specified `freq=7` when creating the time series object above.  However, when we specify the lag (`lag.max`), this doesn't refer to the period of the data, but rather the interval on which it was sampled (a lag of 7 means seven days).
+
+```{r, fig.width=12}
 ## subtract the original time series from the seasonal component
 t_des <- output$x - output$seasonal
 ## plot the deseasonalized data
 plot(t_des)
 ## Find the ACF of the random component of the time series data
-acf_des <- acf(as.numeric(output$random), type = "correlation", lag.max = 128, na.action=na.omit)
+acf_des <- acf(as.numeric(output$random), type = "correlation", lag.max = 400, na.action=na.omit)
 ```
 
 Note that if you don't use `as.numeric` as shown above, the values on the x axis will be based on the cycle number, which for this data set represents the year.  In the plot above, the numbers correspond to the months.
 
-```{r}
-acf_des <- acf(output$random, type = "correlation", lag.max = 128, na.action=na.omit)
-```
+We see that there's also a seasonal component in the `trend` data, and we can run `acf()` on that as well:
 
-What we see above is that there is still some seasonality in the calculated random noise component, but not very much.
+```{r, fig.width=12}
+acf_des <- acf(output$trend, type = "correlation", lag.max = 400, na.action=na.omit)
+```
 
 What would happen if we analyzed a time series composed of completely random values?
 ```{r}
@@ -563,11 +590,11 @@ There is an optional outer loop, that provides robustness. This is recommended i
 
 ### Example
 
-We again use the `co2_vals` data.
+We again use the sustainability search data.
 
-```{r}
-t_ser1 <- ts(co2_vals$co2_ppm, freq = 12)
-output1 = stl(t_ser1, s.window = 15, t.window = 12*15+1)
+```{r, fig.width=12}
+t_ser1 <- ts(sustainability$volume, freq = 7)
+output1 = stl(t_ser1, s.window = 25, t.window = (1.5 * 7)/(1 - 1/7))
 plot(output1)
 ```
 
@@ -588,14 +615,12 @@ Note that the original data is not included in `output1`.  In this example, we w
 
 We now take the remainder and see the auto-correlation:  
 
-```{r}
+```{r, fig.width=12}
 t_rem <- output1$time.series[,"remainder"]
-acf_rem <-acf(as.numeric(t_rem), type = "correlation", lag.max = 64)
+acf_rem <-acf(as.numeric(t_rem), type = "correlation", lag.max = 400)
 ```
 
-**TODO** update description
-
-With this we can see some coherence, such as if one month was warmer than average, the next month is likely to be warmer than average as well.  This is separate from the seasonal pattern.   Part of the reason for this is that a heat wave that lasts a week or two could span the borders of two months, thus raising the average temperature for both.  It could also be that an unusually warm May will also cause a warmer June, especially in coastal areas.  This would be due to the ocean having a higher starting temperature in June when we would expect increased solar radiation due to the changing angle of the earth.
+This shows us that there is still a seasonal (yearly) pattern remaining in the random component of the time series.
 
 ### Exercise
 
