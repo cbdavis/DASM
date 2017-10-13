@@ -171,7 +171,7 @@ t
 
 ### Exercise 2
 
-Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/2017data/Practical7_time_series.txt) and load it into R.  This contains daily data on the internet traffic from November 20, 2004 until January 27, 2005.  
+Download the file [Practical7_time_series.txt](https://raw.githubusercontent.com/cbdavis/DASM/master/2017/data/Practical7_time_series.txt) and load it into R.  This contains daily data on the internet traffic from November 20, 2004 until January 27, 2005.  
 
 * Add to the data a vector of the times corresponding to each data point
 * Create a line plot of the amount of traffic per day
