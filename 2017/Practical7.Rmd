@@ -598,7 +598,7 @@ output1 = stl(t_ser1, s.window = 25, t.window = (1.5 * 7)/(1 - 1/7))
 plot(output1)
 ```
 
-On the right of the plot you will see several gray bars.  These give an indication of the scale of the different plots.  For example, the width of the bar on the `trend`  plot corresponds to the same range as the smaller gray bar on the `data` plot.  In other words, the trend is much smaller than the `data` values.  We can also see that the `trend` is also much smaller than the noise (i.e. the `remainder`.)
+On the right of the plot you will see several gray bars.  These give an indication of the scale of the different plots.  For example, the width of the bar on the `trend`  plot corresponds to the same range as the smaller gray bar on the `data` plot.  In other words, the trend is a little smaller than the `data` values.  We can also see that the `trend` is only a little bigger than the noise (i.e. the `remainder`.)
 
 To extract the different parts of the decomposed time series, we will need to use a different syntax than we did with the `decompose` function.  First we look at the first few rows of the `time.series` matrix associated with `output1`:
 ```{r}

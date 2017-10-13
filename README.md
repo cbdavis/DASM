@@ -9,7 +9,7 @@ This is the collection of R Tutorials for the [Data Analysis and Statistical Met
 * [Practical 4](http://cbdavis.github.io/DASM/2017/Practical4.html) - Hypothesis testing, t-tests, test for equality in variance.
 * [Practical 5](http://cbdavis.github.io/DASM/2017/Practical5.html) - Cross-tabulation, Chi-square test for goodness of fit, Chi-square test of independence, Quantile-Quantile Plots, One-way ANOVA test, Monte Carlo Simulation
 * [Practical 6](http://cbdavis.github.io/DASM/2017/Practical6.html) - Linear fitting, regression diagnostics, reduced major axis regression, multiple regression, replacing values with NA
-* (more forthcoming)
+* [Practical 7](http://cbdavis.github.io/DASM/2017/Practical7.html) - Dates and Times, Time Series Objects, Moving Averages, Lagging Time Values, Auto- and Cross- Covariance and -Correlation Function Estimation, Decomposition, Seasonal Decomposition of Time Series by Loess (stl)
 
 # 2016
 
