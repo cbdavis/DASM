@@ -214,7 +214,7 @@ t_ser <- ts(Tvalues$volume, start = c(2014, 1), freq = 365)
 plot(t_ser)
 ```
 
-You can also define a time series without a start date.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation.  Looking at the x axis, we see that there are nearly 40 years of observations.
+You can also define a time series without a start date.  Now the values on the x axis correspond to the cycle number, which in this case refers to the number of years after the first observation.  Looking at the x axis, we see that there are over 4 years of observations.
 
 ```{r}
 t_ser1 <- ts(Tvalues$volume, freq = 365)
