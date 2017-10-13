@@ -608,7 +608,7 @@ In order to access these, we need to use the following syntax:
 * `output1$time.series[,"trend"]`
 * `output1$time.series[,"remainder"]`
 
-Note that the original data is not included in `output1`.  In this example, we would have to access it using `Tvalues$x` which contains the vector of values.  Alternatively, we could use `t_ser1` if we want the values which are associated with specific times.  In other words, `Tvalues$x` is a time series of temperatures (with no explicit information about when the temperatures were observed), while `t_ser1` is a time series of temperatures with months associated with each observation.
+Note that the original data is not included in `output1`.  In this example, we would have to access it using `sustainability$volume` which contains the vector of values.  
 
 We now take the remainder and see the auto-correlation:  
 
