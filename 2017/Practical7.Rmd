@@ -207,9 +207,7 @@ Arguments:
 
 ### Example
 
-Again we use the internet search 
-
-Using `freq = 365` means that you have 365 observations per cycle (i.e. per year), so the period of the seasonal variation is just 365.
+Again we use the sustainability search data.  We are using `freq = 365` which means that you have 365 observations per cycle (i.e. per year), so the period of the seasonal variation is just 365.
 
 ```{r}
 t_ser <- ts(Tvalues$volume, start = c(2014, 1), freq = 365)
@@ -298,7 +296,7 @@ We can now see the effects of the different values of `order` in the `ma` functi
 
 The first few values of `ma5` and `ma13` are `NA` due to this averaging on the left and right of the data point.  For example, the first data point, does not have another data point to the left, so the average is defined as `NA`.
 
-Now we can plot everything and see how the moving averages compare to the original data.  Note that in the `geom_line` statements, we only specify the value for `y` since the data frame and `x` have already been specified with `ggplot(Tvalues_with_ma, aes(x=t))`
+Below we show how moving averages compare to the original data, where we plot a moving average of length 7 (1 week), and another moving average of length 90 (3 months).  Note that in the `geom_line` statements, we only specify the value for `y` since the data frame and `x` have already been specified with `ggplot(Tvalues_with_ma, aes(x=t))`
 
 ```{r, warning=FALSE, fig.width=12}
 ggplot(Tvalues_with_ma, aes(x=t)) + 
@@ -354,7 +352,7 @@ lag(a, 3)
 
 As you can see we push all the values over three places and fill in the left side with `NA`.  The values 8, 9 and 10 are discarded since they are pushed out.
 
-Here we shift the values for `co2_ppm` in `co2_vals` by seven days.  We use the `mutate()` function to create a new column named `lag_3` in the data frame.  
+Here we shift the values for `volume` in `sustainability` by seven days.  We use the `mutate()` function to create a new column named `lag_7` in the data frame.  
 ```{r}
 sustainability_search_volume_lag7 = sustainability %>% mutate(lag_7 = lag(volume, 7))
 ```
@@ -366,7 +364,7 @@ head(sustainability_search_volume_lag7, n=15)
 
 Below we try to visually investigate if there might be a correlation between the original data and different lag amounts.  In other words, if they are correlated, we would expect to see the points arranged in nearly a straight line.
 
-Instead of creating a new data frame for each different lag value, we just pass the results directly to ggplot using `data = Tvalues %>% mutate(lag_x = lag(x, 3))`
+Instead of creating a new data frame for each different lag value, we just pass the results directly to ggplot using statements like `data = sustainability %>% mutate(lag_x = lag(volume, 3))`
 
 ```{r, warning=FALSE}
 ## data shifted 3 days
